@@ -63410,15 +63410,32 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       let hex = variantColor(base?.color ?? 0xffffff, blockId, variant);
 
       // ノイズ描画ヘルパー
+      // 【テクスチャ】16×16 のドット絵風: 乱数は「ブロックID・種類・面」から決まる固定の種を使う(毎回同じ見た目になる)。
+      // 明るい点・暗い点・2マス連なった「小石」を、元の色に重ねる。1マス=4px(64pxの画像を NearestFilter で表示)。
+      let _fnSeed = 0;
+      { let fc = 0; for (let i = 0; i < String(face).length; i++) fc = (fc * 31 + String(face).charCodeAt(i)) >>> 0;
+        _fnSeed = ((blockId * 2654435761) ^ ((variant | 0) * 40503) ^ fc) >>> 0; }
+      const _fnRnd = () => { _fnSeed = (Math.imul(_fnSeed, 1664525) + 1013904223) >>> 0; return _fnSeed / 4294967296; };
       function fillNoise(colorHex, density, intensity) {
         ctx.fillStyle = toHexCSS(colorHex);
         ctx.fillRect(0, 0, size, size);
-        for (let i = 0; i < 500; i++) {
-          const x = Math.floor(Math.random() * (size / 4)) * 4;
-          const y = Math.floor(Math.random() * (size / 4)) * 4;
-          const shade = Math.random() > 0.5 ? 1 : -1;
-          ctx.fillStyle = shade === 1 ? `rgba(255,255,255,${intensity})` : `rgba(0,0,0,${intensity})`;
-          ctx.fillRect(x, y, 4, 4);
+        const cell = 4, n = size / cell;
+        const amp = Math.min(0.42, intensity * 2.2);
+        for (let gy = 0; gy < n; gy++) {
+          for (let gx = 0; gx < n; gx++) {
+            const r = _fnRnd();
+            if (r < 0.30) { ctx.fillStyle = `rgba(0,0,0,${(amp * (0.45 + _fnRnd() * 0.55)).toFixed(3)})`; ctx.fillRect(gx * cell, gy * cell, cell, cell); }
+            else if (r < 0.58) { ctx.fillStyle = `rgba(255,255,255,${(amp * 0.8 * _fnRnd()).toFixed(3)})`; ctx.fillRect(gx * cell, gy * cell, cell, cell); }
+          }
+        }
+        // 小石・斑点(2マス連なった濃い点)
+        const pebbles = 3 + Math.round(density * 24);
+        for (let i = 0; i < pebbles; i++) {
+          const gx = Math.floor(_fnRnd() * (n - 1)), gy = Math.floor(_fnRnd() * n);
+          ctx.fillStyle = `rgba(0,0,0,${(amp * 0.95).toFixed(3)})`;
+          ctx.fillRect(gx * cell, gy * cell, cell * 2, cell);
+          ctx.fillStyle = `rgba(255,255,255,${(amp * 0.5).toFixed(3)})`;
+          ctx.fillRect(gx * cell, gy * cell, cell * 2, 1);
         }
       }
 
@@ -68471,6 +68488,31 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       return tex;
     }
 
+        // 【テクスチャ】モブの体用: 色に、16×16 のドット絵風の毛・皮のムラ(固定の種)を重ねたマテリアル。色ごとに作り回す。
+    const _mobSkinCache = new Map();
+    let _mobSkinTex = null;
+    function mobSkinMat(color) {
+      let m = _mobSkinCache.get(color);
+      if (m) return m;
+      if (!_mobSkinTex) {
+        const c = document.createElement('canvas'); c.width = 16; c.height = 16;
+        const g = c.getContext('2d');
+        let s = 20261114;
+        const rnd = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+          const r = rnd();
+          const v = r < 0.25 ? 205 + Math.floor(rnd() * 20) : (r < 0.8 ? 238 + Math.floor(rnd() * 12) : 255);
+          g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')'; g.fillRect(x, y, 1, 1);
+        }
+        _mobSkinTex = new THREE.CanvasTexture(c);
+        _mobSkinTex.magFilter = THREE.NearestFilter; _mobSkinTex.minFilter = THREE.NearestFilter;
+        _mobSkinTex.colorSpace = THREE.SRGBColorSpace;
+      }
+      m = new THREE.MeshLambertMaterial({ color, map: _mobSkinTex });
+      _mobSkinCache.set(color, m);
+      return m;
+    }
+
     function createMobMesh(type, profession) {
       const def = MOB_TYPES[type];
       const group = new THREE.Group();
@@ -68482,7 +68524,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (type === 'villager' && profession && VILLAGER_PROFESSIONS[profession]) {
         bodyColor = VILLAGER_PROFESSIONS[profession].robeColor;
       }
-      const bodyMat = new THREE.MeshLambertMaterial({ color: bodyColor });
+      const bodyMat = mobSkinMat(bodyColor);
       const body = new THREE.Mesh(bodyGeo, bodyMat);
       body.position.y = (type === 'villager') ? 0.96 : def.h * 0.6; // 脚の分浮かす
       group.add(body);
@@ -68494,7 +68536,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // 顔テクスチャを前面(Z-)に適用するためのマテリアル配列
       // BoxGeometryの面順序: px, nx, py, ny, pz, nz
       // 前進方向はZマイナスなので、nz (index 5) が顔
-      const baseHeadMat = new THREE.MeshLambertMaterial({ color: def.headColor });
+      const baseHeadMat = mobSkinMat(def.headColor);
       const faceMat = new THREE.MeshLambertMaterial({ map: createMobFaceTexture(type) });
       const headMat = [baseHeadMat, baseHeadMat, baseHeadMat, baseHeadMat, baseHeadMat, faceMat];
 
@@ -68504,12 +68546,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       group.add(head);
       if (type === 'villager') {
         const noseGeo = new THREE.BoxGeometry(0.16, 0.22, 0.22);
-        const noseMat = new THREE.MeshLambertMaterial({ color: 0x9a6a45 });
+        const noseMat = mobSkinMat(0x9a6a45);
         const nose = new THREE.Mesh(noseGeo, noseMat);
         nose.position.set(0, 1.56, head.position.z - headSize * 0.5 - 0.09);
         group.add(nose);
 
-        const armMat = new THREE.MeshLambertMaterial({ color: 0x6d5034 });
+        const armMat = mobSkinMat(0x6d5034);
         const foldedArmBar = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.33, 0.36), armMat);
         foldedArmBar.position.set(0, 1.06, -0.17);
         foldedArmBar.rotation.x = -0.16;
@@ -68517,13 +68559,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Fox: tail
       if (type === 'fox') {
-        const tailMat = new THREE.MeshLambertMaterial({ color: 0xd47020 });
+        const tailMat = mobSkinMat(0xd47020);
         const tailGeo = new THREE.BoxGeometry(0.15, 0.15, 0.5);
         const tail = new THREE.Mesh(tailGeo, tailMat);
         tail.position.set(0, def.h * 0.55, def.d * 0.5 + 0.2);
         tail.rotation.x = -0.4;
         group.add(tail);
-        const tipMat = new THREE.MeshLambertMaterial({ color: 0xf0e8d8 });
+        const tipMat = mobSkinMat(0xf0e8d8);
         const tipGeo = new THREE.BoxGeometry(0.12, 0.12, 0.15);
         const tip = new THREE.Mesh(tipGeo, tipMat);
         tip.position.set(0, def.h * 0.5, def.d * 0.5 + 0.48);
@@ -68532,7 +68574,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Wolf: tail + snout
       if (type === 'wolf') {
-        const tailMat = new THREE.MeshLambertMaterial({ color: 0xc0c0b8 });
+        const tailMat = mobSkinMat(0xc0c0b8);
         const tailGeo = new THREE.BoxGeometry(0.1, 0.1, 0.45);
         const tail = new THREE.Mesh(tailGeo, tailMat);
         tail.position.set(0, def.h * 0.65, def.d * 0.5 + 0.2);
@@ -68541,7 +68583,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Cat: tail
       if (type === 'cat') {
-        const tailMat = new THREE.MeshLambertMaterial({ color: 0xc8a030 });
+        const tailMat = mobSkinMat(0xc8a030);
         const tailGeo = new THREE.BoxGeometry(0.08, 0.08, 0.5);
         const tail = new THREE.Mesh(tailGeo, tailMat);
         tail.position.set(0, def.h * 0.6, def.d * 0.5 + 0.2);
@@ -68550,7 +68592,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Turtle: shell (big dome on back)
       if (type === 'turtle') {
-        const shellMat = new THREE.MeshLambertMaterial({ color: 0x3a6a3a });
+        const shellMat = mobSkinMat(0x3a6a3a);
         const shellGeo = new THREE.BoxGeometry(0.65, 0.25, 0.7);
         const shell = new THREE.Mesh(shellGeo, shellMat);
         shell.position.set(0, def.h * 0.75, 0);
@@ -68558,14 +68600,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Horse: neck + mane
       if (type === 'horse') {
-        const neckMat = new THREE.MeshLambertMaterial({ color: 0x7a4a20 });
+        const neckMat = mobSkinMat(0x7a4a20);
         const neckGeo = new THREE.BoxGeometry(0.3, 0.6, 0.25);
         const neck = new THREE.Mesh(neckGeo, neckMat);
         neck.position.set(0, def.h * 0.85, -def.d * 0.4);
         neck.rotation.x = 0.3;
         group.add(neck);
         // Mane
-        const maneMat = new THREE.MeshLambertMaterial({ color: 0x2a1a08 });
+        const maneMat = mobSkinMat(0x2a1a08);
         const maneGeo = new THREE.BoxGeometry(0.06, 0.5, 0.2);
         const mane = new THREE.Mesh(maneGeo, maneMat);
         mane.position.set(0, def.h * 0.95, -def.d * 0.35);
@@ -68573,7 +68615,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       // Rabbit: ears (3D)
       if (type === 'rabbit') {
-        const earMat = new THREE.MeshLambertMaterial({ color: 0xb09070 });
+        const earMat = mobSkinMat(0xb09070);
         const earGeo = new THREE.BoxGeometry(0.06, 0.2, 0.05);
         const earL = new THREE.Mesh(earGeo, earMat);
         earL.position.set(-0.08, def.h * 1.05, -def.d * 0.5 - 0.08);
@@ -68587,7 +68629,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const legW = type === 'chicken' ? 0.08 : (type === 'villager' ? 0.24 : 0.2);
       const legH = def.h * (type === 'villager' ? 0.40 : 0.4);
       const legGeo = new THREE.BoxGeometry(legW, legH, legW);
-      const legMat = new THREE.MeshLambertMaterial({ color: def.legColor });
+      const legMat = mobSkinMat(def.legColor);
 
       const legPositions = [];
       if (type === 'chicken' || type === 'rabbit') {
