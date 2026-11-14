@@ -63398,6 +63398,231 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       return canvas;
     }
 
+    /* ===== 【テクスチャ】アイテムのドット絵(16×16 を 4倍で表示) =====
+       全部オリジナルの絵(外部画像・公式の素材は使っていない)。コードで1マスずつ描き、最後に自動で黒っぽい縁取りを付ける。
+       担当するのは isBlock:false のアイテム。ここで描けないものは、従来の描き方へ回る(_drawPixelItem が false を返す)。 */
+    const _PX_MAT = {
+      Wooden:  { m: '#b58a52', l: '#d9b179', d: '#7a5530' },
+      Stone:   { m: '#8c8f94', l: '#bcbfc4', d: '#5b5e63' },
+      Iron:    { m: '#d3d6d9', l: '#f6f7f8', d: '#8b9096' },
+      Gold:    { m: '#f4c430', l: '#fff29a', d: '#b8860b' },
+      Diamond: { m: '#35d6d0', l: '#b0fffb', d: '#1a8d98' },
+      Copper:  { m: '#d9814e', l: '#f3ab7d', d: '#9a4e2a' },
+      Coal:    { m: '#44444a', l: '#6a6a72', d: '#1c1c20' },
+    };
+    const _PX_STICK = { m: '#8b5a2b', d: '#5a3a1a', l: '#a97a45' };
+    function _pxShade(hex, f) { // f>0 明るく, f<0 暗く
+      const n = parseInt(hex.slice(1), 16);
+      let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+      if (f >= 0) { r += (255 - r) * f; g += (255 - g) * f; b += (255 - b) * f; } else { r *= 1 + f; g *= 1 + f; b *= 1 + f; }
+      const h = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+      return '#' + h(r) + h(g) + h(b);
+    }
+    function _pxColorOf(num) { return '#' + (num >>> 0).toString(16).padStart(6, '0'); }
+
+    function _drawPixelItem(ctx, size, blockId, def) {
+      if (!def || def.isBlock !== false) return false;
+      const N = 16;
+      const g = []; for (let y = 0; y < N; y++) g.push(new Array(N).fill(null));
+      const P = (x, y, c) => { if (x >= 0 && x < N && y >= 0 && y < N) g[y][x] = c; };
+      const R = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) P(x, y, c); };
+      const SR = (x0, y0, x1, y1, m, l, d) => { R(x0, y0, x1, y1, m); R(x0, y0, x1, y0, l); R(x0, y0, x0, y1, l); R(x0, y1, x1, y1, d); R(x1, y0, x1, y1, d); };
+      const L = (x0, y0, x1, y1, c) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) P(Math.round(x0 + (x1 - x0) * i / Math.max(1, n)), Math.round(y0 + (y1 - y0) * i / Math.max(1, n)), c); };
+      const C = (cx, cy, r, c) => { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = x + 0.5 - cx, dy = y + 0.5 - cy; if (dx * dx + dy * dy <= r * r) P(x, y, c); } };
+      const SYM = (x0, y0, rows, c) => { for (let y = 0; y < rows.length; y++) for (let x = 0; x < rows[y].length; x++) if (rows[y][x] === '#') P(x0 + x, y0 + y, c); };
+      const name = def.name || '';
+      const baseHex = _pxColorOf(def.color || 0xaaaaaa);
+      let done = true;
+
+      // ---- 道具(ツルハシ・斧・シャベル・剣): 柄は茶色、頭は素材の色 ----
+      const toolM = /^(Wooden|Stone|Iron|Gold|Diamond|Copper) (Pickaxe|Axe|Shovel|Sword)$/.exec(name);
+      const armM = /^(Coal|Copper|Iron|Gold|Diamond) (Helmet|Chestplate|Leggings|Boots)$/.exec(name);
+      const eggM = /Spawn Egg$/.test(name);
+      const potionIds = { 322: ['#3f76e4', null], 324: ['#5a4fa8', null], 325: ['#e0343b', 'heart'], 326: ['#b5301f', 'fist'], 327: ['#7fd4ff', 'bolt'], 328: ['#f5902a', 'flame'], 329: ['#2d2fa0', 'eye'], 330: ['#f08cc0', 'heart2'], 331: ['#5fa53a', 'skull'], 332: ['#d8d0e8', 'feather'] };
+      if (toolM) {
+        const mat = _PX_MAT[toolM[1]], t = toolM[2], S = _PX_STICK;
+        if (t === 'Pickaxe') {
+          L(2, 14, 10, 6, S.m); L(3, 14, 11, 6, S.d); L(2, 13, 9, 6, S.l);
+          const arc = [[4, 5], [5, 4], [6, 3], [7, 2], [8, 2], [9, 2], [10, 2], [11, 3], [12, 4], [13, 5], [13, 6]];
+          for (const [x, y] of arc) { P(x, y, mat.m); P(x, y + 1, mat.d); }
+          for (const [x, y] of arc) P(x, y - 0, mat.m);
+          for (let i = 5; i <= 10; i++) P(i + 0, 2, mat.l);
+          P(6, 3, mat.l); P(5, 4, mat.l); P(11, 3, mat.l);
+          P(4, 5, mat.d); P(13, 6, mat.d); P(13, 7, mat.d);
+        } else if (t === 'Axe') {
+          L(2, 14, 9, 7, S.m); L(3, 14, 10, 7, S.d); L(2, 13, 8, 7, S.l);
+          R(9, 2, 11, 2, mat.l); R(8, 3, 12, 3, mat.m); R(8, 4, 13, 4, mat.m); R(9, 5, 13, 5, mat.m); R(10, 6, 12, 6, mat.d);
+          R(8, 3, 8, 4, mat.l); P(13, 4, mat.l); P(13, 5, mat.l); P(9, 5, mat.d); P(9, 2, mat.l);
+        } else if (t === 'Shovel') {
+          L(2, 14, 10, 6, S.m); L(3, 14, 11, 6, S.d); L(2, 13, 9, 6, S.l);
+          R(11, 1, 12, 1, mat.l); R(10, 2, 13, 2, mat.l); R(10, 3, 13, 5, mat.m); R(11, 6, 12, 6, mat.d);
+          R(13, 3, 13, 5, mat.d); R(10, 3, 10, 5, mat.l);
+        } else { // Sword
+          for (let i = 0; i < 9; i++) { P(5 + i, 10 - i, mat.l); P(6 + i, 10 - i, mat.m); P(5 + i, 11 - i, mat.d); }
+          P(14, 1, mat.l); P(14, 2, mat.m);
+          L(3, 9, 7, 13, '#6b4a2a'); L(2, 9, 7, 14, '#8b5a2b'); P(4, 10, '#a97a45');
+          L(2, 14, 4, 12, S.m); L(1, 15, 3, 13, S.d); P(1, 15, '#c8b060');
+        }
+      } else if (armM) {
+        const mat = _PX_MAT[armM[1]], t = armM[2];
+        if (t === 'Helmet') {
+          SR(3, 3, 12, 4, mat.m, mat.l, mat.d); SR(3, 5, 12, 6, mat.m, mat.l, mat.d); R(3, 7, 5, 10, mat.m); R(10, 7, 12, 10, mat.m);
+          R(3, 7, 3, 10, mat.l); R(12, 7, 12, 10, mat.d); R(5, 7, 10, 7, mat.d);
+          R(4, 2, 11, 2, mat.l); R(5, 1, 10, 1, mat.l); R(7, 3, 8, 5, mat.l);
+        } else if (t === 'Chestplate') {
+          SR(2, 2, 5, 6, mat.m, mat.l, mat.d); SR(10, 2, 13, 6, mat.m, mat.l, mat.d);
+          SR(4, 3, 11, 13, mat.m, mat.l, mat.d); R(6, 2, 9, 3, null); R(7, 3, 8, 4, mat.d);
+          R(5, 7, 10, 7, mat.d); R(7, 8, 8, 12, mat.l);
+        } else if (t === 'Leggings') {
+          SR(3, 2, 12, 5, mat.m, mat.l, mat.d); SR(3, 6, 7, 14, mat.m, mat.l, mat.d); SR(8, 6, 12, 14, mat.m, mat.l, mat.d);
+          R(7, 6, 8, 14, null); R(7, 5, 8, 5, mat.d); R(3, 5, 12, 5, mat.d);
+        } else { // Boots
+          SR(2, 8, 6, 13, mat.m, mat.l, mat.d); SR(9, 8, 13, 13, mat.m, mat.l, mat.d);
+          R(1, 12, 7, 14, mat.m); R(8, 12, 14, 14, mat.m); R(1, 12, 7, 12, mat.l); R(8, 12, 14, 12, mat.l); R(1, 14, 7, 14, mat.d); R(8, 14, 14, 14, mat.d);
+          R(2, 6, 6, 7, mat.d); R(9, 6, 13, 7, mat.d);
+        }
+      } else if (eggM) {
+        const _n = parseInt(baseHex.slice(1), 16), _lum = (((_n >> 16) & 255) * 0.3 + ((_n >> 8) & 255) * 0.59 + (_n & 255) * 0.11) / 255;
+        const base = _lum < 0.28 ? _pxShade(baseHex, 0.3) : baseHex, spot = _pxShade(base, -0.5), hi = _pxShade(base, 0.45); // 暗い色のタマゴは少し明るくして見分けやすく
+        const rows = [[6, 9], [5, 10], [4, 11], [4, 11], [3, 12], [3, 12], [3, 12], [3, 12], [3, 12], [4, 11], [4, 11], [5, 10], [6, 9]];
+        for (let i = 0; i < rows.length; i++) R(rows[i][0], 1 + i, rows[i][1], 1 + i, base);
+        let s = (blockId * 2654435761) >>> 0; const rr = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
+        for (let k = 0; k < 6; k++) { const x = 4 + Math.floor(rr() * 8), y = 3 + Math.floor(rr() * 9); if (g[y][x]) R(x, y, Math.min(x + 1, 11), Math.min(y + 1, 13), spot); }
+        for (let i = 0; i < rows.length; i++) { P(rows[i][1], 1 + i, _pxShade(base, -0.25)); }
+        R(5, 3, 6, 3, hi); P(4, 4, hi); P(5, 4, hi);
+      } else if (potionIds[blockId] || blockId === 321) {
+        const info = potionIds[blockId];
+        const liquid = info ? info[0] : null, glass = '#cfe6f2', glassD = '#8fb2c6';
+        R(6, 1, 9, 2, '#9a6a3a'); R(6, 1, 9, 1, '#b98a55');
+        R(6, 3, 9, 4, glass); P(6, 3, '#ffffff'); P(9, 4, glassD);
+        R(4, 5, 11, 13, glass); R(5, 4, 10, 4, glass); R(5, 14, 10, 14, glass);
+        R(4, 13, 11, 13, glassD); R(11, 6, 11, 12, glassD); P(5, 6, '#ffffff'); P(5, 7, '#ffffff');
+        if (liquid) {
+          R(5, 8, 10, 13, liquid); R(6, 14, 9, 14, _pxShade(liquid, -0.25)); R(5, 8, 10, 8, _pxShade(liquid, 0.35)); R(10, 9, 10, 13, _pxShade(liquid, -0.2));
+          const sym = info[1];
+          const S2 = { heart: ['#.#', '###', '.#.'], heart2: ['#.#', '###', '.#.'], fist: ['###', '###', '#.#'], bolt: ['.##', '##.', '.#.'], flame: ['.#.', '###', '###'], eye: ['###', '#.#', '###'], skull: ['###', '#.#', '.#.'], feather: ['..#', '.#.', '#..'] }[sym];
+          if (S2) SYM(6, 10, S2.map(r => r.replace(/\./g, ' ')), 'rgba(255,255,255,0.85)');
+        }
+      } else {
+        switch (blockId) {
+          case 14: // Feather
+            L(3, 13, 12, 3, '#e9e9ee'); L(4, 13, 13, 3, '#cfcfd8'); L(2, 14, 4, 12, '#8a7a5a');
+            R(5, 9, 8, 10, '#f6f6fa'); R(7, 6, 10, 7, '#f6f6fa'); R(9, 4, 12, 5, '#f6f6fa'); R(4, 11, 6, 12, '#dcdce4'); break;
+          case 18: // Stick
+            L(3, 13, 12, 4, _PX_STICK.m); L(4, 13, 13, 4, _PX_STICK.d); L(3, 12, 11, 4, _PX_STICK.l); break;
+          case 29: // Coal
+            C(8, 8, 5.4, '#2a2a2e'); C(7.4, 7.4, 3.6, '#44444a'); R(5, 5, 6, 6, '#6a6a72'); R(10, 9, 10, 10, '#16161a'); R(6, 10, 7, 10, '#16161a'); break;
+          case 30: case 38: case 42: { // Ingots
+            const m = _PX_MAT[blockId === 30 ? 'Iron' : blockId === 38 ? 'Gold' : 'Copper'];
+            SR(2, 6, 13, 11, m.m, m.l, m.d); R(3, 5, 12, 5, m.l); R(13, 6, 14, 10, m.d); R(14, 6, 14, 9, m.d); R(4, 7, 11, 7, m.l); P(5, 8, m.d); P(9, 9, m.d); break; }
+          case 40: case 44: case 215: case 85: { // Diamond / Emerald / Quartz / Lapis
+            const col = blockId === 40 ? '#35d6d0' : blockId === 44 ? '#25c85a' : blockId === 215 ? '#f0ebe0' : '#2a4fbf';
+            const rows = [[6, 9], [4, 11], [3, 12], [3, 12], [4, 11], [5, 10], [6, 9], [7, 8]];
+            for (let i = 0; i < rows.length; i++) R(rows[i][0], 3 + i, rows[i][1], 3 + i, col);
+            R(5, 4, 7, 5, _pxShade(col, 0.55)); P(8, 4, _pxShade(col, 0.3)); R(9, 8, 11, 8, _pxShade(col, -0.3)); R(8, 9, 9, 10, _pxShade(col, -0.35)); P(6, 6, _pxShade(col, 0.45)); break; }
+          case 60: // Gunpowder
+            for (const [x, y] of [[5, 9], [6, 8], [7, 9], [8, 8], [9, 9], [10, 8], [6, 10], [8, 10], [9, 7], [7, 7], [10, 10], [5, 11], [7, 11], [9, 11]]) P(x, y, '#58585e'); for (const [x, y] of [[6, 9], [8, 9], [9, 10], [7, 10], [8, 11]]) P(x, y, '#2e2e34'); break;
+          case 61: // Rotten Flesh
+            R(3, 4, 12, 11, '#7a8f4a'); R(4, 3, 11, 3, '#7a8f4a'); R(4, 12, 11, 12, '#7a8f4a'); R(5, 5, 8, 7, '#a1604a'); R(9, 8, 11, 10, '#a1604a'); R(4, 9, 6, 10, '#5a6e34'); R(7, 11, 9, 11, '#5a6e34'); R(3, 4, 12, 4, '#93a85a'); break;
+          case 83: // Redstone dust
+            for (const [x, y] of [[4, 6], [5, 5], [6, 6], [7, 5], [8, 6], [9, 7], [10, 8], [9, 9], [8, 10], [7, 9], [6, 10], [5, 9], [6, 8], [7, 7]]) P(x, y, '#d62a2a'); for (const [x, y] of [[5, 6], [8, 7], [8, 9], [6, 9]]) P(x, y, '#ff6a5a'); P(10, 9, '#8a1414'); P(4, 7, '#8a1414'); break;
+          case 12: case 86: case 88: case 31: case 87: case 89: { // 生/焼き の 豚・牛・羊
+            const cooked = (blockId === 31 || blockId === 87 || blockId === 89);
+            const kind = (blockId === 12 || blockId === 31) ? 'pork' : (blockId === 86 || blockId === 87) ? 'beef' : 'mutton';
+            const rawCol = { pork: '#f09aa0', beef: '#c4323a', mutton: '#d8626a' }[kind];
+            const cookCol = { pork: '#c98a52', beef: '#8a4a2a', mutton: '#b87a4a' }[kind];
+            const m = cooked ? cookCol : rawCol;
+            const rows = [[5, 11], [3, 12], [2, 13], [2, 13], [3, 13], [3, 12], [4, 11], [5, 9]];
+            for (let i = 0; i < rows.length; i++) R(rows[i][0], 4 + i, rows[i][1], 4 + i, m);
+            for (let i = 0; i < rows.length; i++) { P(rows[i][0], 4 + i, cooked ? '#4a2a14' : '#fff0ee'); P(rows[i][1], 4 + i, cooked ? '#4a2a14' : '#fff0ee'); }
+            R(5, 4, 11, 4, cooked ? '#4a2a14' : '#fff0ee'); R(5, 11, 9, 11, cooked ? '#4a2a14' : '#fff0ee');
+            if (cooked) { L(5, 6, 10, 9, '#4a2a14'); L(5, 8, 9, 11, '#4a2a14'); R(6, 5, 8, 5, _pxShade(m, 0.3)); }
+            else { R(5, 6, 8, 7, _pxShade(m, -0.15)); if (kind === 'beef') R(9, 8, 11, 9, '#fff0ee'); if (kind === 'mutton') R(4, 5, 5, 6, '#fff0ee'); }
+            if (kind === 'mutton') { R(11, 3, 13, 3, '#f2ead8'); R(12, 2, 13, 4, '#f2ead8'); }
+            break; }
+          case 13: case 32: { // 鶏もも肉
+            const m = blockId === 32 ? '#c98a4a' : '#f2c9b6', d = blockId === 32 ? '#7a4a20' : '#d49a86', l = blockId === 32 ? '#e8b574' : '#fde3d4';
+            C(6.5, 6.5, 4.6, m); C(6, 6, 3.2, l); R(8, 8, 9, 9, d);
+            L(9, 9, 13, 13, '#f2ead8'); L(10, 9, 14, 13, '#d8cfb8'); R(13, 12, 14, 14, '#f2ead8'); R(12, 13, 14, 14, '#f2ead8'); break; }
+          case 97: // Flint
+            R(5, 4, 9, 5, '#5a5a62'); R(4, 6, 10, 9, '#4a4a52'); R(6, 10, 11, 12, '#3a3a42'); R(7, 3, 8, 3, '#6e6e78'); R(4, 6, 6, 7, '#7a7a84'); break;
+          case 98: // Flint and Steel
+            R(3, 8, 9, 13, '#44444a'); R(4, 9, 8, 12, '#5e5e66'); R(3, 8, 9, 8, '#7a7a84'); L(8, 7, 13, 3, '#c4c8cc'); L(9, 8, 14, 4, '#8c9096'); R(12, 2, 13, 3, '#ff9a2a'); P(13, 1, '#ffd24a'); break;
+          case 190: // String
+            L(3, 12, 6, 6, '#f2f2f2'); L(6, 6, 10, 10, '#e2e2e2'); L(10, 10, 13, 4, '#f2f2f2'); L(4, 13, 8, 12, '#d0d0d0'); L(8, 12, 12, 13, '#e8e8e8'); break;
+          case 191: // Arrow
+            L(3, 13, 12, 4, '#8b5a2b'); L(4, 13, 13, 4, '#5a3a1a'); R(11, 1, 14, 2, '#8c8f94'); R(12, 3, 14, 4, '#8c8f94'); R(13, 1, 14, 1, '#d3d6d9'); R(12, 2, 13, 3, '#b5b8bd');
+            R(1, 12, 3, 14, '#f2f2f2'); R(2, 11, 4, 13, '#e0e0e8'); R(1, 14, 4, 15, '#c8c8d0'); break;
+          case 192: { // Bow
+            for (let i = 0; i < 12; i++) { const x = 4 + Math.round(Math.sin(i / 11 * Math.PI) * 6); P(x, 2 + i, '#8b5a2b'); P(x + 1, 2 + i, '#5a3a1a'); P(x - 1, 2 + i, '#a97a45'); }
+            L(4, 2, 4, 13, '#e8e8e8'); break; }
+          case 208: // Leather
+            R(4, 3, 12, 12, '#a0642c'); R(3, 5, 4, 8, '#a0642c'); R(12, 5, 13, 8, '#a0642c'); R(5, 4, 11, 4, '#c4864a'); R(4, 11, 12, 12, '#7a4a20'); R(6, 6, 7, 7, '#b27438'); R(9, 8, 10, 9, '#8a5424'); break;
+          case 194: // Spider Eye
+            C(8, 8, 5.4, '#7a1a2a'); C(8, 8, 3.8, '#c43a3a'); R(7, 5, 8, 11, '#2a0a14'); R(6, 7, 9, 9, '#2a0a14'); P(5, 5, '#ff9a8a'); break;
+          case 196: // Ender Pearl: 暗いティールの玉(目なし・つやと渦)
+            C(8, 8, 6, '#06403f'); C(7.6, 7.6, 5, '#0d6b64'); C(7.2, 7.2, 3.6, '#17a08f'); L(5, 10, 10, 6, '#0b8277'); L(6, 11, 11, 8, '#0a4f4a'); R(5, 4, 6, 5, '#7ff5e0'); P(7, 4, '#b8fff2'); P(4, 6, '#4de0cc'); break;
+          case 248: // Eye of Ender: 明るい緑の玉に、大きな目(瞳)と金色の縁
+            C(8, 8, 6.4, '#0a5a2c'); C(8, 8, 5.4, '#18a84a'); C(8, 8, 4.1, '#e8f0c8'); C(8, 8, 2.9, '#0f6b36'); R(7, 5, 8, 11, '#021208'); R(6, 6, 9, 10, '#021208'); P(7, 7, '#9affc8'); P(7, 6, '#9affc8'); R(3, 7, 3, 8, '#f2d84a'); R(12, 7, 12, 8, '#f2d84a'); R(7, 2, 8, 2, '#f2d84a'); R(7, 13, 8, 13, '#f2d84a'); break;
+          case 200: // Phantom Membrane
+            R(3, 6, 13, 9, '#cfd2b8'); R(5, 4, 11, 5, '#cfd2b8'); R(5, 10, 11, 11, '#cfd2b8'); R(4, 7, 12, 8, '#e8ebcf'); L(5, 5, 5, 10, '#9fa38a'); L(8, 4, 8, 11, '#9fa38a'); L(11, 5, 11, 10, '#9fa38a'); break;
+          case 201: // Ghast Tear
+            R(7, 2, 8, 3, '#e8f6f8'); R(6, 4, 9, 6, '#f2fbfc'); R(5, 7, 10, 11, '#f6fdff'); R(6, 12, 9, 13, '#e0f2f6'); R(5, 8, 6, 10, '#ffffff'); R(10, 9, 10, 11, '#b8d8e0'); R(7, 13, 8, 13, '#b8d8e0'); break;
+          case 238: // Blaze Rod
+            L(3, 13, 12, 4, '#e8a020'); L(4, 13, 13, 4, '#a85a10'); L(3, 12, 11, 4, '#ffd24a'); for (const [x, y] of [[6, 10], [8, 8], [10, 6]]) P(x, y, '#fff0a0'); break;
+          case 247: // Blaze Powder
+            for (const [x, y] of [[5, 9], [6, 8], [7, 9], [8, 8], [9, 9], [10, 8], [6, 10], [8, 10], [9, 7], [7, 7], [10, 10], [5, 11], [7, 11], [9, 11]]) P(x, y, '#f2b020'); for (const [x, y] of [[6, 9], [8, 9], [9, 10], [7, 10], [8, 11]]) P(x, y, '#d86a10'); P(7, 8, '#fff2a0'); P(9, 8, '#fff2a0'); break;
+          case 240: // Magma Cream
+            C(8, 8, 5.6, '#5a1a0a'); C(8, 8, 4.4, '#d85a1a'); C(7.4, 7.6, 3, '#f08a2a'); R(5, 5, 6, 6, '#ffd24a'); R(9, 9, 10, 10, '#a83a10'); break;
+          case 239: // Wither Skeleton Skull
+            SR(3, 3, 12, 11, '#3a3a3e', '#5a5a60', '#1a1a1e'); R(5, 12, 10, 13, '#2c2c30'); R(4, 6, 6, 8, '#0a0a0a'); R(9, 6, 11, 8, '#0a0a0a'); R(7, 9, 8, 10, '#1a1a1e'); R(6, 12, 6, 13, '#0a0a0a'); R(9, 12, 9, 13, '#0a0a0a'); break;
+          case 234: // Totem of Undying
+            SR(4, 2, 11, 13, '#d8b84a', '#fff0a0', '#9a7a1a'); R(5, 4, 6, 5, '#2a8a3a'); R(9, 4, 10, 5, '#2a8a3a'); R(6, 8, 9, 9, '#1a1a1a'); R(7, 10, 8, 11, '#2a8a3a'); R(7, 6, 8, 7, '#f0c0a0'); break;
+          case 323: // Nether Wart
+            C(8, 8, 5.4, '#7a1030'); C(8, 8, 4, '#b02848'); for (const [x, y] of [[6, 6], [9, 6], [7, 9], [10, 9], [5, 9]]) R(x, y, x + 1, y + 1, '#e0587a'); R(7, 4, 8, 4, '#3a0818'); break;
+          case 208 + 1000: break;
+          case 108: // Cocoa Beans
+            C(6.5, 8, 3.6, '#5a3216'); C(9.5, 8, 3.6, '#6e3e1c'); R(6, 6, 6, 10, '#3a200c'); R(9, 6, 9, 10, '#4a280e'); P(5, 6, '#8a5a30'); P(8, 6, '#9a6a3a'); break;
+          case 111: case 117: { // 種(小麦・ビートルート)
+            const c1 = blockId === 111 ? '#5aa23a' : '#8a3a4a', c2 = blockId === 111 ? '#3a7a22' : '#5e2230';
+            for (const [x, y] of [[5, 7], [8, 5], [10, 8], [6, 10], [9, 11], [4, 11], [11, 5]]) { R(x, y, x + 1, y + 1, c1); P(x + 1, y + 1, c2); } break; }
+          case 113: // Carrot
+            for (let i = 0; i < 10; i++) { R(4 + i, 11 - i, 5 + i + (i > 6 ? 0 : 1), 12 - i, '#ef8a1a'); } R(3, 11, 4, 12, '#c9680a'); L(11, 4, 13, 2, '#3a9a3a'); L(12, 5, 14, 3, '#2a7a2a'); L(10, 3, 11, 1, '#46b04a'); L(5, 10, 8, 7, '#c9680a'); break;
+          case 115: // Potato
+            C(8, 8.5, 5.6, '#b98a4a'); C(7.6, 8, 4.3, '#d9a95e'); for (const [x, y] of [[6, 7], [9, 9], [8, 6], [5, 10]]) P(x, y, '#8a6228'); break;
+          case 118: // Beetroot
+            C(8, 9, 5, '#8a1a3a'); C(7.6, 8.6, 3.8, '#b02a52'); L(8, 4, 8, 1, '#3a9a3a'); L(8, 4, 5, 2, '#2f8a34'); L(8, 4, 11, 2, '#46b04a'); R(7, 13, 8, 14, '#6a1530'); break;
+          case 121: // Wheat
+            L(8, 14, 8, 6, '#c9a64a'); for (let i = 0; i < 4; i++) { R(6, 2 + i * 2, 7, 3 + i * 2, '#e8c860'); R(9, 3 + i * 2, 10, 4 + i * 2, '#d8b24a'); } R(8, 1, 8, 2, '#e8c860'); break;
+          case 106: // スイカのスライス
+            R(2, 5, 13, 11, '#d83a4a'); R(3, 4, 12, 4, '#d83a4a'); R(2, 12, 13, 12, '#2f8a34'); R(3, 11, 12, 11, '#bfe8a0'); R(1, 9, 14, 11, '#2f8a34'); R(2, 9, 13, 10, '#d83a4a'); R(2, 11, 13, 11, '#bfe8a0');
+            for (const [x, y] of [[4, 6], [7, 7], [10, 6], [6, 9], [11, 9]]) R(x, y, x, y + 1, '#2a1a1a'); break;
+          case 267: // Chorus Fruit
+            C(8, 8, 5.2, '#7a4a8a'); C(7.6, 8, 4, '#a86ac0'); R(6, 6, 7, 7, '#e8c0f0'); R(8, 9, 10, 10, '#5a2a6a'); L(8, 3, 8, 1, '#4a8a3a'); break;
+          case 268: // Popped Chorus Fruit
+            C(8, 8, 5.2, '#e8d4f0'); C(7.6, 8, 3.8, '#f8eefc'); R(5, 5, 6, 6, '#ffffff'); R(9, 9, 10, 10, '#b898c8'); break;
+          case 271: // Elytra
+            L(8, 3, 3, 8, '#8a8a96'); L(8, 3, 13, 8, '#8a8a96'); R(3, 7, 7, 12, '#a8a8b8'); R(9, 7, 13, 12, '#a8a8b8'); R(4, 12, 6, 13, '#8a8a98'); R(10, 12, 12, 13, '#8a8a98'); R(7, 4, 8, 12, '#6a6a78'); R(4, 8, 6, 9, '#c8c8d8'); R(10, 8, 12, 9, '#c8c8d8'); break;
+          case 272: // Shulker Shell
+            R(3, 5, 12, 10, '#c48ad0'); R(4, 4, 11, 4, '#d8a8e0'); R(3, 10, 12, 11, '#8a5a98'); R(5, 6, 10, 8, '#e8c8f0'); R(2, 7, 2, 9, '#8a5a98'); R(13, 7, 13, 9, '#8a5a98'); break;
+          case 190 + 5000: break;
+          default: done = false;
+        }
+      }
+      if (!done) return false;
+
+      // 縁取り(透明マスのうち、不透明マスに隣り合うものを暗い色にする)
+      const out = g.map(r => r.slice());
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+        if (g[y][x]) continue;
+        if ((y > 0 && g[y - 1][x]) || (y < N - 1 && g[y + 1][x]) || (x > 0 && g[y][x - 1]) || (x < N - 1 && g[y][x + 1])) out[y][x] = 'rgba(14,10,8,0.85)';
+      }
+      ctx.clearRect(0, 0, size, size);
+      const cell = size / N;
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (out[y][x]) { ctx.fillStyle = out[y][x]; ctx.fillRect(x * cell, y * cell, cell, cell); }
+      return true;
+    }
+
     function createBlockCanvas(blockId, variant, face) {
       const size = 64;
       const canvas = document.createElement('canvas');
@@ -63408,6 +63633,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       const base = BLOCKS.find(b => b.blockId === blockId);
       let hex = variantColor(base?.color ?? 0xffffff, blockId, variant);
+      if (_drawPixelItem(ctx, size, blockId, base)) return canvas; // アイテムは、専用のドット絵で描く
 
       // ノイズ描画ヘルパー
       // 【テクスチャ】16×16 のドット絵風: 乱数は「ブロックID・種類・面」から決まる固定の種を使う(毎回同じ見た目になる)。
