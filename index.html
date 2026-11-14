@@ -55757,7 +55757,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     const WOOD_FENCE_IDS = new Set([OAK_FENCE_ID, SPRUCE_FENCE_ID, BIRCH_FENCE_ID, ACACIA_FENCE_ID, DARK_OAK_FENCE_ID, CHERRY_FENCE_ID, JUNGLE_FENCE_ID]);
     // テクスチャがclearRectで背景を透過にしているブロック（キューブ全面テクスチャとして描画される際に
     // transparent/alphaTestを設定しないと、透明なはずの部分が黒く塗りつぶされてしまう）
-    const ALPHA_CUTOUT_IDS = new Set([189, 228, 229, 249, 256, 264, 291, 292, 298, 300, 301, 306, 309, 310, 323]);
+    const ALPHA_CUTOUT_IDS = new Set([189, 228, 229, 249, 256, 264, 291, 292, 298, 300, 301, 306, 309, 310, 323, 320]);
     // 立方体ではなく、作物と同じ「交差した2枚板」で描画する植物/鍾乳石系ブロック（炎は本家同様、上下面のない交差板にする）
     const CROP_STYLE_IDS = [112, 114, 116, 119, 189, 228, 229, 256, 298, 300, 301];
     // ブロック全高のテクスチャを使うため、板の中心をブロック中央(0.5)に置くべきもの
@@ -63866,6 +63866,105 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         R(0, 15, 15, 15, '#9a965a');
         if (face === 'top') { R(0, 0, 15, 15, '#2a6a52'); R(0, 0, 15, 1, '#14382c'); R(0, 14, 15, 15, '#14382c'); R(0, 0, 1, 15, '#14382c'); R(14, 0, 15, 15, '#14382c'); R(4, 4, 11, 11, '#0e2a20'); if (blockId === 258) { R(5, 5, 10, 10, '#2ad07a'); R(7, 6, 8, 9, '#031a0c'); P(6, 6, '#a0ffc8'); } }
       }
+      // ---- 特殊ブロック(透過あり。何も塗らないマスは透明) ----
+      else if (blockId === 112 || blockId === 114 || blockId === 116 || blockId === 119) { // 作物
+        const stem = '#3a8a2a', stemL = '#5ab43a', stemD = '#246a1a';
+        if (blockId === 112) { // 小麦: 金色の穂が3本
+          for (const x of [3, 7, 11]) { R(x, 6, x, 15, '#8ab04a'); R(x + 1, 8, x + 1, 15, '#5a8a2a'); for (let k = 0; k < 4; k++) { R(x - 1, 1 + k * 2, x - 1, 2 + k * 2, '#e8c860'); R(x + 1, 2 + k * 2, x + 1, 3 + k * 2, '#d8b24a'); } R(x, 0, x, 7, '#f0d878'); P(x, 0, '#fff0a0'); }
+        } else if (blockId === 114) { // ニンジン: 葉の房と、土から出たオレンジの頭
+          for (const x of [3, 7, 11]) { for (let k = 0; k < 8; k++) { P(x + (k % 2 ? 1 : -1), 4 + k, stem); P(x, 3 + k, stemL); } R(x - 1, 2, x + 1, 3, stemL); P(x, 1, stemL); R(x - 1, 12, x + 1, 14, '#ef8a1a'); R(x, 14, x, 15, '#c9680a'); }
+        } else if (blockId === 116) { // ジャガイモ: 濃い緑の葉と白い花
+          for (const x of [3, 8, 12]) { R(x, 4, x, 15, stemD); R(x - 2, 5, x - 1, 7, stem); R(x + 1, 7, x + 2, 9, stem); R(x - 2, 10, x - 1, 12, stemL); R(x - 1, 2, x + 1, 4, stemL); P(x, 1, '#f4f0e0'); P(x - 1, 2, '#f4f0e0'); }
+        } else { // ビートルート: 赤い茎と暗い緑の葉
+          for (const x of [3, 7, 11]) { R(x, 6, x, 15, '#a02a3a'); R(x - 2, 3, x - 1, 6, '#2f7a34'); R(x + 1, 2, x + 2, 5, '#3a9a40'); R(x - 1, 1, x, 3, '#46b04a'); P(x - 2, 3, '#7a1a2a'); R(x - 1, 14, x + 1, 15, '#8a1a3a'); }
+        }
+      }
+      else if (blockId === 103) { // つる(Vines)
+        for (let x = 0; x < N; x++) { const len = 4 + Math.floor(rnd() * 11); for (let y = 0; y < len; y++) if (rnd() < 0.85) P(x, y, y % 3 === 0 ? '#2a6a22' : (rnd() < 0.5 ? '#3e8a30' : '#52a63e')); }
+        for (let k = 0; k < 12; k++) { const x = Math.floor(rnd() * 16), y = Math.floor(rnd() * 12); if (g[y][x]) P(x, y, '#78c85a'); }
+      }
+      else if (blockId === 228 || blockId === 229) { // クリムゾン/ワープドの菌
+        const cap = blockId === 228 ? '#c8283a' : '#1aa89c', capL = blockId === 228 ? '#f0586a' : '#4ae0d0', capD = blockId === 228 ? '#781422' : '#0c6a66', spot = blockId === 228 ? '#ffd0d6' : '#d0fff8';
+        R(7, 8, 8, 15, '#e8dcc0'); R(8, 9, 8, 15, '#c8bc9e');
+        R(3, 4, 12, 7, cap); R(4, 2, 11, 3, cap); R(5, 1, 10, 1, capL); R(3, 4, 12, 4, capL); R(3, 7, 12, 8, capD); P(3, 8, capD); P(12, 8, capD);
+        for (const [x, y] of [[5, 3], [9, 3], [4, 5], [7, 5], [10, 6]]) P(x, y, spot);
+      }
+      else if (blockId === 189) { // 炎
+        for (const [x0, h, w] of [[3, 9, 3], [7, 14, 4], [11, 8, 3]]) { for (let y = 15; y > 15 - h; y--) { const t = (15 - y) / h; const ww = Math.max(1, Math.round(w * (1 - t * t))); const cx = x0 + 1 + Math.round(Math.sin(y * 0.9 + x0) * 0.8); R(cx - Math.floor(ww / 2), y, cx + Math.floor((ww - 1) / 2), y, t < 0.35 ? '#fff0a0' : t < 0.65 ? '#ffb020' : '#e84a10'); } }
+        R(4, 13, 11, 15, '#ffd24a'); R(5, 14, 10, 15, '#fff0a0');
+      }
+      else if (blockId === 320) { // ガラス: 透明な窓(淡い枠と光る筋だけ)
+        R(1, 1, 14, 14, 'rgba(200,232,248,0.14)');
+        R(0, 0, 15, 0, '#d8f0fa'); R(0, 15, 15, 15, '#9cc0d0'); R(0, 0, 0, 15, '#d8f0fa'); R(15, 0, 15, 15, '#9cc0d0');
+        for (let k = 0; k < 5; k++) { P(3 + k, 3 + k, 'rgba(255,255,255,0.85)'); P(4 + k, 3 + k, 'rgba(255,255,255,0.4)'); }
+        P(10, 11, 'rgba(255,255,255,0.8)'); P(11, 11, 'rgba(255,255,255,0.8)'); P(10, 12, 'rgba(255,255,255,0.5)');
+      }
+      else if (blockId === 256) { // エンドクリスタル: 紫ピンクの宝石、芯が光る
+        for (let y = 0; y < N; y++) { const w = y < 8 ? y : 15 - y; if (w >= 0) R(7 - w, y, 8 + w, y, y < 8 ? '#d070e0' : '#a040c0'); }
+        for (let y = 2; y < 14; y++) { const w = Math.min(y - 1, 14 - y); if (w > 1) { P(7 - w + 1, y, '#f0a8f8'); P(8 + w - 1, y, '#7a2a98'); } }
+        R(6, 6, 9, 9, '#fff0ff'); R(7, 7, 8, 8, '#ffffff');
+      }
+      else if (blockId === 264) { // エンドロッド
+        R(6, 0, 9, 1, '#fff6c0'); R(6, 2, 9, 15, '#f4f0e8'); R(6, 2, 6, 15, '#ffffff'); R(9, 2, 9, 15, '#c8c4b8'); for (let y = 4; y < 15; y += 4) R(6, y, 9, y, '#d8d4c8'); R(7, 0, 8, 0, '#ffffff');
+      }
+      else if (blockId === 309) { // ソウルランタン
+        R(4, 3, 11, 4, '#3a3a40'); R(4, 13, 11, 14, '#3a3a40'); R(6, 0, 9, 2, '#5a5a62'); R(5, 5, 10, 12, '#2a9ad8'); R(6, 6, 9, 11, '#6adcff'); R(7, 7, 8, 9, '#e8ffff'); R(4, 5, 4, 12, '#2a2a30'); R(11, 5, 11, 12, '#2a2a30');
+      }
+      else if (blockId === 310) { // キャンドル
+        R(5, 7, 10, 15, '#f2ead0'); R(5, 7, 5, 15, '#fffaf0'); R(10, 7, 10, 15, '#c8bea0'); R(5, 7, 10, 7, '#fffaf0'); R(7, 4, 8, 6, '#3a2a1a'); R(7, 1, 8, 3, '#ffd24a'); P(7, 2, '#fff6c0'); P(8, 0, '#ff8a2a');
+      }
+      else if (blockId === 291) { // 苔のカーペット
+        for (let y = 11; y < N; y++) for (let x = 0; x < N; x++) { const r = rnd(); P(x, y, r < 0.3 ? '#3e6a1e' : r < 0.7 ? '#5a8a2e' : '#7aa84a'); } R(0, 11, 15, 11, '#86b84a');
+      }
+      else if (blockId === 292) { // 光るベリー
+        for (const x of [3, 8, 12]) { R(x, 0, x, 9, '#3e8a30'); R(x - 1, 2, x - 1, 3, '#52a63e'); R(x + 1, 5, x + 1, 6, '#52a63e'); R(x - 1, 9, x + 1, 11, '#ffb020'); R(x, 10, x, 11, '#ffe070'); P(x - 1, 9, '#ff8a10'); }
+      }
+      else if (blockId === 298) { // 鍾乳石(尖った茶色の石)
+        for (let y = 0; y < N; y++) { const w = Math.max(0, Math.round((15 - y) * 0.42)); for (let x = 8 - w - 1; x <= 8 + w; x++) P(x, y, x < 8 - w + 1 ? '#a08a6a' : x > 8 + w - 2 ? '#5a4a34' : '#7a6648'); }
+        for (let k = 0; k < 8; k++) { const y = Math.floor(rnd() * 10), x = 7 + Math.floor(rnd() * 3); if (g[y][x]) P(x, y, '#9a8460'); }
+      }
+      else if (blockId === 300) { // 垂れ根
+        for (const x of [2, 5, 9, 12]) { const len = 7 + Math.floor(rnd() * 8); for (let y = 0; y < len; y++) P(x + (y % 5 === 3 ? 1 : 0), y, y % 3 ? '#8a6a44' : '#6a4e30'); R(x - 1, 0, x + 1, 1, '#8a6a44'); }
+      }
+      else if (blockId === 301) { // スポアブロッサム
+        R(7, 8, 8, 15, '#4a8a3a'); for (const [cx, cy] of [[4, 6], [11, 6], [7, 3], [8, 9]]) { R(cx - 1, cy - 1, cx + 1, cy + 1, '#e86aa8'); P(cx, cy, '#ffd0e8'); } R(6, 5, 9, 7, '#f08ac0'); P(7, 6, '#ffe0f0'); P(8, 6, '#ffe0f0');
+      }
+      else if (blockId === 306) { // スカルクの筋
+        for (let k = 0; k < 30; k++) { const x = Math.floor(rnd() * 16), y = Math.floor(rnd() * 16); P(x, y, rnd() < 0.75 ? '#0e2a3a' : '#2ad8d0'); if (rnd() < 0.5) P(x + 1, y, '#164a5e'); }
+      }
+      else if (blockId === 249) { // 醸造台
+        R(2, 13, 13, 15, '#5a5058'); R(2, 13, 13, 13, '#7a7078'); R(7, 2, 8, 13, '#f0a020'); R(7, 2, 7, 13, '#ffd060'); R(5, 3, 10, 3, '#f0a020'); R(3, 9, 5, 13, '#cfe6f2'); R(10, 9, 12, 13, '#cfe6f2'); R(4, 11, 5, 13, '#3f76e4'); R(10, 11, 11, 13, '#3f76e4'); P(8, 2, '#fff2a0');
+      }
+      else if (blockId === 295) { // 大きなドリップリーフ
+        R(2, 3, 13, 11, '#4a9a3a'); R(1, 5, 14, 9, '#4a9a3a'); R(2, 3, 13, 3, '#6ac050'); R(7, 3, 8, 11, '#2f7a28'); for (let k = 0; k < 8; k++) P(2 + Math.floor(rnd() * 12), 4 + Math.floor(rnd() * 7), rnd() < 0.5 ? '#6ac050' : '#2f7a28'); R(7, 12, 8, 15, '#3a8a30');
+      }
+      else if (blockId === 265 || blockId === 266) { // コーラスの植物/花
+        const c = '#8a5a98', cl = '#b078c0', cd = '#5a3a68';
+        R(6, 4, 9, 15, c); R(6, 4, 6, 15, cl); R(9, 4, 9, 15, cd); R(3, 7, 5, 9, c); R(10, 6, 13, 8, c);
+        if (blockId === 266) { R(5, 0, 10, 3, '#f0e0f4'); R(6, 1, 9, 2, '#ffffff'); P(7, 1, '#d8a8e0'); } else { R(6, 2, 9, 3, cl); R(6, 0, 9, 1, c); }
+      }
+      else if (blockId === 57) { // ベッド(top/side/bottom)
+        const red = '#c82a2a', redL = '#e85a5a', redD = '#8a1a1a', wood = '#9a6a3a';
+        if (face === 'top') { R(0, 0, 15, 15, red); R(0, 0, 15, 1, redL); R(0, 14, 15, 15, redD); for (let y = 3; y < N; y += 4) R(0, y, 15, y, redD); if (variant === 1) { R(2, 2, 13, 6, '#f4f0e8'); R(2, 2, 13, 2, '#ffffff'); R(2, 6, 13, 6, '#c8c4b8'); } else { for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), redL); } }
+        else if (face === 'bottom') { planks(wood, 4); }
+        else { R(0, 0, 15, 6, red); R(0, 0, 15, 1, redL); R(0, 6, 15, 7, redD); R(0, 8, 15, 15, wood); R(0, 8, 15, 8, '#b98a55'); R(0, 15, 15, 15, '#5a3a1a'); }
+      }
+      else if (blockId === 216) { // ネザーポータル: 紫の渦
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const v = Math.sin(x * 0.7 + y * 0.45) + Math.sin(y * 0.9 - x * 0.3); P(x, y, v > 1 ? '#c060ff' : v > 0.2 ? '#8a30d8' : v > -0.6 ? '#5a1aa8' : '#3a0a78'); }
+        for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#f0b0ff');
+      }
+      else if (blockId === 255 || blockId === 259) { // エンドポータル/ゲートウェイ: 暗い星空
+        R(0, 0, 15, 15, blockId === 255 ? '#0a1a22' : '#08080c'); for (let k = 0; k < 18; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#2ad8b8' : (rnd() < 0.5 ? '#e8ffff' : '#2a7a9a')); for (let k = 0; k < 8; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y, '#16445a'); }
+      }
+      else if (blockId === 188) { // 溶岩
+        blotch('#e0601a', 3, 0.35, 0.65); for (let k = 0; k < 20; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#ffc040' : '#a02a08'); for (let k = 0; k < 5; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 2, y, '#fff0a0'); }
+      }
+      else if (blockId === 5) { // 水
+        blotch('#2f6fd8', 4, 0.33, 0.66); for (let k = 0; k < 12; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#6aa8ff' : '#1a4ab0'); for (let k = 0; k < 4; k++) { const x = Math.floor(rnd() * 12), y = Math.floor(rnd() * 14); R(x, y, x + 3, y, '#a8d0ff'); }
+      }
+      else if (blockId === 107) { // ココアの実(ポッド)
+        R(0, 0, 15, 15, '#a8622a'); for (let x = 0; x < N; x += 3) R(x, 0, x, 15, '#7a4420'); R(0, 0, 15, 1, '#5a3a1a'); R(0, 15, 15, 15, '#7a4420'); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#c88050');
+      }
       else { handled = false; }
       if (!handled) return false;
 
@@ -65103,29 +65202,31 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     torchStickGeo.addGroup(0, 36, 0);
 
     function createFlameTexture() {
-      const s = 64;
+      // 【テクスチャ】16×16 のドット絵の炎: 外が赤橙、中が黄、芯が白。透明な背景
       const c = document.createElement('canvas');
-      c.width = s; c.height = s;
+      c.width = 64; c.height = 64;
       const g = c.getContext('2d');
-
-      g.clearRect(0, 0, s, s);
-
-      // 外炎
-      g.fillStyle = "rgba(255,210,0,0.95)";
-      g.beginPath();
-      g.ellipse(s * 0.5, s * 0.4, s * 0.27, s * 0.39, 0, 0, Math.PI * 2);
-      g.fill();
-
-      // 内炎
-      g.fillStyle = "rgba(255,120,0,0.95)";
-      g.beginPath();
-      g.ellipse(s * 0.5, s * 0.44, s * 0.15, s * 0.24, 0, 0, Math.PI * 2);
-      g.fill();
-
-      // ハイライト
-      g.fillStyle = "rgba(255,255,255,0.55)";
-      g.fillRect(s * 0.48, s * 0.2, s * 0.04, s * 0.33);
-
+      g.clearRect(0, 0, 64, 64);
+      const rows = [
+        '.......##.......',
+        '.......##.......',
+        '......####......',
+        '.....#####......',
+        '.....######.....',
+        '....########....',
+        '....##ooooo#....',
+        '...###oooooo#...',
+        '...##ooyyyoo#...',
+        '...##oyyyyyo#...',
+        '...##oyywyyo#...',
+        '...##oyywwyo#...',
+        '....#oyywwyo#...',
+        '....##oyyyo##...',
+        '.....##ooo##....',
+        '......#####.....',
+      ];
+      const colors = { '#': '#e0501a', o: '#ff9a20', y: '#ffd84a', w: '#fff6c8' };
+      for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const ch = rows[y][x]; if (colors[ch]) { g.fillStyle = colors[ch]; g.fillRect(x * 4, y * 4, 4, 4); } }
       const tex = new THREE.CanvasTexture(c);
       tex.magFilter = THREE.NearestFilter;
       tex.minFilter = THREE.NearestFilter;
@@ -65135,8 +65236,16 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     }
 
     const torchStickMat = new THREE.MeshLambertMaterial({
-      color: 0x7a4a1f,
-      emissive: 0x000000
+      color: 0xffffff,
+      emissive: 0x000000,
+      map: (function () {
+        // 【テクスチャ】棒の木目(縦の筋)を 8×8 のドット絵で
+        const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+        const g = c.getContext('2d');
+        const cols = ['#8b5a2b', '#a97a45', '#6a4220', '#8b5a2b'];
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { g.fillStyle = cols[(x + (y % 3 === 0 ? 1 : 0)) % 4]; g.fillRect(x * 4, y * 4, 4, 4); }
+        const t = new THREE.CanvasTexture(c); t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; return t;
+      })()
     });
 
     const torchFlameTex = createFlameTexture();
