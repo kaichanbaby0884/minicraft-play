@@ -1214,12 +1214,58 @@
       pointer-events: none;
     }
 
-    /* show UI only on touch devices */
+    /* タッチデバイス: パッドをホットバーと重ならない位置へ / ヒントは上部中央へ */
     @media (hover: none) and (pointer: coarse) {
-      #touchUI {
-        display: none;
-      }
+      #touchUI .pad { bottom: 96px !important; }
+      #touchUI .hint { top: 8px; left: 50%; bottom: auto; transform: translateX(-50%); }
     }
+
+    /* ==== モバイル・狭い画面でUIを画面内に収める ==== */
+    @media (max-width: 700px) {
+      /* インベントリ: 縦積み+スクロールで全体が見えるように */
+      #invWindow {
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px;
+        max-width: calc(100vw - 16px);
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+      #invTopRow { flex-wrap: wrap; }
+      #invRight { width: 100%; }
+      .invSlot { width: 36px; height: 36px; }
+      .invGridLayer { grid-template-columns: repeat(9, 36px); }
+      #creativeGrid { grid-template-columns: repeat(auto-fill, 38px); max-height: 44vh; min-height: 0; }
+      #invCraftGridHand { grid-template-columns: 36px 36px 20px 36px !important; grid-template-rows: 36px 36px !important; }
+      #invCraftGridTable { grid-template-columns: repeat(4, 36px) !important; }
+      #invFurnaceGrid { grid-template-columns: 36px 24px 36px !important; grid-template-rows: 36px 24px 36px !important; }
+      #invPreviewPanel { min-height: 110px !important; }
+      #craftList { height: 220px; }
+    }
+    @media (max-width: 560px) {
+      #panel h1 { font-size: clamp(30px, 11vw, 64px); }
+      #setupPhase .mc-btn { width: min(180px, 44vw) !important; }
+      /* ホットバー9スロットが入るように縮小 */
+      #hotbar .slot { width: 32px; height: 32px; }
+      #hotbar { gap: 4px; padding: 6px; }
+      .icon { width: 22px; height: 22px; }
+      /* ハート等のステータス行を縮小 */
+      #statusBars { transform: translateX(-50%) scale(0.78); transform-origin: bottom center; }
+      #hearts, #food, #bubbles { max-width: 38vw; }
+    }
+
+    /* インベントリ開時: パッド・操作ボタン・チャットボタンは隠す（INV/MENUは閉じるために残す） */
+    #touchUI.ui-inv .pad,
+    #touchUI.ui-inv .hint,
+    #touchUI.ui-inv #btnJumpTouch,
+    #touchUI.ui-inv #btnSneakTouch,
+    #touchUI.ui-inv #btnPlaceTouch,
+    #touchUI.ui-inv #btnBreakTouch,
+    #touchUI.ui-inv #btnChatTouch {
+      display: none;
+    }
+    /* ポーズ・設定・チャット開時: タッチUI全体を隠す */
+    #touchUI.ui-block { visibility: hidden; }
   </style>
 
   <style>
@@ -1345,7 +1391,10 @@
   </script>
   <script>
     // ===== isMobile hoist fix (v8) =====
-    var isMobile = matchMedia("(hover: none) and (pointer: coarse)").matches;
+    // (hover:none)+(pointer:coarse) に加えてUAとタッチ点数でも検出
+    // （デスクトップモード表示のスマホなど、メディアクエリだけでは取りこぼす端末対策）
+    var isMobile = matchMedia("(hover: none) and (pointer: coarse)").matches
+      || ((navigator.maxTouchPoints || 0) > 1 && /Android|iPhone|iPad|iPod|Mobile|Mobi/i.test(navigator.userAgent));
   </script>
 
 
@@ -74417,6 +74466,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     const canvas = renderer.domElement;
     window.addEventListener("contextmenu", e => e.preventDefault());
 
+    // player を window にも公開（View Preserve 修復など window.player を参照する既存コードのため）
+    try { window.player = player; } catch (e) { }
+
     let gameStarted = false;
 
     startBtn.addEventListener("click", async () => {
@@ -75127,8 +75179,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       });
     }
 
-    isMobile = matchMedia("(hover: none) and (pointer: coarse)").matches;
-    TOUCH_MODE = false;
+    isMobile = matchMedia("(hover: none) and (pointer: coarse)").matches
+      || ((navigator.maxTouchPoints || 0) > 1 && /Android|iPhone|iPad|iPod|Mobile|Mobi/i.test(navigator.userAgent));
+    TOUCH_MODE = false; // ゲーム開始時（startBtn）に改めて saved設定/isMobile から設定する
 
     // Touch UI elements
     const touchUI = document.getElementById("touchUI");
@@ -75298,13 +75351,25 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     if (btnInvTouch) {
       btnInvTouch.addEventListener("touchstart", (e) => {
         if (!TOUCH_MODE) return;
-        try {
-          // toggle inventory like Tab
-          const inv = document.getElementById("inventory");
-          if (inv) {
-            inv.style.display = (inv.style.display === "flex" ? "none" : "flex");
-          }
-        } catch (_) { }
+        try { toggleInventory(); } catch (_) { }
+        e.preventDefault();
+      }, { passive: false });
+    }
+    // ☰: ポーズメニュー（スマホからでもセーブ・設定・タイトルへ戻れるように）
+    const btnMenuTouch = document.getElementById("btnMenuTouch");
+    if (btnMenuTouch) {
+      btnMenuTouch.addEventListener("touchstart", (e) => {
+        if (!TOUCH_MODE) return;
+        try { if (typeof openPauseMenu === "function") openPauseMenu(); } catch (_) { }
+        e.preventDefault();
+      }, { passive: false });
+    }
+    // 💬: チャットを開く（スマホにはTキーがないため。/コマンド補完もそのまま使える）
+    const btnChatTouch = document.getElementById("btnChatTouch");
+    if (btnChatTouch) {
+      btnChatTouch.addEventListener("touchstart", (e) => {
+        if (!TOUCH_MODE) return;
+        try { if (window._chatOpen) window._chatOpen(''); } catch (_) { }
         e.preventDefault();
       }, { passive: false });
     }
@@ -77019,6 +77084,21 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       lastTime = now;
       if (dt > 0.1) dt = 0.1;
       if (isPaused) dt = 0;
+
+      // ===== タッチUIの表示制御（他のUI開時はタッチ操作を奪わない） =====
+      if (touchUI) {
+        const invOpenNow = (typeof isInventoryOpen !== 'undefined' && isInventoryOpen === true);
+        const blockNow = gameStarted && !invOpenNow && (
+          (typeof isPauseOpen === 'function' && isPauseOpen()) ||
+          (settingsUI && settingsUI.style.display === 'flex') ||
+          (window._chatIsOpen && window._chatIsOpen()));
+        touchUI.classList.toggle('ui-inv', invOpenNow);
+        touchUI.classList.toggle('ui-block', blockNow);
+      }
+
+      // ===== タッチの視点操作（右パッドのドラッグをカメラへ反映）
+      // ※ これが無いとスマホで視点が一切動かない（applyTouchLookの呼び出し漏れを修正）
+      if (gameStarted && !isPaused) applyTouchLook();
 
       // ===== Damage invulnerability timer =====
       if (player && typeof player.invulnerable === 'number' && player.invulnerable > 0) {
@@ -78832,7 +78912,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       <button id="btnInvTouch" class="tbtn">INV</button>
     </div>
 
-    <div class="hint">モバイル: 左=移動 / 右=視点 / BREAK長押し=採掘</div>
+    <div class="btnCol" style="right:22px; top:64px;">
+      <button id="btnMenuTouch" class="tbtn" style="width:54px; height:54px;">☰</button>
+      <button id="btnChatTouch" class="tbtn" style="width:54px; height:54px;">💬</button>
+    </div>
+
+    <div class="hint">左=移動 / 右=視点 / BREAK長押し=採掘 / ☰=メニュー / 💬=チャット / INV=持ち物</div>
   </div>
 
 
