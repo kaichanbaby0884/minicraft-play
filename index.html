@@ -1411,11 +1411,11 @@
   <canvas id="handCanvas" width="340" height="520"
     style="position:fixed; right:0px; bottom:0px; z-index:5; display:none;"></canvas>
 
-  <!-- チャットUI（画面右上・マイクラ風ログ。閉じている間も直近メッセージを一時表示する） -->
-  <div id="chatWrap" style="display:none; position:fixed; right:10px; top:34px; z-index:20; width:420px; max-width:60vw; padding:0 8px;">
-    <div id="chatLog" style="max-height:40vh; overflow-y:auto; margin-bottom:4px; display:flex; flex-direction:column; gap:2px; pointer-events:none;"></div>
-    <div id="chatInputRow" style="display:none; gap:4px;">
-      <input id="chatInput" type="text" placeholder="Tでチャット / / でコマンド（↑で履歴呼び出し）"
+  <!-- チャットUI -->
+  <div id="chatWrap" style="display:none; position:fixed; left:0; bottom:80px; z-index:20; width:420px; max-width:60vw; padding:0 8px;">
+    <div id="chatLog" style="max-height:160px; overflow-y:auto; margin-bottom:4px; display:flex; flex-direction:column; gap:2px;"></div>
+    <div style="display:flex; gap:4px;">
+      <input id="chatInput" type="text" placeholder="Tでチャット / / でコマンド"
         style="flex:1; background:rgba(0,0,0,0.72); color:#fff; border:1px solid #aaa; border-radius:3px; padding:4px 8px; font-size:14px; outline:none;">
       <button id="chatSend" style="background:#444; color:#fff; border:1px solid #aaa; border-radius:3px; padding:4px 10px; cursor:pointer; font-size:13px;">送信</button>
     </div>
@@ -62561,6 +62561,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       const cx = size / 2, cy = size / 2;
       let m; // カテゴリ判定用の正規表現マッチ結果
+      // 【テクスチャ】アイテムは、専用のドット絵(_drawPixelItem)があればそれを使う(持ち物欄・ホットバーの絵)
+      if (b && b.isBlock === false) {
+        const _t = document.createElement("canvas"); _t.width = _t.height = 64;
+        if (_drawPixelItem(_t.getContext("2d"), 64, blockId, b)) { ctx.imageSmoothingEnabled = false; ctx.drawImage(_t, 0, 0, size, size); return canvas; }
+      }
 
       // Canvas roundRect polyfill (older browsers)
       if (!ctx.roundRect) {
@@ -63623,6 +63628,253 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       return true;
     }
 
+    /* ===== 【テクスチャ】ブロックのドット絵(16×16 を 4倍で表示) =====
+       全部オリジナルの絵(外部画像・公式の素材は使っていない)。名前から種類(石・丸石・土・木・葉・鉱石・レンガ…)を決めて、
+       種類ごとの描き方(ボロノイ・年輪・板目・斑点など)で、元の色を3〜5段階に塗り分ける。乱数は「ID・種類・面」から決まる固定の種。
+       ここで描けないブロック(チェスト・かまど・ガラス等)は、従来の描き方へ回る(_drawPixelBlock が false を返す)。 */
+    function _drawPixelBlock(ctx, size, blockId, variant, face, def, hex) {
+      if (!def || def.isBlock === false) return false;
+      const name = (def.name || '');
+      const N = 16;
+      const g = []; for (let y = 0; y < N; y++) g.push(new Array(N).fill(null));
+      const P = (x, y, c) => { if (x >= 0 && x < N && y >= 0 && y < N) g[y][x] = c; };
+      const R = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) P(x, y, c); };
+      let fc = 0; { const fs = String(face); for (let i = 0; i < fs.length; i++) fc = (fc * 31 + fs.charCodeAt(i)) >>> 0; }
+      let seed = ((blockId * 2654435761) ^ ((variant | 0) * 40503) ^ fc) >>> 0;
+      const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+      const sh = (c, f) => _pxShade(c, f);
+      const pal = (c) => ({ m: c, l: sh(c, 0.16), L: sh(c, 0.34), d: sh(c, -0.18), D: sh(c, -0.36) });
+      const lower = name.toLowerCase();
+      const has = (s) => lower.indexOf(s) >= 0;
+
+      // --- 部品 ---------------------------------------------------------
+      // 斑点: 全面を m で塗り、明・暗の点をまばらに(2マス連なる点も)
+      const speckle = (c, dark = 0.22, light = 0.16, pair = 0.06) => {
+        const p = pal(c); R(0, 0, 15, 15, p.m);
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const r = rnd();
+          if (r < dark) P(x, y, p.d); else if (r < dark + light) P(x, y, p.l);
+          if (rnd() < pair) { P(x, y, p.D); P(x + 1, y, p.d); }
+        }
+        return p;
+      };
+      // 低解像度ノイズ(滑らかなムラ): 4×4 の乱数を双一次補間して、しきい値で3段階に塗る
+      const blotch = (c, scale = 4, a = 0.38, b = 0.62) => {
+        const p = pal(c); const lo = []; const n = Math.ceil(N / scale) + 1;
+        for (let y = 0; y < n; y++) { lo.push([]); for (let x = 0; x < n; x++) lo[y].push(rnd()); }
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const fx = x / scale, fy = y / scale, x0 = Math.floor(fx), y0 = Math.floor(fy), tx = fx - x0, ty = fy - y0;
+          const v = (lo[y0][x0] * (1 - tx) + lo[y0][x0 + 1] * tx) * (1 - ty) + (lo[y0 + 1][x0] * (1 - tx) + lo[y0 + 1][x0 + 1] * tx) * ty;
+          P(x, y, v < a ? p.d : v > b ? p.l : p.m);
+        }
+        return p;
+      };
+      // ボロノイ(丸石・砂利・玄武岩の粒): 種を散らし、最寄りの種ごとに明るさを変え、境目を暗くする
+      const voronoi = (c, count, mortarF = -0.42, spread = 0.2, wrap = true) => {
+        const seeds = []; for (let i = 0; i < count; i++) seeds.push({ x: rnd() * N, y: rnd() * N, f: (rnd() - 0.5) * 2 * spread });
+        const id = [];
+        for (let y = 0; y < N; y++) { id.push([]); for (let x = 0; x < N; x++) {
+          let best = 0, bd = 1e9;
+          for (let i = 0; i < seeds.length; i++) { let dx = Math.abs(x - seeds[i].x), dy = Math.abs(y - seeds[i].y); if (wrap) { dx = Math.min(dx, N - dx); dy = Math.min(dy, N - dy); } const d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+          id[y].push(best);
+        } }
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const me = id[y][x];
+          const edge = (x < N - 1 && id[y][x + 1] !== me) || (y < N - 1 && id[y + 1][x] !== me) || (wrap && x === N - 1 && id[y][0] !== me) || (wrap && y === N - 1 && id[0][x] !== me);
+          if (edge) P(x, y, sh(c, mortarF));
+          else { const top = (y > 0 && id[y - 1][x] !== me) || (x > 0 && id[y][x - 1] !== me); P(x, y, sh(c, seeds[me].f + (top ? 0.12 : 0))); }
+        }
+      };
+      // 板(横長の板が積み重なる): 板ごとに明るさを変え、木目の線と釘
+      const planks = (c, boardH = 4) => {
+        const p = pal(c);
+        for (let b = 0; b < N / boardH; b++) {
+          const f = (rnd() - 0.5) * 0.22, y0 = b * boardH;
+          R(0, y0, 15, y0 + boardH - 1, sh(c, f));
+          R(0, y0, 15, y0, sh(c, f + 0.14));            // 板の上端は明るく
+          R(0, y0 + boardH - 1, 15, y0 + boardH - 1, p.D); // 板の下端は暗い継ぎ目
+          for (let k = 0; k < 4; k++) { const gx = Math.floor(rnd() * 14), gy = y0 + 1 + Math.floor(rnd() * (boardH - 2)); R(gx, gy, gx + 2 + Math.floor(rnd() * 3), gy, sh(c, f - 0.14)); }
+          const jx = (b % 2) * 8 + 4; R(jx, y0 + 1, jx, y0 + boardH - 2, p.D); // 板の継ぎ目(縦)
+          P(1, y0 + 1, p.D); P(14, y0 + 1, p.D); // 釘
+        }
+        return p;
+      };
+      const logSide = (c) => {
+        const p = pal(c);
+        for (let x = 0; x < N; x++) {
+          const t = rnd(); const col = t < 0.3 ? p.d : t < 0.7 ? p.m : p.l;
+          for (let y = 0; y < N; y++) P(x, y, (x % 4 === 0) ? p.D : (rnd() < 0.12 ? p.D : col));
+        }
+        for (let k = 0; k < 6; k++) { const x = Math.floor(rnd() * N), y = Math.floor(rnd() * 12); R(x, y, x, y + 2 + Math.floor(rnd() * 3), p.L); }
+        return p;
+      };
+      const logTop = (barkC, coreC) => {
+        const pb = pal(barkC), pc = pal(coreC);
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+          const r = Math.max(Math.abs(x - 7.5), Math.abs(y - 7.5));
+          P(x, y, r > 6.5 ? pb.m : r > 5.5 ? pb.d : (Math.floor(r) % 2 === 0 ? pc.m : pc.l));
+        }
+        R(0, 0, 15, 0, pb.d); R(0, 15, 15, 15, pb.D); R(0, 0, 0, 15, pb.d); R(15, 0, 15, 15, pb.D);
+        P(7, 7, pc.d); P(8, 8, pc.d); return pb;
+      };
+      const leaves = (c) => {
+        const p = pal(c);
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const r = rnd(); P(x, y, r < 0.3 ? p.D : r < 0.6 ? p.d : r < 0.88 ? p.m : p.l); }
+        for (let k = 0; k < 10; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); P(x, y, p.L); P(x + 1, y + 1, p.l); }
+        for (let k = 0; k < 7; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 15); P(x, y, p.D); P(x + 1, y, p.D); }
+        return p;
+      };
+      const bricks = (c, mortar, bw = 8, bh = 4) => {
+        R(0, 0, 15, 15, mortar);
+        for (let row = 0; row < N / bh; row++) {
+          const off = (row % 2) * (bw / 2);
+          for (let bx = -1; bx < N / bw + 1; bx++) {
+            const f = (rnd() - 0.5) * 0.24, x0 = bx * bw + off, y0 = row * bh;
+            for (let y = y0; y < y0 + bh - 1; y++) for (let x = x0; x < x0 + bw - 1; x++) P(x, y, y === y0 ? sh(c, f + 0.15) : (rnd() < 0.18 ? sh(c, f - 0.12) : sh(c, f)));
+          }
+        }
+      };
+      const dirtTex = (c) => { const p = speckle(c, 0.26, 0.14, 0.08); for (let k = 0; k < 4; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, p.L); } return p; };
+      const oreColors = { coal: ['#262629', '#4a4a50'], iron: ['#d8af93', '#a47a5e'], gold: ['#fcee4b', '#c9a21b'], diamond: ['#5decf5', '#2ab8c0'], copper: ['#e77c56', '#3fae86'], emerald: ['#17dd62', '#0c8c3c'], redstone: ['#ff2a2a', '#a01010'], lapis: ['#2f5ad8', '#1a3590'], quartz: ['#f4efe6', '#c0b8a8'] };
+      const ore = (stoneC, key) => {
+        voronoi(stoneC, 9, -0.32, 0.12, true);
+        const oc = oreColors[key]; if (!oc) return;
+        for (let k = 0; k < 6; k++) {
+          const cx = 1 + Math.floor(rnd() * 12), cy = 1 + Math.floor(rnd() * 12), w = 2 + Math.floor(rnd() * 2), h = 2;
+          R(cx, cy, cx + w - 1, cy + h - 1, oc[0]); P(cx + w - 1, cy + h - 1, oc[1]); P(cx, cy + h - 1, oc[1]); P(cx, cy, sh(oc[0], 0.5));
+        }
+      };
+
+      // --- 種類の判定と描画 ---------------------------------------------
+      const woodNames = ['oak', 'spruce', 'birch', 'acacia', 'dark oak', 'cherry', 'jungle'];
+      const baseHex = hex;
+      let handled = true;
+      const stoneC = '#8a8a90';
+      const deepC = '#4a4a52';
+
+      if (blockId === 1) { // Grass
+        if (face === 'top') { const p = speckle(baseHex, 0.22, 0.2, 0.05); for (let k = 0; k < 16; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 13); P(x, y, p.L); P(x, y + 1, p.l); } }
+        else {
+          dirtTex('#8a5a2a'); if (face === 'bottom') { /* 土のまま */ } else {
+            const p = pal(baseHex); R(0, 0, 15, 3, p.m);
+            for (let x = 0; x < N; x++) { const dep = 3 + (rnd() < 0.55 ? 1 : 0) + (rnd() < 0.2 ? 1 : 0); R(x, 0, x, dep, rnd() < 0.5 ? p.m : p.d); P(x, 0, p.l); if (rnd() < 0.4) P(x, 1, p.l); P(x, dep, p.D); }
+          }
+        }
+      } else if (blockId === 2 || blockId === 299 || (blockId === 139 && face !== 'top') || (blockId === 142 && face !== 'top')) { dirtTex(baseHex);
+        if (blockId === 299) { for (let k = 0; k < 5; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 15); P(x, y, '#d8c8a8'); } }
+      } else if (blockId === 139 || blockId === 142) { const p = speckle(blockId === 139 ? '#5a4326' : '#6a5a6a', 0.3, 0.22, 0.1); for (let k = 0; k < 6; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); P(x, y, blockId === 139 ? '#8a7a4a' : '#c8b0d0'); } }
+      else if (blockId === 3) { blotch(baseHex, 4, 0.36, 0.64); const p = pal(baseHex); for (let k = 0; k < 10; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 15); P(x, y, rnd() < 0.5 ? p.D : p.L); } for (let k = 0; k < 2; k++) { let x = Math.floor(rnd() * 12), y = Math.floor(rnd() * 12); for (let s = 0; s < 4; s++) { P(x, y, p.D); x += rnd() < 0.5 ? 1 : 0; y += 1; } } }
+      else if (blockId === 4 || blockId === 99) { const p = speckle(baseHex, 0.12, 0.2, 0.0); for (let y = 2; y < N; y += 4) for (let x = 0; x < N; x++) if (rnd() < 0.45) P(x, y, p.d); for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.L); }
+      else if (blockId === 96) { voronoi(baseHex, 14, -0.45, 0.28, true); const p = pal(baseHex); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.L); }
+      else if (has('cobblestone') && !has('slab') && !has('stairs')) { voronoi(baseHex, 9, -0.5, 0.2, true); }
+      else if (blockId === 145 || blockId === 148) { voronoi('#7a7a80', 9, -0.5, 0.2, true); }
+      else if (has('stone brick') || blockId === 149 || blockId === 155 || blockId === 269) { bricks(blockId === 269 ? '#e8e4a8' : '#7e7e84', blockId === 269 ? '#b8b478' : '#4c4c52'); }
+      else if (blockId === 144 || blockId === 147) { blotch('#8a8a90', 4, 0.36, 0.64); }
+      else if (has('ore')) {
+        const key = has('coal') ? 'coal' : has('iron') ? 'iron' : has('gold') ? 'gold' : has('diamond') ? 'diamond' : has('copper') ? 'copper' : has('emerald') ? 'emerald' : has('redstone') ? 'redstone' : has('lapis') ? 'lapis' : has('quartz') ? 'quartz' : null;
+        ore(has('deepslate') ? deepC : (has('quartz') ? '#7a3a3a' : stoneC), key);
+      }
+      else if (blockId === 122) { blotch('#4a4a52', 4, 0.4, 0.6); const p = pal('#4a4a52'); for (let y = 3; y < N; y += 5) for (let x = 0; x < N; x++) if (rnd() < 0.7) P(x, y, p.D); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.L); }
+      else if (blockId === 307) { bricks('#3a3a44', '#1c1c22', 8, 8); R(0, 0, 15, 0, '#6a6a7a'); R(0, 15, 15, 15, '#16161c'); for (let k = 0; k < 8; k++) P(2 + Math.floor(rnd() * 12), 2 + Math.floor(rnd() * 12), '#a8a8c0'); }
+      else if (blockId === 11) { speckle('#3a3a3c', 0.34, 0.26, 0.14); for (let k = 0; k < 8; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1 + Math.floor(rnd() * 2), y + 1, '#0e0e10'); } }
+      else if (blockId === 6 || blockId === 101 || blockId >= 131 && blockId <= 140 && has('log') || blockId === 140 || has(' log')) {
+        const bark = baseHex, core = sh(baseHex, 0.35);
+        if (face === 'top' || face === 'bottom') logTop(bark, core); else logSide(bark);
+      }
+      else if (has('stem')) { if (face === 'top' || face === 'bottom') logTop(baseHex, sh(baseHex, 0.3)); else { const p = logSide(baseHex); for (let k = 0; k < 6; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), has('crimson') ? '#e0507a' : '#34d0c0'); } }
+      else if (has('leaves') || blockId === 7) { leaves(baseHex); if (has('flowering')) for (let k = 0; k < 6; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#f08ac0'); if (has('cherry')) for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#ffd0e4'); }
+      else if (has('planks')) { planks(baseHex, 4); }
+      else if (has('slab') || has('stairs') || has('fence') || has('trapdoor') || has('door') || has('wall')) {
+        let matC = baseHex;
+        const w = woodNames.find(k => lower.startsWith(k));
+        if (has('iron')) { const p = pal('#c8ccd0'); R(0, 0, 15, 15, p.m); R(0, 0, 15, 1, p.l); R(0, 14, 15, 15, p.d); R(0, 0, 1, 15, p.l); R(14, 0, 15, 15, p.d); R(3, 3, 12, 12, sh('#c8ccd0', -0.1)); R(3, 3, 12, 3, p.L); for (let k = 0; k < 6; k++) P(4 + Math.floor(rnd() * 8), 4 + Math.floor(rnd() * 8), p.d); }
+        else if (w || has('oak') || has('gate')) { planks(matC, 4); if (has('door')) { const p = pal(matC); R(2, 2, 13, 13, null); planks(matC, 4); R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); R(3, 3, 12, 3, p.D); R(3, 7, 12, 7, p.D); R(3, 11, 12, 11, p.D); } else if (has('trapdoor')) { const p = pal(matC); R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); R(7, 0, 8, 15, p.d); R(0, 7, 15, 8, p.d); } }
+        else if (has('cobble')) voronoi('#7a7a80', 9, -0.5, 0.2, true);
+        else if (has('stone brick')) bricks('#7e7e84', '#4c4c52');
+        else if (has('purpur')) { handled = false; }
+        else blotch('#8a8a90', 4, 0.36, 0.64);
+      }
+      else if (blockId === 9) { const p = speckle('#f4f8ff', 0.0, 0.0, 0.0); for (let k = 0; k < 36; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.7 ? '#dfe8f6' : '#c8d6ec'); for (let k = 0; k < 5; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#ffffff'); }
+      else if (blockId === 15 || blockId === 311) { const p = pal(baseHex); R(0, 0, 15, 15, p.m); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const w = ((x + y) % 4 === 0) ? p.d : ((x * 3 + y * 5) % 7 === 0 ? p.l : null); if (w) P(x, y, w); if (rnd() < 0.07) P(x, y, p.L); } }
+      else if (blockId === 10) { const p = pal('#2f8a3a'); R(0, 0, 15, 15, p.m); for (let x = 0; x < N; x += 4) R(x, 0, x, 15, p.d); R(1, 0, 1, 15, p.l); R(5, 0, 5, 15, p.l); R(9, 0, 9, 15, p.l); R(13, 0, 13, 15, p.l); if (face !== 'top' && face !== 'bottom') for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#e8e8a8'); else { R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); } }
+      else if (blockId === 233 || has('block') && (has('gold') || has('iron') || has('diamond') || has('emerald'))) {
+        const p = pal(baseHex); R(0, 0, 15, 15, p.m); R(0, 0, 15, 1, p.L); R(0, 0, 1, 15, p.l); R(0, 14, 15, 15, p.D); R(14, 0, 15, 15, p.d);
+        R(3, 3, 12, 12, sh(baseHex, 0.06)); R(3, 3, 12, 3, p.l); R(3, 3, 3, 12, p.l); R(3, 12, 12, 12, p.d); R(12, 3, 12, 12, p.d);
+        for (let k = 0; k < 4; k++) P(4 + k * 2, 4 + k, p.L);
+      }
+      else if (blockId === 8) { // TNT: 赤い棒の束に白い帯と文字
+        if (face === 'top' || face === 'bottom') {
+          speckle('#b8a888', 0.18, 0.14, 0.04); R(0, 0, 15, 0, '#7a6a4a'); R(0, 15, 15, 15, '#7a6a4a'); R(0, 0, 0, 15, '#7a6a4a'); R(15, 0, 15, 15, '#7a6a4a');
+          R(6, 6, 9, 9, '#3a2a1a'); R(7, 7, 8, 8, '#14100a'); if (face === 'top') { R(8, 3, 8, 6, '#6a4a2a'); P(8, 2, '#ffd24a'); P(9, 1, '#ff8a2a'); }
+        } else {
+          R(0, 0, 15, 15, '#c8301e');
+          for (let x = 0; x < N; x++) { const t = x % 4; R(x, 0, x, 15, t === 0 ? '#e0503a' : t === 3 ? '#8a1a10' : '#c8301e'); }
+          R(0, 5, 15, 11, '#ece8de'); R(0, 5, 15, 5, '#b8b4a8'); R(0, 11, 15, 11, '#b8b4a8');
+          const Lt = { T: ['###', '.#.', '.#.', '.#.', '.#.'], N: ['#.#', '###', '###', '#.#', '#.#'] };
+          let lx = 2; for (const ch of 'TNT') { const rows = Lt[ch]; for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) if (rows[y][x] === '#') P(lx + x, 6 + y, '#1c1410'); lx += 4; }
+          R(0, 0, 15, 0, '#8a1a10'); R(0, 15, 15, 15, '#8a1a10');
+        }
+      }
+      else if (blockId === 100) { const p = speckle(baseHex, 0.1, 0.1, 0.0); for (let y = 0; y < N; y++) if (y % 5 === 2) for (let x = 0; x < N; x++) if (rnd() < 0.75) P(x, y, p.d); }
+      else if (blockId === 296) { const p = blotch(baseHex, 4, 0.3, 0.7); for (let k = 0; k < 6; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.L); }
+      else if (blockId === 297) { const p = speckle(baseHex, 0.15, 0.1, 0.0); for (let x = 0; x < N; x++) { const h = 4 + Math.floor(rnd() * 8); R(x, 0, x, h, rnd() < 0.5 ? p.l : p.m); if (rnd() < 0.5) R(x, h, x, h + 1, p.d); } }
+      else if (blockId === 209) { const p = speckle('#14101e', 0.22, 0.12, 0.0); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#3a2a6a' : '#5a3a8a'); R(2, 2, 4, 2, '#7a5ab0'); R(10, 9, 12, 9, '#7a5ab0'); }
+      else if (blockId === 210) { const p = blotch('#7a3434', 4, 0.36, 0.64); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#4e1e1e' : '#9a4a4a'); }
+      else if (blockId === 211 || blockId === 219) { const c = blockId === 211 ? '#5a4636' : '#4a3a30'; const p = blotch(c, 4, 0.4, 0.6); R(3, 5, 4, 6, p.D); R(11, 5, 12, 6, p.D); R(5, 10, 10, 10, p.D); R(4, 9, 4, 9, p.D); R(11, 9, 11, 9, p.D); }
+      else if (blockId === 212) { R(0, 0, 15, 15, '#c8902a'); for (let k = 0; k < 22; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14), w = 2 + Math.floor(rnd() * 3); R(x, y, x + w - 1, y + 1, rnd() < 0.5 ? '#ffd860' : '#ffe9a0'); P(x + w - 1, y + 1, '#a8701c'); } R(0, 0, 15, 0, '#a8701c'); R(0, 15, 15, 15, '#a8701c'); R(0, 0, 0, 15, '#a8701c'); R(15, 0, 15, 15, '#a8701c'); }
+      else if (blockId === 213) { bricks('#5a1e24', '#2c0c10'); }
+      else if (blockId === 220 || blockId === 221) {
+        if (face === 'top' || face === 'all') { const c = blockId === 220 ? '#a02a3a' : '#2a8a7a'; const p = blotch(c, 3, 0.36, 0.64); for (let k = 0; k < 12; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), blockId === 220 ? '#d04a5a' : '#4ad0b8'); }
+        else { dirtTex('#7a3434'); const c = blockId === 220 ? '#a02a3a' : '#2a8a7a'; for (let x = 0; x < N; x++) { const dep = 2 + (rnd() < 0.5 ? 1 : 0); R(x, 0, x, dep, rnd() < 0.5 ? c : sh(c, -0.2)); } }
+      }
+      else if (blockId === 224) { R(0, 0, 15, 15, '#f08a3a'); for (let k = 0; k < 26; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, rnd() < 0.5 ? '#ffd070' : '#e0601e'); } R(6, 6, 9, 9, '#ffe8a0'); }
+      else if (blockId === 225) { const p = pal('#4a4a52'); R(0, 0, 15, 15, p.m); for (let x = 0; x < N; x++) { const t = rnd(); R(x, 0, x, 15, t < 0.3 ? p.d : t < 0.6 ? p.m : p.l); if (rnd() < 0.4) R(x, Math.floor(rnd() * 12), x, 15, p.D); } }
+      else if (blockId === 226) { voronoi('#3a3a42', 8, -0.5, 0.16, true); for (let k = 0; k < 5; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#d8b84a'); }
+      else if (blockId === 227) { R(0, 0, 15, 15, '#4a1a10'); voronoi('#4a1a10', 6, -0.3, 0.1, true); for (let k = 0; k < 10; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 2, y, '#ff7a1a'); P(x + 1, y + 1, '#ffd24a'); } }
+      else if (blockId === 230 || blockId === 231) { const c = blockId === 230 ? '#a0242c' : '#1a8a84'; const p = blotch(c, 3, 0.34, 0.66); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), blockId === 230 ? '#e0505a' : '#40d0c8'); }
+      else if (blockId === 253) { const p = speckle('#e0dca0', 0.2, 0.18, 0.1); for (let k = 0; k < 8; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, '#c8c280'); } }
+      else if (blockId === 260 || blockId === 262 || blockId === 263) { const p = pal('#a878b0'); R(0, 0, 15, 15, p.m); R(0, 0, 15, 0, p.d); R(0, 15, 15, 15, p.d); R(0, 0, 0, 15, p.d); R(15, 0, 15, 15, p.d); R(8, 0, 8, 15, p.d); R(0, 8, 15, 8, p.d); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? p.l : p.d); R(1, 1, 7, 1, p.L); R(9, 9, 14, 9, p.L); }
+      else if (blockId === 261) { const p = pal('#a878b0'); R(0, 0, 15, 15, p.m); if (face === 'top' || face === 'bottom') { R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); R(4, 4, 11, 11, p.l); R(5, 5, 10, 10, p.d); } else { for (let x = 0; x < N; x += 5) R(x, 0, x, 15, p.D); for (let x = 2; x < N; x += 5) R(x, 0, x, 15, p.l); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.d); } }
+      else if (blockId === 250 || blockId === 251) { const c = blockId === 250 ? '#5aa898' : '#2a5e4e'; voronoi(c, 8, -0.4, 0.14, true); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), blockId === 250 ? '#8adcc8' : '#3e8a74'); }
+      else if (blockId === 252) { const p = pal('#bfe0e8'); R(0, 0, 15, 15, p.m); for (let y = 0; y < N; y += 8) R(0, y, 15, y, '#7aa8b4'); for (let x = 0; x < N; x += 8) R(x, 0, x, 15, '#7aa8b4'); for (let k = 0; k < 20; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.6 ? '#f2ffff' : '#9acad8'); R(2, 2, 5, 5, '#e8fcff'); R(10, 10, 13, 13, '#e8fcff'); }
+      else if (blockId === 302 || blockId === 303 || blockId === 304 || blockId === 305) { const p = blotch('#0e2a3a', 3, 0.4, 0.6); for (let k = 0; k < 10; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, '#1a4a5e'); P(x, y, '#2ad8d0'); } }
+      else if (blockId === 290) { const p = blotch('#5a8a2e', 3, 0.34, 0.66); for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#86b84a' : '#3e6a1e'); }
+      else if (blockId === 110) { dirtTex('#6a4423'); if (face === 'top') { for (let x = 0; x < N; x += 4) R(x, 0, x, 15, '#3a2410'); for (let k = 0; k < 12; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#8a5e32'); } }
+      else if (blockId === 105) { const p = pal('#3a8a3a'); R(0, 0, 15, 15, p.m); for (let x = 1; x < N; x += 3) { R(x, 0, x, 15, rnd() < 0.5 ? p.d : '#1f6a28'); } for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#8ad07a'); }
+      else if (blockId === 257) { const p = pal('#1a0e2a'); R(0, 0, 15, 15, p.m); for (let k = 0; k < 24; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, rnd() < 0.5 ? '#3a1e6a' : '#0a0612'); } R(3, 3, 4, 4, '#a070ff'); R(10, 8, 11, 9, '#a070ff'); R(6, 12, 7, 13, '#a070ff'); }
+      else if (blockId === 8) { handled = false; }
+      else if (blockId === 17) { // Crafting Table
+        const p = pal('#a8763a'); planks('#a8763a', 4);
+        if (face === 'top') { R(0, 0, 15, 15, null); planks('#a8763a', 4); R(0, 0, 15, 1, p.D); R(0, 14, 15, 15, p.D); R(0, 0, 1, 15, p.D); R(14, 0, 15, 15, p.D); R(2, 2, 13, 13, sh('#a8763a', -0.1)); for (const k of [5, 10]) { R(k, 2, k, 13, p.D); R(2, k, 13, k, p.D); } R(6, 6, 9, 9, p.l); }
+        else if (face !== 'bottom') { R(0, 0, 15, 3, p.D); R(0, 0, 15, 0, p.d); R(2, 5, 6, 6, '#c8ccd0'); R(2, 7, 3, 12, '#8b5a2b'); R(8, 5, 9, 10, '#8b5a2b'); R(8, 5, 13, 6, '#6a6e74'); R(11, 7, 12, 12, '#8b5a2b'); }
+      }
+      else if (blockId === 26) { // Furnace
+        voronoi('#7c7c82', 9, -0.45, 0.16, true);
+        if (face === 'top') { R(3, 3, 12, 12, '#3a3a40'); R(4, 4, 11, 11, '#1e1e22'); R(5, 5, 10, 6, '#2c2c32'); }
+        else if (face !== 'bottom') { R(0, 0, 15, 0, '#a0a0a8'); R(2, 2, 13, 3, '#2a2a30'); R(3, 5, 12, 13, '#16161a'); R(4, 6, 11, 12, '#0a0a0c'); R(4, 11, 11, 12, '#ff8a2a'); R(5, 12, 10, 12, '#ffd24a'); R(2, 4, 13, 4, '#4a4a52'); R(2, 14, 13, 14, '#4a4a52'); }
+      }
+      else if (blockId === 59) { // Chest
+        const wc = '#a06a2a', p = pal(wc);
+        planks(wc, 4);
+        if (face === 'top') { R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); R(1, 1, 14, 1, p.l); R(1, 14, 14, 14, p.d); }
+        else if (face !== 'bottom') { R(0, 0, 15, 0, p.D); R(0, 5, 15, 5, p.D); R(0, 6, 15, 6, p.l); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D);
+          if (face === 'front') { R(6, 4, 9, 8, '#d8d8dc'); R(7, 5, 8, 7, '#6a6a70'); R(6, 4, 9, 4, '#fff'); } }
+      }
+      else if (blockId === 254 || blockId === 258) { // End Portal Frame
+        R(0, 0, 15, 15, '#d8d49a'); speckle('#d8d49a', 0.16, 0.12, 0.05);
+        R(0, 0, 15, 4, '#2a6a52'); R(0, 0, 15, 0, '#3a8a6a'); R(0, 4, 15, 4, '#14382c'); R(0, 0, 0, 4, '#14382c'); R(15, 0, 15, 4, '#14382c');
+        R(0, 15, 15, 15, '#9a965a');
+        if (face === 'top') { R(0, 0, 15, 15, '#2a6a52'); R(0, 0, 15, 1, '#14382c'); R(0, 14, 15, 15, '#14382c'); R(0, 0, 1, 15, '#14382c'); R(14, 0, 15, 15, '#14382c'); R(4, 4, 11, 11, '#0e2a20'); if (blockId === 258) { R(5, 5, 10, 10, '#2ad07a'); R(7, 6, 8, 9, '#031a0c'); P(6, 6, '#a0ffc8'); } }
+      }
+      else { handled = false; }
+      if (!handled) return false;
+
+      ctx.clearRect(0, 0, size, size);
+      const cell = size / N;
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const c = g[y][x]; if (c) { ctx.fillStyle = c; ctx.fillRect(x * cell, y * cell, cell, cell); } }
+      return true;
+    }
+
     function createBlockCanvas(blockId, variant, face) {
       const size = 64;
       const canvas = document.createElement('canvas');
@@ -63634,6 +63886,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const base = BLOCKS.find(b => b.blockId === blockId);
       let hex = variantColor(base?.color ?? 0xffffff, blockId, variant);
       if (_drawPixelItem(ctx, size, blockId, base)) return canvas; // アイテムは、専用のドット絵で描く
+      if (_drawPixelBlock(ctx, size, blockId, variant, face, base, toHexCSS(hex))) return canvas; // ブロックも、専用のドット絵で描く
 
       // ノイズ描画ヘルパー
       // 【テクスチャ】16×16 のドット絵風: 乱数は「ブロックID・種類・面」から決まる固定の種を使う(毎回同じ見た目になる)。
@@ -73634,8 +73887,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       updateCamera();
 
       // UI表示
-      // 画面中央上部の常時表示HUD（操作説明・座標など）は廃止。座標はチャットの /pos で確認できる。
-      $("hud").style.display = "none";
+      $("hud").style.display = "block";
       $("center").style.display = "grid";
       $("hotbarWrap").style.display = "flex";
       if (GAME_MODE !== 'creative') {
@@ -73685,8 +73937,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         } else {
           // ゲーム中にロックが外れたらポーズ（設定画面）
           // ただしインベントリ・チャット・設定画面操作中などは除く
-          // （チャットの開状態は _chatIsOpen() で判定。直近ログ表示中は開いて扱わない）
-          const _chatOpenPLC = window._chatIsOpen ? window._chatIsOpen() : false;
+          const _chatWrapPLC = document.getElementById('chatWrap');
+          const _chatOpenPLC = _chatWrapPLC && _chatWrapPLC.style.display !== 'none';
           if (!isInventoryOpen && !_chatOpenPLC && settingsUI.style.display !== "flex" && !(isPauseOpen && isPauseOpen())) {
             openPauseMenu();
           }
@@ -74642,8 +74894,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         e.preventDefault();
 
         // チャットが開いているなら閉じる（chatInputのEscはinitChat内で処理済みだが念のため）
-        // （開状態は _chatIsOpen() で判定。直近ログ表示中は無視して通常のEsc処理へ）
-        if (window._chatIsOpen && window._chatIsOpen()) return;
+        const chatWrap = document.getElementById('chatWrap');
+        if (chatWrap && chatWrap.style.display !== 'none') return;
 
         // 醸造UIが開いているなら閉じる
         if (isBrewOpen) { closeBrewUI(); return; }
@@ -74664,8 +74916,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
 
       // チャット入力中はゲームのキー処理を全てスキップ
-      // （開状態は _chatIsOpen() で判定。直近ログ表示中はゲーム操作を妨げない）
-      { if (window._chatIsOpen && window._chatIsOpen()) return; }
+      { const cw = document.getElementById('chatWrap'); if (cw && cw.style.display !== 'none') return; }
 
       keys.add(e.code);
 
@@ -77183,91 +77434,38 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const chatInput = document.getElementById('chatInput');
       const chatLog   = document.getElementById('chatLog');
       const chatSend  = document.getElementById('chatSend');
-      const chatRow   = document.getElementById('chatInputRow');
       if (!chatWrap || !chatInput) return;
 
-      const HISTORY_MAX    = 100;   // 保持する履歴の最大件数（Tで開くと全部見られる・スクロール可能）
-      const RECENT_VISIBLE = 10;    // チャットを閉じているときに見える件数
-      const FADE_MS        = 10000; // 閉じているとき、表示されてから消え始めるまでの時間（ミリ秒）
-      const INPUT_MAX      = 50;    // 入力履歴（↑↓キーで呼び出し）の保持件数
-
       let chatOpen = false;
-      let chatHistory = []; // { text, color, ts }
-
-      // 入力履歴（↑キーで過去に打ったチャットを呼び出す・AIチャットボックス風）
-      let inputHistory = [];
-      let inputHistoryIdx = -1;
-      let inputDraft = '';
 
       function openChat(prefill = '') {
         if (!gameStarted) return;
         chatOpen = true;
         chatWrap.style.display = 'block';
-        if (chatRow) chatRow.style.display = 'flex';
-        chatLog.style.pointerEvents = 'auto'; // 開いている間はログをスクロールできる
         chatInput.value = prefill;
-        inputHistoryIdx = -1; inputDraft = '';
-        renderChat();
         chatInput.focus();
         // ポインターロック解除
         if (document.pointerLockElement) document.exitPointerLock();
       }
       function closeChat() {
         chatOpen = false;
+        chatWrap.style.display = 'none';
         chatInput.value = '';
-        inputHistoryIdx = -1; inputDraft = '';
-        if (chatRow) chatRow.style.display = 'none';
-        chatLog.style.pointerEvents = 'none';
-        renderChat(); // 閉じたら直近10件だけの一時表示に戻す
         // 再ロック
         try { renderer.domElement.requestPointerLock(); } catch(e) {}
       }
 
-      function makeMsgEl(m) {
-        const el = document.createElement('div');
-        el.style.cssText = `background:rgba(0,0,0,0.55);color:${m.color||'#fff'};padding:2px 6px;border-radius:2px;font-size:13px;font-family:monospace;word-break:break-all;transition:opacity 1s;`;
-        el.textContent = m.text;
-        return el;
-      }
-
-      // 履歴からDOMを再構築（開いている時=全履歴 / 閉じている時=直近10件）
-      function renderChat() {
-        chatLog.innerHTML = '';
-        const shown = chatOpen ? chatHistory.slice() : chatHistory.slice(-RECENT_VISIBLE);
-        for (const m of shown) chatLog.appendChild(makeMsgEl(m));
-        chatLog.scrollTop = chatLog.scrollHeight;
-        updateFade();
-      }
-
-      // 閉じているときのフェード処理（出てからFADE_MS経過したメッセージを消す）
-      function updateFade() {
-        if (chatOpen) return;
-        const els = chatLog.children;
-        const shown = chatHistory.slice(-RECENT_VISIBLE);
-        const now = Date.now();
-        let anyVisible = false;
-        for (let i = 0; i < shown.length; i++) {
-          const el = els[i]; if (!el) continue;
-          if (now - shown[i].ts > FADE_MS) el.style.opacity = '0';
-          else { el.style.opacity = '1'; anyVisible = true; }
-        }
-        // 全部消えたらwrap自体も隠す（入力欄を開いている時は除く）
-        if (!anyVisible && !chatOpen && chatWrap.style.display !== 'none') {
-          chatWrap.style.display = 'none';
-        }
-      }
-      setInterval(updateFade, 500);
-
       function addChatMessage(text, color) {
-        chatHistory.push({ text: String(text), color: color || '#fff', ts: Date.now() });
-        while (chatHistory.length > HISTORY_MAX) chatHistory.shift();
-        if (chatOpen) {
-          renderChat();
-        } else if (typeof gameStarted === 'undefined' || gameStarted) {
-          // ゲーム中は閉じていても最新メッセージを一時的に見せる（マイクラ風）
-          chatWrap.style.display = 'block';
-          renderChat();
-        }
+        const el = document.createElement('div');
+        el.style.cssText = `background:rgba(0,0,0,0.6);color:${color||'#fff'};padding:2px 6px;border-radius:2px;font-size:13px;font-family:monospace;word-break:break-all;`;
+        el.textContent = text;
+        chatLog.appendChild(el);
+        // 古いメッセージを削除（最大20件）
+        while (chatLog.children.length > 20) chatLog.removeChild(chatLog.firstChild);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        // 5秒後に自動非表示
+        const entry = { el, timer: setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 1s'; }, 5000) };
+        return entry;
       }
 
       /* ===== コマンド処理 ===== */
@@ -77714,11 +77912,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       function submitChat() {
         const text = chatInput.value.trim();
-        inputHistoryIdx = -1; inputDraft = '';
         if (!text) { closeChat(); return; }
-        // 入力履歴に保存（直前と同じ内容は保存しない）
-        if (inputHistory[inputHistory.length - 1] !== text) inputHistory.push(text);
-        while (inputHistory.length > INPUT_MAX) inputHistory.shift();
         if (text.startsWith('/')) {
           handleCommand(text);
         } else {
@@ -77731,46 +77925,39 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       chatInput.addEventListener('keydown', (e) => {
         e.stopPropagation();
         if (e.code === 'Enter') { e.preventDefault(); submitChat(); }
-        else if (e.code === 'Escape') { e.preventDefault(); closeChat(); }
-        else if (e.code === 'ArrowUp') {
-          // 上矢印: 過去に打ったチャットを遡って呼び出す
-          e.preventDefault();
-          if (!inputHistory.length) return;
-          if (inputHistoryIdx === -1) { inputDraft = chatInput.value; inputHistoryIdx = inputHistory.length - 1; }
-          else if (inputHistoryIdx > 0) inputHistoryIdx--;
-          chatInput.value = inputHistory[inputHistoryIdx];
-        }
-        else if (e.code === 'ArrowDown') {
-          // 下矢印: 履歴を進む（最後まで行ったら編集中のテキストに戻る）
-          e.preventDefault();
-          if (inputHistoryIdx === -1) return;
-          if (inputHistoryIdx < inputHistory.length - 1) { inputHistoryIdx++; chatInput.value = inputHistory[inputHistoryIdx]; }
-          else { inputHistoryIdx = -1; chatInput.value = inputDraft; }
-        }
+        if (e.code === 'Escape') { e.preventDefault(); closeChat(); }
       });
 
       // チャットログを常時表示エリアとして使えるように公開
       window._chatAddMessage = addChatMessage;
-      window._chatOpen = openChat;
-      window._chatClose = closeChat;
-      window._chatIsOpen = function () { return chatOpen; };
     })();
 
     // Tキー でチャットを開く（initChat外に移動して確実に実行）
     document.addEventListener('keydown', (e) => {
       if (!gameStarted) return;
       if (e.target === document.getElementById('chatInput')) return;
-      // 開状態は _chatIsOpen() で判定（閉じてても直近ログ表示中のケースがあるため）
-      const chatClosed = !(window._chatIsOpen ? window._chatIsOpen() : false);
-      if (e.code === 'KeyT' && chatClosed && !isInventoryOpen && !isPauseOpen()) {
+      if (e.code === 'KeyT' && !isInventoryOpen && !isPauseOpen()) {
         e.preventDefault();
-        // 履歴を含めたフル表示は openChat 側で行う
-        if (window._chatOpen) window._chatOpen('');
+        const chatWrap = document.getElementById('chatWrap');
+        if (chatWrap && chatWrap.style.display === 'none') {
+          const chatInput = document.getElementById('chatInput');
+          chatWrap.style.display = 'block';
+          chatInput.value = '';
+          chatInput.focus();
+          if (document.pointerLockElement) document.exitPointerLock();
+        }
       }
       // '/' キーでコマンドモードで開く
-      if (e.code === 'Slash' && chatClosed && !isInventoryOpen && !isPauseOpen()) {
+      if (e.code === 'Slash' && !isInventoryOpen && !isPauseOpen()) {
         e.preventDefault();
-        if (window._chatOpen) window._chatOpen('/');
+        const chatWrap = document.getElementById('chatWrap');
+        if (chatWrap && chatWrap.style.display === 'none') {
+          const chatInput = document.getElementById('chatInput');
+          chatWrap.style.display = 'block';
+          chatInput.value = '/';
+          chatInput.focus();
+          if (document.pointerLockElement) document.exitPointerLock();
+        }
       }
     });
 
