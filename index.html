@@ -68735,13 +68735,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       pig: { w: 0.8, h: 0.8, d: 1.2, color: 0xf2a8b9, headColor: 0xf2a8b9, legColor: 0xf2a8b9, hp: 10 },
       sheep: { w: 0.8, h: 0.9, d: 1.2, color: 0xe0e0e0, headColor: 0xdddddd, legColor: 0xdddddd, hp: 8 },
       cow: { w: 0.9, h: 1.1, d: 1.4, color: 0x443322, headColor: 0x443322, legColor: 0x221100, hp: 12 },
-      chicken: { w: 0.4, h: 0.5, d: 0.5, color: 0xffffff, headColor: 0xffffff, legColor: 0xddaa33, hp: 4 },
+      chicken: { w: 0.45, h: 0.68, d: 0.5, color: 0xffffff, headColor: 0xffffff, legColor: 0xddaa33, hp: 4 },
       villager: { w: 0.52, h: 1.8, d: 0.52, color: 0x7b5a38, headColor: 0xc7a07b, legColor: 0x4a3324, hp: 20 },
-      rabbit: { w: 0.3, h: 0.35, d: 0.4, color: 0xb09070, headColor: 0xb09070, legColor: 0x8a6a50, hp: 3 },
-      fox: { w: 0.5, h: 0.55, d: 0.7, color: 0xd47020, headColor: 0xd47020, legColor: 0x3a3030, hp: 10 },
+      rabbit: { w: 0.36, h: 0.48, d: 0.52, color: 0xb09070, headColor: 0xb09070, legColor: 0x8a6a50, hp: 3 },
+      fox: { w: 0.54, h: 0.62, d: 0.88, color: 0xd47020, headColor: 0xd47020, legColor: 0x3a3030, hp: 10 },
       wolf: { w: 0.5, h: 0.7, d: 0.8, color: 0xd0d0d0, headColor: 0xc8c8c0, legColor: 0xc0c0b8, hp: 8 },
-      cat: { w: 0.4, h: 0.45, d: 0.6, color: 0xe8c040, headColor: 0xe8c040, legColor: 0xc8a030, hp: 10 },
-      turtle: { w: 0.7, h: 0.35, d: 0.8, color: 0x2a7a3a, headColor: 0x3a9a4a, legColor: 0x2a6a30, hp: 30 },
+      cat: { w: 0.44, h: 0.52, d: 0.68, color: 0xe8c040, headColor: 0xe8c040, legColor: 0xc8a030, hp: 10 },
+      turtle: { w: 0.75, h: 0.38, d: 0.9, color: 0x2a7a3a, headColor: 0x3a9a4a, legColor: 0x2a6a30, hp: 30 },
       horse: { w: 0.9, h: 1.4, d: 1.5, color: 0x8b5a2b, headColor: 0x7a4a20, legColor: 0x6a3a18, hp: 20 },
     };
 
@@ -69111,27 +69111,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       return tex;
     }
 
-        // 【テクスチャ】モブの体用: 色に、16×16 のドット絵風の毛・皮のムラ(固定の種)を重ねたマテリアル。色ごとに作り回す。
+        // 【テクスチャ】モブの体パーツ用マテリアル(色なし・フラット)。
+        // 旧実装は「16×16のグレー粒状ノイズ map × color」で、粒(ぶつぶつ)+二重乗算による濁りが出ていたため撤去。
+        // 質感は MOB_SKIN_SPECS の専用パターン側で表現する。
     const _mobSkinCache = new Map();
-    let _mobSkinTex = null;
     function mobSkinMat(color) {
       let m = _mobSkinCache.get(color);
       if (m) return m;
-      if (!_mobSkinTex) {
-        const c = document.createElement('canvas'); c.width = 16; c.height = 16;
-        const g = c.getContext('2d');
-        let s = 20261114;
-        const rnd = () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; };
-        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-          const r = rnd();
-          const v = r < 0.25 ? 205 + Math.floor(rnd() * 20) : (r < 0.8 ? 238 + Math.floor(rnd() * 12) : 255);
-          g.fillStyle = 'rgb(' + v + ',' + v + ',' + v + ')'; g.fillRect(x, y, 1, 1);
-        }
-        _mobSkinTex = new THREE.CanvasTexture(c);
-        _mobSkinTex.magFilter = THREE.NearestFilter; _mobSkinTex.minFilter = THREE.NearestFilter;
-        _mobSkinTex.colorSpace = THREE.SRGBColorSpace;
-      }
-      m = new THREE.MeshLambertMaterial({ color, map: _mobSkinTex });
+      m = new THREE.MeshLambertMaterial({ color });
       _mobSkinCache.set(color, m);
       return m;
     }
@@ -69174,113 +69161,108 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         return grid[y0][x0] * (1 - tx) * (1 - ty) + grid[y0][x0 + 1] * tx * (1 - ty) + grid[y0 + 1][x0] * (1 - tx) * ty + grid[y0 + 1][x0 + 1] * tx * ty;
       };
 
+      // 柔らかい2段階の影(模様ごとに使う。共通の濃い影 bl/bd は hair(蜘蛛)専用に残す)
+      const s1 = _mobShade(base, -0.13), s2 = _mobShade(base, 0.09);
       if (pattern === 'mottle' || pattern === 'hide' || pattern === 'rot') {
-        // 基本: 3段階のまだら + 点々
+        // 基本: 低周波まだらのみ(粒状ノイズなし)。落ち着いた2〜3トーン。
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.34 ? bl : (n < 0.7 ? B : bll));
+          put(x, y, n < 0.36 ? s1 : (n < 0.82 ? B : s2));
         }
-        for (let i = 0; i < 26; i++) put((rnd() * 16) | 0, (rnd() * 16) | 0, bd);
         if (pattern === 'hide') {
-          // 牛・ホグリン風: 大きな STILL な斑(アクセント色)を2〜3個、縁を暗く
-          const patches = 2 + ((rnd() * 2) | 0);
-          for (let p = 0; p < patches; p++) {
-            const cx = 2 + rnd() * 12, cy = 2 + rnd() * 12, r = 2.2 + rnd() * 1.8;
+          // 牛風: 大きな白斑(アクセント色)を2個。縁は1pxだけ暗くして輪郭を整理。
+          for (let p = 0; p < 2; p++) {
+            const cx = 3 + rnd() * 10, cy = 3 + rnd() * 10, r = 3.0 + rnd() * 1.6;
             for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-              const d = Math.hypot(x - cx, y - cy) + (noise(x, y) - 0.5) * 1.6;
+              const d = Math.hypot(x - cx, y - cy);
               if (d < r) put(x, y, A);
-              else if (d < r + 0.9) put(x, y, ad);
+              else if (d < r + 1) put(x, y, _mobShade(base, -0.28));
             }
           }
         }
         if (pattern === 'rot') {
-          // ゾンビ風: 腐敗の緑の斑を不規則に
-          for (let p = 0; p < 4; p++) {
-            const cx = 1 + rnd() * 13, cy = 1 + rnd() * 13, r = 1.6 + rnd() * 2.2;
+          // ゾンビ風: 腐敗の斑は低コントラストで大きく2個(点々なし)
+          for (let p = 0; p < 2; p++) {
+            const cx = 2 + rnd() * 12, cy = 2 + rnd() * 12, r = 2.4 + rnd() * 1.8;
             for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-              const d = Math.hypot(x - cx, y - cy) + (noise(x, y) - 0.5) * 1.8;
-              if (d < r) put(x, y, rnd() < 0.25 ? al : A);
-              else if (d < r + 0.8) put(x, y, ad);
+              const d = Math.hypot(x - cx, y - cy);
+              if (d < r) put(x, y, A);
+              else if (d < r + 0.9) put(x, y, _mobShade(accent, -0.22));
             }
           }
         }
       } else if (pattern === 'camo') {
-        // クリーパー風: ブロック状の大きなまだら(3色)
+        // クリーパー風: 2pxブロック状のまだら(濃い緑は控えめ)
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x - (x % 2), y - (y % 2));
-          put(x, y, n < 0.3 ? A : (n < 0.52 ? bd : (n < 0.8 ? B : bll)));
+          put(x, y, n < 0.24 ? A : (n < 0.5 ? s1 : (n < 0.82 ? B : s2)));
         }
       } else if (pattern === 'wool') {
-        // 羊の毛: 巻き毛の列(明るい毛並み)
-        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) put(x, y, rnd() < 0.3 ? bll : B);
+        // 羊の毛: 明るい毛地 + 整列した巻き毛(2×2)。ランダム粒なし。
+        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) put(x, y, B);
         for (let ry = 0; ry < 5; ry++) {
           const oy = ry * 3 + (ry % 2);
-          for (let rx = 0; rx < 6; rx++) {
-            const ox = rx * 3 + (ry % 2) * 1 + ((rnd() * 2) | 0);
-            const shade = rnd() < 0.5 ? A : blll;
-            put(ox, oy, shade); put(ox + 1, oy, blll);
-            put(ox, oy + 1, shade); put(ox + 1, oy + 1, bl);
+          for (let rx = 0; rx < 5; rx++) {
+            const ox = rx * 3 + (ry % 2);
+            put(ox, oy, s2); put(ox + 1, oy, s2);
+            put(ox, oy + 1, s2); put(ox + 1, oy + 1, s1);
           }
         }
       } else if (pattern === 'feather') {
-        // 鳥の羽: 横に並ぶ羽 + 中央の羽軸
+        // 鳥の羽: 整列した横羽(羽軸+固定の影)。白い体は粒なく清潔に。
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.4 ? B : (n < 0.75 ? bll : A));
+          put(x, y, n < 0.45 ? B : s2);
         }
         for (let y = 1; y < 16; y += 4) {
           for (let x = 0; x < 16; x++) {
-            put(x, y, blll);                     // 羽軸(明)
-            if (rnd() < 0.4) put(x, y + 1, bl);  // 影
+            put(x, y, s2);            // 羽軸(明)
+            put(x, y + 1, s1);        // 軸の下は影(固定)
           }
         }
       } else if (pattern === 'scale') {
-        // 亀・トカゲ風: ダイヤ状の鱗
+        // 亀・トカゲ風: ダイヤ状の鱗(縁は薄い影・中心に明るさ)
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) put(x, y, B);
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const m = (x + y) % 4, n = (x - y + 32) % 4;
-          if (m === 0 || n === 0) put(x, y, bd);
-          else if (m === 2 && n === 2) put(x, y, bll);
+          if (m === 0 || n === 0) put(x, y, s1);
+          else if (m === 2 && n === 2) put(x, y, s2);
         }
       } else if (pattern === 'bone') {
-        // 骨: 明るい骨質 + ヒビ (opts.ribs で肋骨の縦線)
+        // 骨: 滑らかな明るい骨質(2トーン)+目立たないヒビ (opts.ribs で肋骨の縦線)
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.3 ? bl : (n < 0.72 ? B : bll));
+          put(x, y, n < 0.4 ? s1 : B);
         }
-        const cracks = 2 + ((rnd() * 2) | 0);
-        for (let c = 0; c < cracks; c++) {
-          let cx = 2 + ((rnd() * 12) | 0), cy = (rnd() * 6) | 0;
-          const len = 5 + ((rnd() * 7) | 0);
-          for (let i = 0; i < len; i++) { put(cx, cy, bd); cy++; cx += rnd() < 0.4 ? (rnd() < 0.5 ? 1 : -1) : 0; }
+        for (let c = 0; c < 1; c++) {
+          let cx = 3 + ((rnd() * 10) | 0), cy = (rnd() * 4) | 0;
+          const len = 4 + ((rnd() * 4) | 0);
+          for (let i = 0; i < len; i++) { put(cx, cy, s1); cy++; if (rnd() < 0.35) cx += rnd() < 0.5 ? 1 : -1; }
         }
         if (opts && opts.ribs) {
           for (let rx = 2; rx < 15; rx += 4) {
-            for (let y = 3; y < 16; y++) { put(rx, y, bd); put(rx + 1, y, bll); }
+            for (let y = 3; y < 16; y++) { put(rx, y, s1); put(rx + 1, y, B); }
           }
         }
       } else if (pattern === 'cloth') {
-        // 布: 織り目 + 裾の影 (opts.trim で金の縁)
+        // 布: 落ち着いた織り目 + 裾の影 (opts.trim で金の縁)
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
-          const weave = ((x + y) % 2 === 0) ? 0.06 : -0.06;
-          const thread = (x % 4 === 0) ? -0.1 : 0;
-          put(x, y, _mobShade(base, weave + thread + (noise(x, y) - 0.5) * 0.12));
+          const weave = ((x + y) % 2 === 0) ? 0.05 : -0.05;
+          const thread = (x % 4 === 0) ? -0.05 : 0;
+          put(x, y, _mobShade(base, weave + thread));
         }
-        for (let x = 0; x < 16; x++) { put(x, 15, bd); put(x, 14, _mobShade(base, -0.3)); }
+        for (let x = 0; x < 16; x++) { put(x, 15, _mobShade(base, -0.3)); put(x, 14, _mobShade(base, -0.15)); }
         if (opts && opts.trim) {
           for (let x = 0; x < 16; x++) { put(x, 2, A); put(x, 3, al); }
         }
       } else if (pattern === 'bristle') {
-        // 剛毛: 縦の毛並み
+        // 剛毛: 縦の毛並み(列ごとに一定の色。粒状ランダムなし)
         for (let x = 0; x < 16; x++) {
           const colN = noise(x * 0.8, 0);
-          for (let y = 0; y < 16; y++) {
-            let c = colN < 0.4 ? bl : (colN < 0.75 ? B : bll);
-            if (rnd() < 0.3) c = rnd() < 0.5 ? bll : bd;
-            put(x, y, c);
-          }
+          const c = colN < 0.4 ? s1 : (colN < 0.78 ? B : s2);
+          for (let y = 0; y < 16; y++) put(x, y, c);
         }
-        for (let y = 0; y < 16; y += 2) { const x = (rnd() * 16) | 0; put(x, y, blll); }
+        for (let x = 3; x < 16; x += 4) for (let y = (x % 3); y < 16; y += 3) put(x, y, s2);
       } else if (pattern === 'hair') {
         // 短い毛の縞(蜘蛛・猫など): 横帯 + 密な点々
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
@@ -69292,56 +69274,55 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           put(x, y, c);
         }
       } else if (pattern === 'drip') {
-        // ガスト・ファントム: 縦の垂れ
+        // ガスト・ファントム: 縦の筋(列ごとに一定・粒なし)
         for (let x = 0; x < 16; x++) {
           const colN = noise(x * 0.7, 2);
-          for (let y = 0; y < 16; y++) put(x, y, colN < 0.4 ? bl : (colN < 0.75 ? B : bll));
+          const c = colN < 0.4 ? s1 : (colN < 0.75 ? B : s2);
+          for (let y = 0; y < 16; y++) put(x, y, c);
         }
-        for (let d = 0; d < 6; d++) {
-          const x = (rnd() * 16) | 0, y0 = (rnd() * 5) | 0, len = 4 + ((rnd() * 8) | 0);
-          for (let y = y0; y < Math.min(16, y0 + len); y++) put(x, y, rnd() < 0.25 ? al : ad);
+        for (let d = 0; d < 3; d++) {
+          const x = (2 + d * 5 + ((rnd() * 3) | 0)) % 16;
+          for (let y = 0; y < 16; y++) put(x, y, _mobShade(base, -0.2));
         }
       } else if (pattern === 'ember') {
-        // ブレイズ: 煙の地 + 火の粉
+        // ブレイズ: 滑らかな炎の地 + 十字形の火の粉
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.4 ? _mobShade(base, -0.2) : (n < 0.75 ? base : bll));
+          put(x, y, n < 0.45 ? s1 : B);
         }
-        for (let e = 0; e < 7; e++) {
-          const x = (rnd() * 16) | 0, y = (rnd() * 16) | 0;
+        for (let e = 0; e < 4; e++) {
+          const x = 2 + ((rnd() * 12) | 0), y = 2 + ((rnd() * 12) | 0);
           put(x, y, A); put((x + 1) % 16, y, al); put(x, (y + 1) % 16, al);
         }
       } else if (pattern === 'veins') {
-        // マグマキューブ: 暗い地殻 + 光る割れ目
+        // マグマキューブ: 暗い地殻 + 連続した光る割れ目
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.45 ? _mobShade(base, -0.25) : base);
+          put(x, y, n < 0.45 ? s1 : B);
         }
-        for (let v = 0; v < 4; v++) {
-          let x = (rnd() * 16) | 0, y = (rnd() * 16) | 0;
-          const len = 6 + ((rnd() * 8) | 0);
-          for (let i = 0; i < len; i++) {
-            put(x, y, rnd() < 0.3 ? al : A);
-            if (rnd() < 0.6) put((x + 1) % 16, y, ad);
+        for (let v = 0; v < 3; v++) {
+          let x = 2 + ((rnd() * 12) | 0), y = (v * 6) % 16;
+          for (let i = 0; i < 8; i++) {
+            put(x, y, A); put((x + 1) % 16, y, ad);
             x = (x + ((rnd() * 3) | 0) - 1 + 16) % 16; y = (y + 1) % 16;
           }
         }
       } else if (pattern === 'plate') {
-        // シュルカー・金の胸当て: 板 + 鋲
-        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) put(x, y, bd);
+        // シュルカー・金の胸当て: 4枚の板 + 鋲(縁は薄い影)
+        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) put(x, y, s1);
         for (let py = 0; py < 2; py++) for (let px = 0; px < 2; px++) {
           const ox = px * 8, oy = py * 8;
           for (let y = 1; y < 8; y++) for (let x = 1; x < 8; x++) {
             const n = noise(ox + x, oy + y);
-            put(ox + x, oy + y, n < 0.35 ? bl : (n < 0.8 ? B : bll));
+            put(ox + x, oy + y, n < 0.4 ? B : s2);
           }
-          for (let x = 1; x < 8; x++) { put(ox + x, oy + 1, bll); put(ox + x, oy + 7, bd); }
+          for (let x = 1; x < 8; x++) { put(ox + x, oy + 1, s2); put(ox + x, oy + 7, s1); }
           put(ox + 2, oy + 2, A); put(ox + 5, oy + 2, A); put(ox + 2, oy + 5, A); put(ox + 5, oy + 5, A);
         }
-      } else { // 'gel' など: ほぼベタ + 明るい弾力のハイライト
+      } else { // 'gel' など: ほぼベタ + 柔らかいハイライト
         for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
           const n = noise(x, y);
-          put(x, y, n < 0.4 ? B : (n < 0.8 ? bll : A));
+          put(x, y, n < 0.55 ? B : (n < 0.9 ? s2 : A));
         }
       }
 
@@ -69386,7 +69367,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (m) return m;
       const p = Object.assign({}, extra || {});
       if (spec[0] === 'gel') { p.transparent = true; p.opacity = p.opacity != null ? p.opacity : 0.72; }
-      m = new THREE.MeshLambertMaterial(Object.assign({ color: spec[1], map: _mobPartTex(spec, seedStr) }, p));
+      // map に模様の色が入っているので color は白(color=基本色だと map と二重乗算され色が濁る)
+      m = new THREE.MeshLambertMaterial(Object.assign({ color: 0xffffff, map: _mobPartTex(spec, seedStr) }, p));
       _mobPartMatCache.set(key, m);
       return m;
     }
@@ -69397,7 +69379,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const topSpec = opts.topMark ? [spec[0], spec[1], spec[2], Object.assign({}, opts)] : sideSpec;
       const side = mobPartMatCore(sideSpec, seedStr + ':side');
       const top = mobPartMatCore(topSpec, seedStr + ':top');
-      const bottomSpec = [spec[0], _mobShade(spec[1], -0.3)[0] << 16 | _mobShade(spec[1], -0.3)[1] << 8 | _mobShade(spec[1], -0.3)[2], spec[2], {}];
+      // 底面は模様自体を暗く生成し、color は白のまま(二重乗算防止)
+      const bottomSpec = [spec[0], _mobShadeHex(spec[1], -0.32), spec[2], {}];
       const bottom = mobPartMatCore(bottomSpec, seedStr + ':bottom');
       return [side, side, top, bottom, side, side];
     }
@@ -69455,6 +69438,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const def = MOB_TYPES[type];
       const group = new THREE.Group();
 
+      // 種類ごとの適正比率(頭サイズ・脚の長さ)。旧実装は頭が全種0.5固定で、小型モブは頭だけ大きく不自然だった。
+      const HEAD = ({ pig: 0.42, sheep: 0.46, cow: 0.5, chicken: 0.28, rabbit: 0.28, fox: 0.34, wolf: 0.38, cat: 0.3, turtle: 0.24, villager: 0.48 })[type] || 0.5;
+      const legHF = ({ chicken: 0.45, turtle: 0.3 })[type] || 0.4; // def.h に対する脚の長さ比率
+
       // Body
       const bodyH = (type === 'villager') ? 0.82 : def.h * 0.6;
       const bodyGeo = new THREE.BoxGeometry(def.w, bodyH, def.d);
@@ -69476,26 +69463,45 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       body.position.y = (type === 'villager') ? 0.96 : def.h * 0.6; // 脚の分浮かす
       group.add(body);
 
-      // Head
-      const headSize = type === 'chicken' ? 0.25 : (type === 'villager' ? 0.48 : 0.5);
-      const headGeo = new THREE.BoxGeometry(headSize, headSize, headSize);
-
-      // 顔テクスチャを前面(Z-)に適用するためのマテリアル配列
-      // BoxGeometryの面順序: px, nx, py, ny, pz, nz
-      // 前進方向はZマイナスなので、nz (index 5) が顔
+      // Head(顔テクスチャは前面(Z-)。BoxGeometryの面順序: px,nx,py,ny,pz,nz → nz(index 5)が顔)
       const baseHeadMat = (MOB_SKIN_SPECS[type] && MOB_SKIN_SPECS[type].skin) ? mobPartMat(type, 'skin') : mobSkinMat(def.headColor);
       const faceMat = new THREE.MeshLambertMaterial({ map: createMobFaceTexture(type) });
       const headMat = [baseHeadMat, baseHeadMat, baseHeadMat, baseHeadMat, baseHeadMat, faceMat];
-
-      const head = new THREE.Mesh(headGeo, headMat);
-      if (type === 'villager') head.position.set(0, 1.60, -0.04);
-      else head.position.set(0, def.h * 0.9, -def.d * 0.5 - headSize * 0.4 + 0.1); // Zマイナス側に配置
+      const headY = (type === 'villager') ? 1.60 : def.h * 0.9;
+      const headZ = (type === 'villager') ? -0.04 : -def.d * 0.5 - HEAD * 0.4 + 0.1;
+      let head;
+      if (type === 'horse') {
+        // ウマ: 長い首+前後に長い頭。旧実装は首が後ろに傾き、頭が小さかった。
+        const neckMat = mobPartMat('horse', 'skin');
+        const neck = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.66, 0.28), neckMat);
+        neck.geometry.translate(0, 0.2, 0); // 原点を首の付け根に
+        neck.position.set(0, def.h * 0.72, -def.d * 0.34);
+        neck.rotation.x = -0.42; // 上端が前(=-z)へ傾く
+        group.add(neck);
+        // 鬣
+        const maneMat = mobSkinMat(0x2a1a08);
+        const mane = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.52, 0.24), maneMat);
+        mane.position.set(0, def.h * 0.88, -def.d * 0.28);
+        mane.rotation.x = -0.35;
+        group.add(mane);
+        // 頭(縦長) + 耳
+        head = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.42, 0.58), headMat);
+        head.position.set(0, def.h * 0.93, -def.d * 0.5 - 0.14);
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.05), mobPartMat('horse', 'skin'));
+          ear.position.set(s * 0.1, def.h * 0.93 + 0.26, -def.d * 0.5 - 0.2);
+          group.add(ear);
+        }
+      } else {
+        head = new THREE.Mesh(new THREE.BoxGeometry(HEAD, HEAD, HEAD), headMat);
+        head.position.set(0, headY, headZ);
+      }
       group.add(head);
       if (type === 'villager') {
         const noseGeo = new THREE.BoxGeometry(0.16, 0.22, 0.22);
         const noseMat = mobSkinMat(0x9a6a45);
         const nose = new THREE.Mesh(noseGeo, noseMat);
-        nose.position.set(0, 1.56, head.position.z - headSize * 0.5 - 0.09);
+        nose.position.set(0, 1.56, head.position.z - HEAD * 0.5 - 0.09);
         group.add(nose);
 
         const armMat = mobPartMat('villager', 'skin');
@@ -69504,97 +69510,155 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         foldedArmBar.rotation.x = -0.16;
         group.add(foldedArmBar);
       }
-      // Fox: tail
+
+      // 種類ごとの追加パーツ(顔の立体感・シルエット)。旧実装で欠けていた耳・嘴・角などを補う。
+      if (type === 'pig') {
+        // 鼻(3D)
+        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.14, 0.08), mobSkinMat(0xd98a9c));
+        snout.position.set(0, headY - HEAD * 0.12, headZ - HEAD * 0.5 - 0.045);
+        group.add(snout);
+      }
+      if (type === 'cow') {
+        // 角
+        const hornMat = mobSkinMat(0xd8d0c4);
+        for (const s of [-1, 1]) {
+          const horn = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.13, 0.07), hornMat);
+          horn.geometry.translate(0, 0.06, 0);
+          horn.position.set(s * HEAD * 0.42, headY + HEAD * 0.38, headZ + 0.02);
+          horn.rotation.z = -s * 0.3;
+          group.add(horn);
+        }
+      }
+      if (type === 'sheep') {
+        // 小さな耳(横に)
+        const earMat = mobSkinMat(0xcccccc);
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.07, 0.06), earMat);
+          ear.position.set(s * (HEAD * 0.5 + 0.04), headY + HEAD * 0.18, headZ - 0.02);
+          group.add(ear);
+        }
+      }
+      if (type === 'chicken') {
+        // くちばし + トサカ + 翼
+        const beak = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.07, 0.1), mobSkinMat(0xddaa33));
+        beak.position.set(0, headY - 0.02, headZ - HEAD * 0.5 - 0.045);
+        group.add(beak);
+        const wattle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.05), mobSkinMat(0xcc2222));
+        wattle.position.set(0, headY - 0.11, headZ - HEAD * 0.5 - 0.02);
+        group.add(wattle);
+        const wingMat = mobPartMat('chicken', 'body');
+        for (const s of [-1, 1]) {
+          const wing = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.26, 0.4), wingMat);
+          wing.position.set(s * (def.w * 0.5 + 0.035), body.position.y + 0.02, 0.02);
+          group.add(wing);
+        }
+      }
       if (type === 'fox') {
-        const tailMat = mobPartMat('fox', 'body');
-        const tailGeo = new THREE.BoxGeometry(0.15, 0.15, 0.5);
-        const tail = new THREE.Mesh(tailGeo, tailMat);
-        tail.position.set(0, def.h * 0.55, def.d * 0.5 + 0.2);
+        // 立ち耳 + 太い尻尾(白い先端)
+        const earMat = mobPartMat('fox', 'body');
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.14, 0.05), earMat);
+          ear.position.set(s * HEAD * 0.36, headY + HEAD * 0.52, headZ + 0.02);
+          ear.rotation.z = -s * 0.18;
+          group.add(ear);
+        }
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.55), mobPartMat('fox', 'body'));
+        tail.position.set(0, def.h * 0.55, def.d * 0.5 + 0.22);
         tail.rotation.x = -0.4;
         group.add(tail);
-        const tipMat = mobSkinMat(0xf0e8d8);
-        const tipGeo = new THREE.BoxGeometry(0.12, 0.12, 0.15);
-        const tip = new THREE.Mesh(tipGeo, tipMat);
-        tip.position.set(0, def.h * 0.5, def.d * 0.5 + 0.48);
+        const tip = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.16), mobSkinMat(0xf0e8d8));
+        tip.position.set(0, def.h * 0.48, def.d * 0.5 + 0.55);
         tip.rotation.x = -0.4;
         group.add(tip);
       }
-      // Wolf: tail + snout
       if (type === 'wolf') {
-        const tailMat = mobPartMat('wolf', 'body');
-        const tailGeo = new THREE.BoxGeometry(0.1, 0.1, 0.45);
-        const tail = new THREE.Mesh(tailGeo, tailMat);
-        tail.position.set(0, def.h * 0.65, def.d * 0.5 + 0.2);
-        tail.rotation.x = -0.8;
+        // 耳 + 鼻先 + 尻尾
+        const earMat = mobPartMat('wolf', 'skin');
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.12, 0.05), earMat);
+          ear.position.set(s * HEAD * 0.38, headY + HEAD * 0.52, headZ + 0.02);
+          ear.rotation.z = -s * 0.12;
+          group.add(ear);
+        }
+        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, 0.12), mobSkinMat(0xbfbdb4));
+        snout.position.set(0, headY - HEAD * 0.14, headZ - HEAD * 0.5 - 0.055);
+        group.add(snout);
+        const nose = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.04), mobSkinMat(0x1a1a1a));
+        nose.position.set(0, headY - HEAD * 0.12, headZ - HEAD * 0.5 - 0.13);
+        group.add(nose);
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.45), mobPartMat('wolf', 'body'));
+        tail.position.set(0, def.h * 0.62, def.d * 0.5 + 0.2);
+        tail.rotation.x = -0.7;
         group.add(tail);
       }
-      // Cat: tail
       if (type === 'cat') {
-        const tailMat = mobPartMat('cat', 'body');
-        const tailGeo = new THREE.BoxGeometry(0.08, 0.08, 0.5);
-        const tail = new THREE.Mesh(tailGeo, tailMat);
-        tail.position.set(0, def.h * 0.6, def.d * 0.5 + 0.2);
+        // 尖った耳 + 尻尾
+        const earMat = mobPartMat('cat', 'skin');
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.11, 0.05), earMat);
+          ear.position.set(s * HEAD * 0.4, headY + HEAD * 0.52, headZ + 0.02);
+          ear.rotation.z = -s * 0.2;
+          group.add(ear);
+        }
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.5), mobPartMat('cat', 'body'));
+        tail.position.set(0, def.h * 0.62, def.d * 0.5 + 0.22);
         tail.rotation.x = -1.0;
         group.add(tail);
       }
-      // Turtle: shell (big dome on back)
+      if (type === 'rabbit') {
+        // 長い耳(3D) + 白いしっぽ
+        const earMat = mobPartMat('rabbit', 'skin');
+        for (const s of [-1, 1]) {
+          const ear = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.05), earMat);
+          ear.position.set(s * 0.07, headY + HEAD * 0.5 + 0.1, headZ - 0.02);
+          ear.rotation.x = -0.15;
+          group.add(ear);
+        }
+        const puff = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 0.13), mobSkinMat(0xf2f2f2));
+        puff.position.set(0, def.h * 0.52, def.d * 0.5 + 0.05);
+        group.add(puff);
+      }
       if (type === 'turtle') {
+        // 甲羅(背中のドーム)
         const shellMat = mobPartMats6('turtle', 'body');
-        const shellGeo = new THREE.BoxGeometry(0.65, 0.25, 0.7);
-        const shell = new THREE.Mesh(shellGeo, shellMat);
-        shell.position.set(0, def.h * 0.75, 0);
+        const shell = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.26, 0.8), shellMat);
+        shell.position.set(0, def.h * 0.72, 0);
         group.add(shell);
       }
-      // Horse: neck + mane
-      if (type === 'horse') {
-        const neckMat = mobPartMat('horse', 'skin');
-        const neckGeo = new THREE.BoxGeometry(0.3, 0.6, 0.25);
-        const neck = new THREE.Mesh(neckGeo, neckMat);
-        neck.position.set(0, def.h * 0.85, -def.d * 0.4);
-        neck.rotation.x = 0.3;
-        group.add(neck);
-        // Mane
-        const maneMat = mobSkinMat(0x2a1a08);
-        const maneGeo = new THREE.BoxGeometry(0.06, 0.5, 0.2);
-        const mane = new THREE.Mesh(maneGeo, maneMat);
-        mane.position.set(0, def.h * 0.95, -def.d * 0.35);
-        group.add(mane);
-      }
-      // Rabbit: ears (3D)
-      if (type === 'rabbit') {
-        const earMat = mobPartMat('rabbit', 'skin');
-        const earGeo = new THREE.BoxGeometry(0.06, 0.2, 0.05);
-        const earL = new THREE.Mesh(earGeo, earMat);
-        earL.position.set(-0.08, def.h * 1.05, -def.d * 0.5 - 0.08);
-        group.add(earL);
-        const earR = new THREE.Mesh(earGeo.clone(), earMat);
-        earR.position.set(0.08, def.h * 1.05, -def.d * 0.5 - 0.08);
-        group.add(earR);
-      }
 
-      // Legs
-      const legW = type === 'chicken' ? 0.08 : (type === 'villager' ? 0.24 : 0.2);
-      const legH = def.h * (type === 'villager' ? 0.40 : 0.4);
-      const legGeo = new THREE.BoxGeometry(legW, legH, legW);
+      // Legs(付け根ピボット: geometryを下方向にずらし、原点=付け根にして歩行の振りを自然に)
+      const legW = ({ cow: 0.22, horse: 0.22, pig: 0.2, sheep: 0.18, wolf: 0.14, fox: 0.13, cat: 0.11, turtle: 0.16 })[type] || (type === 'chicken' ? 0.08 : 0.2);
+      const legH = def.h * legHF;
       const legMat = (MOB_SKIN_SPECS[type] && MOB_SKIN_SPECS[type].legs) ? mobPartMat(type, 'legs') : mobSkinMat(def.legColor);
 
-      const legPositions = [];
-      if (type === 'chicken' || type === 'rabbit') {
-        legPositions.push({ x: -0.08, z: 0 }, { x: 0.08, z: 0 });
+      group.userData.legs = [];
+      const addLeg = (w, h, x, z, mat, d) => {
+        const g = new THREE.BoxGeometry(w, h, d || w);
+        g.translate(0, -h / 2, 0); // 原点を付け根に
+        const leg = new THREE.Mesh(g, mat || legMat);
+        leg.position.set(x, h, z);
+        group.add(leg);
+        group.userData.legs.push(leg);
+      };
+      if (type === 'chicken') {
+        addLeg(legW, legH, -0.09, 0);
+        addLeg(legW, legH, 0.09, 0);
       } else if (type === 'villager') {
-        legPositions.push({ x: -0.13, z: 0 }, { x: 0.13, z: 0 });
+        addLeg(legW, legH, -0.13, 0);
+        addLeg(legW, legH, 0.13, 0);
+      } else if (type === 'rabbit') {
+        // 後脚(長め・太め) + 前脚(短め)。旧実装は太い2本が重なっていた。
+        addLeg(0.11, def.h * 0.38, -0.1, 0.1);
+        addLeg(0.11, def.h * 0.38, 0.1, 0.1);
+        addLeg(0.08, def.h * 0.32, -0.07, -0.14);
+        addLeg(0.08, def.h * 0.32, 0.07, -0.14);
       } else {
         const lx = def.w * 0.3;
         const lz = def.d * 0.35;
-        legPositions.push({ x: -lx, z: -lz }, { x: lx, z: -lz }, { x: -lx, z: lz }, { x: lx, z: lz });
-      }
-
-      group.userData.legs = [];
-      for (const pos of legPositions) {
-        const leg = new THREE.Mesh(legGeo, legMat);
-        leg.position.set(pos.x, legH / 2, pos.z);
-        group.add(leg);
-        group.userData.legs.push(leg);
+        addLeg(legW, legH, -lx, -lz);
+        addLeg(legW, legH, lx, -lz);
+        addLeg(legW, legH, -lx, lz, null, type === 'turtle' ? 0.26 : undefined);
+        addLeg(legW, legH, lx, lz, null, type === 'turtle' ? 0.26 : undefined);
       }
       return group;
     }
@@ -69617,7 +69681,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       const mesh = createMobMesh(type, mob.profession);
       mesh.position.set(x, y, z);
-      mesh.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } });
+      // castShadow のみ( receiveShadow はモブ自身に影アーティファクト(ぶつぶつ)を作るためオフ )
+      mesh.traverse(n => { if (n.isMesh) { n.castShadow = true; n.receiveShadow = false; } });
       mobGroup.add(mesh);
       mob.mesh = mesh;
 
@@ -70449,11 +70514,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(20, 40, 24, 6);
         ctx.fillStyle = "#4d2a2a";
         ctx.fillRect(20, 46, 24, 4);
-        // ちょいノイズ
-        ctx.fillStyle = "rgba(0,0,0,0.10)";
-        for (let i = 0; i < 120; i++) {
-          ctx.fillRect((Math.random() * size) | 0, (Math.random() * size) | 0, 2, 2);
-        }
       } else if (type === 'skeleton') {
         // 骸骨の顔
         ctx.fillStyle = "#d6d6c8";
@@ -70472,11 +70532,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillStyle = "#2a2a2a";
         for (let tx = 18; tx < 50; tx += 8) {
           ctx.fillRect(tx, 48, 4, 8);
-        }
-        // 骨のヒビ
-        ctx.fillStyle = "rgba(0,0,0,0.08)";
-        for (let i = 0; i < 80; i++) {
-          ctx.fillRect((Math.random() * size) | 0, (Math.random() * size) | 0, 2, 2);
         }
       } else if (type === 'spider') {
         // 甲殻の地(毛の縞入り)
@@ -70534,8 +70589,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // Hat brim (dark)
         ctx.fillStyle = "#1a0a2e";
         ctx.fillRect(0, 0, size, 12);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'slime') {
         ctx.fillStyle = "#51a03e";
         ctx.fillRect(0, 0, size, size);
@@ -70561,8 +70614,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // Dark mouth
         ctx.fillStyle = "#1a1a2e";
         ctx.fillRect(20, 40, 24, 8);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 50; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'ghast') {
         ctx.fillStyle = "#e8e8e8";
         ctx.fillRect(0, 0, size, size);
@@ -70580,8 +70631,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillStyle = "#6a6a6a";
         ctx.fillRect(12, 26, 4, 8);
         ctx.fillRect(50, 26, 4, 8);
-        ctx.fillStyle = "rgba(0,0,0,0.04)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'piglin') {
         ctx.fillStyle = "#d4a060";
         ctx.fillRect(0, 0, size, size);
@@ -70603,8 +70652,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(2, 4, 10, 14); ctx.fillRect(52, 4, 10, 14);
         ctx.fillStyle = "#d4a060";
         ctx.fillRect(4, 6, 6, 10); ctx.fillRect(54, 6, 6, 10);
-        ctx.fillStyle = "rgba(0,0,0,0.05)";
-        for (let i = 0; i < 50; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'vindicator') {
         ctx.fillStyle = "#9a9a9a";
         ctx.fillRect(0, 0, size, size);
@@ -70622,8 +70669,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // Mouth (grimace)
         ctx.fillStyle = "#3a2a1a";
         ctx.fillRect(22, 44, 20, 4);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'evoker') {
         ctx.fillStyle = "#1a1a2a";
         ctx.fillRect(0, 0, size, size);
@@ -70644,8 +70689,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // Mouth
         ctx.fillStyle = "#3a2a2a";
         ctx.fillRect(24, 46, 16, 4);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'blaze') {
         ctx.fillStyle = "#f0a020";
         ctx.fillRect(0, 0, size, size);
@@ -70659,8 +70702,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(20, 40, 24, 10);
         ctx.fillStyle = "#2a1800";
         ctx.fillRect(22, 42, 20, 6);
-        ctx.fillStyle = "rgba(255,200,0,0.1)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,3,3);
       } else if (type === 'wither_skeleton') {
         ctx.fillStyle = "#2a2a2a";
         ctx.fillRect(0, 0, size, size);
@@ -70676,8 +70717,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillStyle = "#1a1a1a";
         ctx.fillRect(20, 42, 24, 6);
         ctx.fillRect(22, 46, 4, 4); ctx.fillRect(30, 46, 4, 4); ctx.fillRect(38, 46, 4, 4);
-        ctx.fillStyle = "rgba(0,0,0,0.08)";
-        for (let i = 0; i < 50; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'magma_cube') {
         ctx.fillStyle = "#3a2020";
         ctx.fillRect(0, 0, size, size);
@@ -70692,8 +70731,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(20, 50, 24, 2); ctx.fillRect(10, 38, 16, 2);
         ctx.fillStyle = "#ff6600";
         ctx.fillRect(40, 44, 18, 2); ctx.fillRect(2, 36, 2, 16);
-        ctx.fillStyle = "rgba(255,100,0,0.1)";
-        for (let i = 0; i < 30; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'hoglin') {
         ctx.fillStyle = "#6a4030";
         ctx.fillRect(0, 0, size, size);
@@ -70712,8 +70749,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(14, 40, 6, 14); ctx.fillRect(44, 40, 6, 14);
         ctx.fillStyle = "#d8d0c0";
         ctx.fillRect(16, 42, 4, 10); ctx.fillRect(44, 42, 4, 10);
-        ctx.fillStyle = "rgba(0,0,0,0.08)";
-        for (let i = 0; i < 50; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'strider') {
         ctx.fillStyle = "#8a2020";
         ctx.fillRect(0, 0, size, size);
@@ -70726,8 +70761,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillStyle = "#4a1010";
         ctx.fillRect(24, 44, 16, 4);
         ctx.fillRect(22, 42, 4, 4); ctx.fillRect(38, 42, 4, 4);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 40; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'piglin_brute') {
         ctx.fillStyle = "#c49050";
         ctx.fillRect(0, 0, size, size);
@@ -70752,8 +70785,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillRect(2, 4, 10, 14); ctx.fillRect(52, 4, 10, 14);
         ctx.fillStyle = "#c49050";
         ctx.fillRect(4, 6, 6, 10); ctx.fillRect(54, 6, 6, 10);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 50; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else if (type === 'zombie_piglin') {
         ctx.fillStyle = "#d4a07a";
         ctx.fillRect(0, 0, size, size);
@@ -70774,19 +70805,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // Tusk
         ctx.fillStyle = "#e8e0d0";
         ctx.fillRect(20, 46, 4, 6); ctx.fillRect(40, 46, 4, 6);
-        ctx.fillStyle = "rgba(0,0,0,0.06)";
-        for (let i = 0; i < 60; i++) ctx.fillRect((Math.random()*size)|0,(Math.random()*size)|0,2,2);
       } else {
-        // creeper
-        ctx.fillStyle = "#2aa834";
-        ctx.fillRect(0, 0, size, size);
-        // まだら模様
-        ctx.fillStyle = "rgba(0,0,0,0.12)";
-        for (let i = 0; i < 90; i++) {
-          const w = 2 + ((Math.random() * 6) | 0);
-          const h = 2 + ((Math.random() * 6) | 0);
-          ctx.fillRect((Math.random() * (size - w)) | 0, (Math.random() * (size - h)) | 0, w, h);
-        }
+        // creeper: 地は体と同じ camo 模様(16×16を4倍引き伸ばし・スムージングなし)
+        const camoSpec = (MOB_SKIN_SPECS.creeper && MOB_SKIN_SPECS.creeper.camo) || ['camo', 0x2aa834, 0x1a7a24];
+        const camoCanvas = _mobPartTex(camoSpec, 'creeper:face:base').image;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(camoCanvas, 0, 0, 16, 16, 0, 0, size, size);
         // 顔（クリーパーっぽい）
         ctx.fillStyle = "#0b0b0b";
         ctx.fillRect(14, 18, 10, 14); // left eye
@@ -70832,9 +70856,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const _headPart = ({ zombie: 'skin', skeleton: 'bone', wither_skeleton: 'bone', spider: 'chitin', enderman: 'skin', witch: 'skin', slime: 'gel', phantom: 'membrane', ghast: 'skin', piglin: 'skin', vindicator: 'skin', evoker: 'robe', blaze: 'ember', magma_cube: 'crust', hoglin: 'hide', strider: 'skin', piglin_brute: 'skin', zombie_piglin: 'skin', creeper: 'camo', shulker: 'shell' })[type] || 'skin';
       const _hs = (MOB_SKIN_SPECS[type] && MOB_SKIN_SPECS[type][_headPart]) || ['mottle', baseColor, bottomColor];
       const _hsSide = [_hs[0], _hs[1], _hs[2], Object.assign({}, _hs[3] || {}, { topMark: null })];
-      const side = new THREE.MeshPhongMaterial({ color: baseColor, map: _mobPartTex(_hsSide, type + ':head:side'), flatShading: true });
-      const top = new THREE.MeshPhongMaterial({ color: baseColor, map: _mobPartTex(_hsSide, type + ':head:top'), flatShading: true });
-      const bottom = new THREE.MeshPhongMaterial({ color: bottomColor, map: _mobPartTex(_hsSide, type + ':head:bottom'), flatShading: true });
+      // map に色が入っているので color は白(二重乗算による濁り防止)。底面は模様自体を暗く。
+      const _botSpec = [_hs[0], _mobShadeHex(_hs[1], -0.32), _hs[2], {}];
+      const side = new THREE.MeshPhongMaterial({ color: 0xffffff, map: _mobPartTex(_hsSide, type + ':head:side'), flatShading: true });
+      const top = new THREE.MeshPhongMaterial({ color: 0xffffff, map: _mobPartTex(_hsSide, type + ':head:top'), flatShading: true });
+      const bottom = new THREE.MeshPhongMaterial({ color: 0xffffff, map: _mobPartTex(_botSpec, type + ':head:bottom'), flatShading: true });
       const face = new THREE.MeshPhongMaterial({ map: createEnemyFaceTexture(type), flatShading: true });
       const mat = [side, side, top, bottom, face, side];
       enemyMatCache.set(type, mat);
@@ -70861,7 +70887,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const rLeg = new THREE.Mesh(rLegGeo, legMat);
         rLeg.geometry.translate(0, -LIMB / 2, 0); // 原点を脚の付け根へ
         rLeg.position.set(0.125, LIMB, 0);
-        rLeg.castShadow = true; rLeg.receiveShadow = true;
+        rLeg.castShadow = true;
         group.add(rLeg);
         group.userData.rightLeg = rLeg;
 
@@ -70869,7 +70895,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const lLeg = new THREE.Mesh(lLegGeo, legMat);
         lLeg.geometry.translate(0, -LIMB / 2, 0);
         lLeg.position.set(-0.125, LIMB, 0);
-        lLeg.castShadow = true; lLeg.receiveShadow = true;
+        lLeg.castShadow = true;
         group.add(lLeg);
         group.userData.leftLeg = lLeg;
 
@@ -70878,7 +70904,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const bodyMat = mobPartMats6('zombie', 'shirt');
         const body = new THREE.Mesh(bodyGeo, bodyMat);
         body.position.y = LIMB + BODY_H / 2;
-        body.castShadow = true; body.receiveShadow = true;
+        body.castShadow = true;
         group.add(body);
         group.userData.body = body;
 
@@ -70889,7 +70915,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const rArm = new THREE.Mesh(rArmGeo, armMat);
         rArm.geometry.translate(0, -LIMB / 2, 0); // 原点を肩へ
         rArm.position.set(0.375, LIMB + BODY_H, 0);
-        rArm.castShadow = true; rArm.receiveShadow = true;
+        rArm.castShadow = true;
         group.add(rArm);
         group.userData.rightArm = rArm;
 
@@ -70897,7 +70923,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const lArm = new THREE.Mesh(lArmGeo, armMat);
         lArm.geometry.translate(0, -LIMB / 2, 0);
         lArm.position.set(-0.375, LIMB + BODY_H, 0);
-        lArm.castShadow = true; lArm.receiveShadow = true;
+        lArm.castShadow = true;
         group.add(lArm);
         group.userData.leftArm = lArm;
 
@@ -70905,7 +70931,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const headGeo = new THREE.BoxGeometry(HEAD, HEAD, HEAD);
         const head = new THREE.Mesh(headGeo, getEnemyMaterials(type));
         head.position.y = LIMB + BODY_H + HEAD / 2;
-        head.castShadow = true; head.receiveShadow = true;
+        head.castShadow = true;
         group.add(head);
         group.userData.head = head;
 
@@ -71160,6 +71186,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         lWing.geometry.translate(-0.5, 0, 0);
         lWing.position.set(-0.25, 0.55, -0.05); group.add(lWing);
         group.userData.leftWing = lWing;
+        // Tail (後方の細い尾)
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.5), bodyMat);
+        tail.position.set(0, 0.5, -0.65); tail.castShadow = true; group.add(tail);
 
       } else if (type === 'ghast') {
         // ガスト: 巨大な白い浮遊キューブ + 触手
@@ -71366,26 +71395,26 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         lTusk.position.set(-0.2, 0.85, 1.0); group.add(lTusk);
 
       } else if (type === 'strider') {
-        // ストライダー: small squat body with 2 dangling legs
+        // ストライダー: 高いスチル脚+前方に顔。旧実装は脚が短く地面に埋まり、頭が体の上に載っていた。
         const striderColor = 0x8a2020;
         const striderMat = mobPartMats6('strider', 'skin');
         // Body (squat)
-        const bodyGeo = new THREE.BoxGeometry(0.6, 0.6, 0.5);
+        const bodyGeo = new THREE.BoxGeometry(0.62, 0.5, 0.46);
         const body = new THREE.Mesh(bodyGeo, striderMat);
-        body.position.y = 0.7; body.castShadow = true; group.add(body);
-        // Head/face
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.4), getEnemyMaterials(type));
-        head.position.set(0, 1.15, 0.1); head.castShadow = true; group.add(head);
+        body.position.y = 1.15; body.castShadow = true; group.add(body);
+        // Head/face(体の前上方に突き出す)
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.34, 0.3), getEnemyMaterials(type));
+        head.position.set(0, 1.3, 0.32); head.castShadow = true; group.add(head);
         group.userData.head = head;
-        // 2 thin dangling legs
+        // 2 thin stilt legs (地面から体下端まで)
         const legMat = mobPartMat('strider', 'legs');
-        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), legMat);
-        rLeg.geometry.translate(0,-0.25,0);
-        rLeg.position.set(0.15, 0.4, 0); rLeg.castShadow = true; group.add(rLeg);
+        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.9, 0.09), legMat);
+        rLeg.geometry.translate(0,-0.45,0);
+        rLeg.position.set(0.16, 0.9, 0); rLeg.castShadow = true; group.add(rLeg);
         group.userData.rightLeg = rLeg;
-        const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), legMat);
-        lLeg.geometry.translate(0,-0.25,0);
-        lLeg.position.set(-0.15, 0.4, 0); lLeg.castShadow = true; group.add(lLeg);
+        const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.9, 0.09), legMat);
+        lLeg.geometry.translate(0,-0.45,0);
+        lLeg.position.set(-0.16, 0.9, 0); lLeg.castShadow = true; group.add(lLeg);
         group.userData.leftLeg = lLeg;
 
       } else if (type === 'piglin_brute') {
@@ -71467,7 +71496,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const headMats = baseMats.map(m => m.clone());
         const head = new THREE.Mesh(headGeo, headMats);
         head.position.y = 1.45;
-        head.castShadow = true; head.receiveShadow = true;
+        head.castShadow = true;
         group.add(head);
         group.userData.head = head;
 
@@ -71475,7 +71504,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const bodyGeo = new THREE.BoxGeometry(0.5, 0.9, 0.25);
         const body = new THREE.Mesh(bodyGeo, mobPartMats6('creeper', 'camo'));
         body.position.y = 0.75;
-        body.castShadow = true; body.receiveShadow = true;
+        body.castShadow = true;
         group.add(body);
 
         // Legs
@@ -71488,10 +71517,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         for (const pos of legPositions) {
           const legGeo = new THREE.BoxGeometry(0.25, 0.3, 0.25);
           const leg = new THREE.Mesh(legGeo, mat);
-          leg.position.set(pos.x, 0.15, pos.z);
-          leg.geometry.translate(0, -0.15, 0);
-          leg.position.y += 0.15;
-          leg.castShadow = true; leg.receiveShadow = true;
+          leg.geometry.translate(0, -0.15, 0);   // 原点を付け根(上端)に
+          leg.position.set(pos.x, 0.3, pos.z);   // 地面から体の下端まで(旧実装は地面に浮いていた)
+          leg.castShadow = true;
           group.add(leg);
           group.userData.legs.push(leg);
         }
@@ -71503,7 +71531,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
         const shell = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.8), shellMat);
         shell.position.y = 0.25;
-        shell.castShadow = true; shell.receiveShadow = true;
+        shell.castShadow = true;
         group.add(shell);
         group.userData.body = shell;
 
