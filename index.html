@@ -48,11 +48,13 @@
       display: none;
     }
 
+    /* 本家風クロスヘア（difference合成で背景が明るくても必ず見える） */
     #cross {
       position: relative;
-      width: 18px;
-      height: 18px;
-      opacity: .9;
+      width: 22px;
+      height: 22px;
+      opacity: .92;
+      mix-blend-mode: difference;
     }
 
     #cross::before,
@@ -61,19 +63,19 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      background: rgba(255, 255, 255, .9);
+      background: #e8e8e8;
       transform: translate(-50%, -50%);
-      border-radius: 99px;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .35);
     }
 
     #cross::before {
-      width: 18px;
+      width: 22px;
       height: 2px;
     }
 
     #cross::after {
       width: 2px;
-      height: 18px;
+      height: 22px;
     }
 
     #msg {
@@ -247,21 +249,23 @@
       justify-content: center;
     }
 
+    /* 本家風ホットバー（黒枠+内側ハイライトのビベル） */
     #hotbar {
       display: flex;
-      gap: 8px;
-      padding: 8px 10px;
-      background: rgba(0, 0, 0, .35);
-      border: 1px solid rgba(255, 255, 255, .2);
-      backdrop-filter: blur(6px);
+      gap: 4px;
+      padding: 5px;
+      background: rgba(12, 12, 12, .55);
+      border: 2px solid #000;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .18), 0 3px 8px rgba(0, 0, 0, .35);
       justify-content: center;
     }
 
     .slot {
       width: 48px;
       height: 48px;
-      border: 2px solid rgba(255, 255, 255, .3);
-      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid #1d1d1d;
+      background: rgba(38, 38, 38, .72);
+      box-shadow: inset 1px 1px 0 rgba(255, 255, 255, .14), inset -1px -1px 0 rgba(0, 0, 0, .5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -270,13 +274,15 @@
     }
 
     .slot:hover {
-      background: rgba(255, 255, 255, .15);
+      background: rgba(70, 70, 70, .75);
     }
 
+    /* 選択枠は本家風：白い太枠がスロットからはみ出す */
     .slot.sel {
       border-color: #fff;
-      background: rgba(255, 255, 255, .25);
-      transform: scale(1.05);
+      box-shadow: 0 0 0 2px #fff, 0 0 0 3px #000,
+        inset 1px 1px 0 rgba(255, 255, 255, .2), inset -1px -1px 0 rgba(0, 0, 0, .5);
+      background: rgba(86, 86, 86, .78);
     }
 
     .icon {
@@ -559,10 +565,10 @@
 
     .xpCenter {
       align-self: center;
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
-      color: #66ff66;
-      text-shadow: 2px 2px 0 #000;
+      color: #9dff6a;
+      text-shadow: 2px 2px 0 #143b00, -1px -1px 0 #143b00, 1px -1px 0 #143b00, -1px 1px 0 #143b00;
       line-height: 1;
       padding-bottom: 2px;
       min-width: 80px;
@@ -581,104 +587,82 @@
       margin-bottom: 1px;
     }
 
+    /* ==== ピクセルアートUI（起動時に生成したオリジナル絵を使用） ==== */
+    .pix {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      image-rendering: pixelated;
+      line-height: 1;
+    }
+
+    /* 半分表示: 前面レイヤーに200%幅で左半分だけ重ねる */
+    .pix.half {
+      background-size: 200% 100%, 100% 100%;
+      background-position: left, center;
+    }
+
     .armorUnit {
-      position: relative;
-      display: inline-block;
-      width: 15px;
-      height: 16px;
-      filter: drop-shadow(2px 2px 0 #000);
+      width: 18px;
+      height: 18px;
     }
 
-    .armorUnit::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: #d8dde7;
-      clip-path: polygon(50% 0%, 88% 14%, 82% 62%, 50% 100%, 18% 62%, 12% 14%);
+    .armorUnit.lost {
+      opacity: .85;
     }
 
-    .armorUnit.lost::before {
-      background: #47505d;
-      opacity: 0.55;
+    /* ダメージ時のハート揺れ */
+    @keyframes heartShake {
+      0%, 100% { transform: translateY(0); }
+      20% { transform: translateY(-3px); }
+      40% { transform: translateY(2px); }
+      60% { transform: translateY(-2px); }
+      80% { transform: translateY(1px); }
     }
 
-    .armorUnit.half::before {
-      background: linear-gradient(90deg, #d8dde7 0 50%, #47505d 50% 100%);
+    #hearts.shake .pix {
+      animation: heartShake .38s ease-in-out;
     }
 
-    .heart {
-      color: #ff3333;
-      font-size: 20px;
-      text-shadow: 2px 2px 0 #000;
-      line-height: 1;
+    /* 低HP時のハート点滅 */
+    @keyframes hpBlink {
+      0%, 100% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.12); filter: brightness(1.5) saturate(1.3); }
     }
 
-    .heart.lost {
-      color: #441111;
-      opacity: 0.6;
+    #hearts.lowHp .pix:not(.lost) {
+      animation: hpBlink 1s ease-in-out infinite;
     }
 
-    .heart.half {
-      position: relative;
-      display: inline-block;
-      width: 1em;
-      color: transparent;
-      /* 本体は透明にして疑似要素で描く */
-      text-shadow: 2px 2px 0 #000;
+    /* ハート/空腹/泡は .pix + JSで注入した背景画像で描画される */
+    .pixHeart {
+      width: 20px;
+      height: 20px;
     }
 
-    .heart.half::before {
-      content: "♥";
-      position: absolute;
-      left: 0;
-      top: 0;
-      color: #ff3333;
-      clip-path: inset(0 50% 0 0);
-      /* 左半分だけ赤 */
+    .pixHeart.lost {
+      opacity: .95;
     }
 
-    .heart.half::after {
-      content: "♥";
-      position: absolute;
-      left: 0;
-      top: 0;
-      color: #441111;
-      opacity: 0.85;
-      clip-path: inset(0 0 0 50%);
-      /* 右半分だけ暗 */
+    .pixFood {
+      width: 20px;
+      height: 20px;
     }
 
-    .bubble {
-      color: #33ccff;
-      font-size: 18px;
-      text-shadow: 1px 1px 0 #000;
-      line-height: 1;
+    .pixFood.lost {
+      opacity: .95;
     }
 
-    .bubble.lost {
+    .pixBubble {
+      width: 18px;
+      height: 18px;
+    }
+
+    .pixBubble.lost {
       opacity: 0;
-    }
-
-    .foodUnit {
-      font-size: 15px;
-      line-height: 1;
-      text-shadow: 2px 2px 0 #000;
-    }
-
-    .foodUnit.half {
-      opacity: 0.5;
-    }
-
-    .foodUnit.half {
-      color: transparent;
-      background: linear-gradient(90deg, #e69138 50%, #442211 50%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .foodUnit.lost {
-      opacity: 0.3;
-      filter: grayscale(100%);
     }
 
     /* Death Screen */
@@ -773,6 +757,25 @@
       pointer-events: none;
       z-index: 6;
       transition: background-color 0.15s linear;
+    }
+
+    /* 水中オーバーレイ（頭が水中にある時の青色フィルタ） */
+    #waterTint {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 62, 168, .32);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 7;
+      transition: opacity .18s linear;
+    }
+
+    #waterTint::after {
+      /* 水面の波紋風の淡いむら */
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, .06) 0 30%, transparent 70%);
     }
 
     /* Creative item palette */
@@ -956,7 +959,7 @@
     }
 
 
-    /* XP Bar */
+    /* XP Bar（本家風の緑ゲージ+目盛り） */
     #xpBar {
       position: fixed;
       left: 50%;
@@ -964,8 +967,9 @@
       transform: translateX(-50%);
       width: min(520px, calc(100vw - 40px));
       height: 10px;
-      background: rgba(0, 0, 0, .35);
-      border: 1px solid rgba(255, 255, 255, .25);
+      background: rgba(10, 10, 10, .8);
+      border: 2px solid #000;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
       box-sizing: border-box;
       z-index: 12;
       pointer-events: none;
@@ -976,7 +980,18 @@
     #xpFill {
       height: 100%;
       width: 0%;
-      background: rgba(80, 255, 80, .85);
+      background: linear-gradient(180deg, #b8ff8a 0 35%, #7bf74b 35% 100%);
+      box-shadow: 0 0 6px rgba(120, 255, 80, .45);
+    }
+
+    /* 目盛り（8pxごとに暗い区切り） */
+    #xpBar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg,
+        transparent 0 7px, rgba(0, 0, 0, .35) 7px 8px);
+      pointer-events: none;
     }
 
     /* Clamp status rows to half-hotbar so they don't overflow */
@@ -1675,6 +1690,7 @@
 
   <div id="caveShade"></div>
   <div id="burnOverlay"></div>
+  <div id="waterTint"></div>
   <div id="brewPanel" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);place-items:center;font-family:system-ui,sans-serif;">
     <div style="background:#1a1a2e;border:2px solid #555;border-radius:12px;padding:18px 22px;min-width:340px;max-width:460px;margin:auto;margin-top:12vh;color:#fff;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -59172,6 +59188,16 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         height += (dunes - 0.5) * 3.0 * (1.0 - hydro.oceanMask * 0.85) * (1.0 - hydro.riverMask * 0.65);
       }
 
+      // 地形の微細ディテール: 緩やかな小起伏を全域に足す（平原と水辺では抑制）
+      {
+        const detail = (fbm((x + 9000) * 0.045, (z + 9000) * 0.045, 2, 2.0, 0.5) - 0.5) * 2.4;
+        const flatDamp = 1 - plainsFactor * 0.92;
+        const waterDamp = (1 - Math.min(1, hydro.oceanMask * 9))
+          * (1 - Math.min(1, hydro.riverMask * 7))
+          * (1 - Math.min(1, hydro.lakeMask * 7));
+        height += detail * flatDamp * waterDamp;
+      }
+
       height = Math.round(height);
       height = Math.max(2, Math.min(H - 4, height));
       return height;
@@ -59442,6 +59468,33 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
                   if (biome === 'sunflower_plains') fid = (fr < 0.7) ? SUNFLOWER_ID : (fr < 0.85 ? DANDELION_ID : POPPY_ID);
                   else fid = fr < 0.14 ? DANDELION_ID : fr < 0.28 ? POPPY_ID : fr < 0.42 ? CORNFLOWER_ID : fr < 0.56 ? AZURE_BLUET_ID : fr < 0.68 ? ALLIUM_ID : fr < 0.80 ? OXEYE_DAISY_ID : fr < 0.90 ? LILAC_ID : ROSE_BUSH_ID;
                   setBlock(x, h, z, fid);
+                }
+              }
+            }
+            // サボテン（砂漠の砂の上。1〜3段）
+            if (biome === 'desert' && h > SEA_LEVEL && rand3(x, 0, z, 88) < 0.016) {
+              const cSurf = getBlockSafe(x, h - 1, z);
+              if (cSurf === 4 && getBlockSafe(x, h, z) === 0) {
+                const ch = 1 + Math.floor(rand3(x, 0, z, 89) * 3);
+                for (let k = 0; k < ch; k++) {
+                  if (getBlockSafe(x, h + k, z) === 0) setBlock(x, h + k, z, 10);
+                }
+              }
+            }
+            // 枯れ木（砂漠・バッドランズ）
+            if ((biome === 'desert' || biome === 'mesa' || biome === 'eroded_badlands' || biome === 'wooded_badlands') && h > SEA_LEVEL && rand3(x, 0, z, 90) < 0.010) {
+              const dSurf = getBlockSafe(x, h - 1, z);
+              if ((dSurf === 4 || dSurf === 99) && getBlockSafe(x, h, z) === 0) {
+                setBlock(x, h, z, DEAD_BUSH_ID);
+              }
+            }
+            // サトウキビ（海・川・湖の際の陸地。1〜3段）
+            if (h === SEA_LEVEL + 1 && (hydro.riverMask > 0.15 || hydro.lakeMask > 0.15 || hydro.oceanMask > 0.05) && rand3(x, 0, z, 91) < 0.14) {
+              const sSurf = getBlockSafe(x, h - 1, z);
+              if ((sSurf === 4 || sSurf === 1 || sSurf === 2 || sSurf === 3) && getBlockSafe(x, h, z) === 0) {
+                const sh2 = 1 + Math.floor(rand3(x, 0, z, 92) * 3);
+                for (let k = 0; k < sh2; k++) {
+                  if (getBlockSafe(x, h + k, z) === 0) setBlock(x, h + k, z, SUGAR_CANE_ID);
                 }
               }
             }
@@ -60945,8 +60998,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const r10 = hash2i(xi + 1, zi);
       const r01 = hash2i(xi, zi + 1);
       const r11 = hash2i(xi + 1, zi + 1);
-      const u = smoothstep(xf);
-      const v = smoothstep(zf);
+      // 五次補間（quintic fade）: smoothstepより高階まで滑らかでグリッド状の偽影が出にくい
+      const u = xf * xf * xf * (xf * (xf * 6 - 15) + 10);
+      const v = zf * zf * zf * (zf * (zf * 6 - 15) + 10);
       const a = lerp(r00, r10, u);
       const b = lerp(r01, r11, u);
       return lerp(a, b, v);
@@ -62423,14 +62477,107 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     scene.add(moon.target);
     scene.add(moon);
 
-    // Visible sun/moon disks (simple spheres far away)
-    const _celGeo = new THREE.SphereGeometry(6, 16, 12);
-    const sunDisk = new THREE.Mesh(_celGeo, new THREE.MeshBasicMaterial({ color: 0xfff1a8 }));
-    const moonDisk = new THREE.Mesh(_celGeo, new THREE.MeshBasicMaterial({ color: 0xcfe2ff }));
+    // Visible sun/moon (本家風のピクセルスクエア板 + 加算合成のグロー)
+    function _makeCelestialTexture(kind) {
+      const c = document.createElement("canvas");
+      c.width = c.height = 32;
+      const g = c.getContext("2d");
+      if (kind === "sun") {
+        // ピクセル粒の太陽: 外周はやや暗い橙黄、中心は白味
+        g.fillStyle = "#f8c860"; g.fillRect(0, 0, 32, 32);
+        g.fillStyle = "#ffdf7d"; g.fillRect(2, 2, 28, 28);
+        g.fillStyle = "#fff0a8"; g.fillRect(6, 6, 20, 20);
+        g.fillStyle = "#fffbe0"; g.fillRect(11, 11, 10, 10);
+        // 角を落として丸みを出す（ドット風）
+        g.clearRect(0, 0, 4, 4); g.clearRect(28, 0, 4, 4);
+        g.clearRect(0, 28, 4, 4); g.clearRect(28, 28, 4, 4);
+        g.clearRect(1, 0, 2, 1); g.clearRect(0, 1, 1, 2);
+        g.clearRect(29, 0, 3, 1); g.clearRect(31, 1, 1, 2);
+        g.clearRect(0, 29, 1, 3); g.clearRect(1, 31, 2, 1);
+        g.clearRect(31, 29, 1, 3); g.clearRect(29, 31, 3, 1);
+      } else {
+        // 月: 淡い青白の板+クレーター
+        g.fillStyle = "#dfe6f2"; g.fillRect(0, 0, 32, 32);
+        g.fillStyle = "#c6d0e2"; g.fillRect(4, 8, 6, 6);
+        g.fillRect(20, 4, 5, 5); g.fillRect(12, 18, 7, 7);
+        g.fillRect(22, 22, 4, 4); g.fillRect(6, 24, 4, 4);
+        g.fillStyle = "#eef3fb"; g.fillRect(0, 0, 32, 2);
+        g.clearRect(0, 0, 3, 3); g.clearRect(29, 0, 3, 3);
+        g.clearRect(0, 29, 3, 3); g.clearRect(29, 29, 3, 3);
+      }
+      const t = new THREE.CanvasTexture(c);
+      t.magFilter = THREE.NearestFilter;
+      t.minFilter = THREE.NearestFilter;
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }
+    function _makeGlowTexture() {
+      const c = document.createElement("canvas");
+      c.width = c.height = 64;
+      const g = c.getContext("2d");
+      const grd = g.createRadialGradient(32, 32, 2, 32, 32, 31);
+      grd.addColorStop(0, "rgba(255,236,170,0.85)");
+      grd.addColorStop(0.45, "rgba(255,190,110,0.35)");
+      grd.addColorStop(1, "rgba(255,170,80,0)");
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }
+    const sunDisk = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: _makeCelestialTexture("sun"), fog: false, transparent: true, depthWrite: false,
+    }));
+    const sunHalo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: _makeGlowTexture(), fog: false, transparent: true, depthWrite: false,
+      blending: THREE.AdditiveBlending, opacity: 0.0,
+    }));
+    const moonDisk = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: _makeCelestialTexture("moon"), fog: false, transparent: true, depthWrite: false,
+    }));
+    sunDisk.scale.set(13, 13, 1);
+    sunHalo.scale.set(34, 34, 1);
+    moonDisk.scale.set(11, 11, 1);
     sunDisk.frustumCulled = false;
+    sunHalo.frustumCulled = false;
     moonDisk.frustumCulled = false;
     scene.add(sunDisk);
+    scene.add(sunHalo);
     scene.add(moonDisk);
+
+    // ===== 星空（夜だけフェードイン。天球に点在しプレイヤーと一緒に移動する） =====
+    const _STAR_COUNT = 420;
+    const starGeo = new THREE.BufferGeometry();
+    {
+      const pos = new Float32Array(_STAR_COUNT * 3);
+      for (let i = 0; i < _STAR_COUNT; i++) {
+        // 球面上に一様分布（上下偏りを減らす）
+        const u = Math.random() * 2 - 1;
+        const th = Math.random() * Math.PI * 2;
+        const rxy = Math.sqrt(1 - u * u);
+        const R = Math.min(RENDER_RADIUS + 50, camera.far - 12);
+        pos[i * 3] = Math.cos(th) * rxy * R;
+        pos[i * 3 + 1] = u * R;
+        pos[i * 3 + 2] = Math.sin(th) * rxy * R;
+      }
+      starGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    }
+    const starMat = new THREE.PointsMaterial({
+      color: 0xdfe8ff, size: 2.0, sizeAttenuation: false,
+      transparent: true, opacity: 0.0, fog: false, depthWrite: false,
+    });
+    const starMesh = new THREE.Points(starGeo, starMat);
+    starMesh.frustumCulled = false;
+    starMesh.visible = false;
+    scene.add(starMesh);
+    // 明るい星を少し大きく見せる（2層目）
+    const starMat2 = starMat.clone();
+    starMat2.size = 3.2;
+    starMat2.opacity = 0.0;
+    const starMesh2 = new THREE.Points(starGeo, starMat2);
+    starMesh2.frustumCulled = false;
+    starMesh2.visible = false;
+    scene.add(starMesh2);
 
     // Day/night factors updated every frame
     let _dayFactor = 1.0;   // 0..1
@@ -63515,6 +63662,144 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
     }
 
+    /* ===== オリジナルピクセルアートUI（ハート・空腹・泡・防具） =====
+       起動時に1回だけcanvasへ描いてdataURL化し、CSSへ注入する。
+       テキスト文字(♥)や絵文字(🍖)に頼らない、このゲーム独自のドット絵。 */
+    const PIX_ICONS = {};
+    function _pixMakeCanvas(rows, palette, scale = 4) {
+      const h = rows.length, w = rows[0].length;
+      const cv = document.createElement("canvas");
+      cv.width = w * scale; cv.height = h * scale;
+      const ctx = cv.getContext("2d");
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const col = palette[rows[y][x]];
+          if (!col) continue;
+          ctx.fillStyle = col;
+          ctx.fillRect(x * scale, y * scale, scale, scale);
+        }
+      }
+      return cv;
+    }
+    // マスク(X=塗り)から輪郭を自動生成: 塗りセルの4近傍に空き/枠外があれば輪郭K、それ以外は内部I
+    function _pixOutlined(mask) {
+      return mask.map((row, y) => row.split("").map((ch, x) => {
+        if (ch !== "X") return ".";
+        const up = y > 0 ? mask[y - 1][x] : ".";
+        const dn = y < mask.length - 1 ? mask[y + 1][x] : ".";
+        const lf = x > 0 ? row[x - 1] : ".";
+        const rt = x < row.length - 1 ? row[x + 1] : ".";
+        return (up === "X" && dn === "X" && lf === "X" && rt === "X") ? "I" : "K";
+      }).join(""));
+    }
+    // 内部ピクセル(I)を条件で色分けする
+    function _pixShade(mask, zones, fallback = "R") {
+      return mask.map((row, y) => row.split("").map((ch, x) =>
+        ch === "I" ? (zones.find(z => z.test(x, y)) || { ch: fallback }).ch : ch
+      ).join(""));
+    }
+
+    (function buildStatusIcons() {
+      const S = 4; // ドット倍率 (9x9 → 36x36)
+
+      // --- ハート（本体+左上ハイライト+右下陰影） ---
+      const heartMask = [
+        ".XX...XX.",
+        "XXXX.XXXX",
+        "XXXXXXXXX",
+        "XXXXXXXXX",
+        ".XXXXXXX.",
+        "..XXXXX..",
+        "...XXX...",
+        "....X....",
+        ".........",
+      ];
+      const heartO = _pixOutlined(heartMask);
+      const heartFull = _pixShade(heartO, [
+        { test: (x, y) => x + y <= 4, ch: "H" },
+        { test: (x, y) => x + y >= 9 || (x >= 5 && y >= 4), ch: "D" },
+      ]);
+      const heartEmpty = _pixShade(heartO, [
+        { test: (x, y) => x + y <= 4, ch: "F" },
+        { test: (x, y) => x + y >= 9 || (x >= 5 && y >= 4), ch: "D" },
+      ], "E");
+      PIX_ICONS.heartFull = _pixMakeCanvas(heartFull, { K: "#1c0405", H: "#ff8a7a", R: "#ea3c34", D: "#a01812" }, S).toDataURL();
+      PIX_ICONS.heartEmpty = _pixMakeCanvas(heartEmpty, { K: "#0b0b0b", F: "#4d4d4d", E: "#2a2a2a", D: "#161616" }, S).toDataURL();
+
+      // --- 空腹（ドラムステック: 肉塊+左下の白い骨） ---
+      const foodFull = [
+        "...KKKK..",
+        "..KMMMMK.",
+        ".KMMMMMMK",
+        ".KMHMMMMK",
+        ".KMMMMMMK",
+        "..KMMMMK.",
+        ".KWKKKK..",
+        "KWWK.....",
+        ".KK......",
+      ];
+      const foodEmpty = foodFull.map(r => r.replace(/[MH]/g, "E").replace(/W/g, "F"));
+      PIX_ICONS.foodFull = _pixMakeCanvas(foodFull, { K: "#2b1206", M: "#b06a3b", H: "#d89a5e", W: "#f0e8d4" }, S).toDataURL();
+      PIX_ICONS.foodEmpty = _pixMakeCanvas(foodEmpty, { K: "#0b0b0b", E: "#2a2a2a", F: "#3d3d3d" }, S).toDataURL();
+
+      // --- 泡（円+左上の白い光沢） ---
+      const bubbleMask = [];
+      for (let y = 0; y < 9; y++) {
+        let s = "";
+        for (let x = 0; x < 9; x++) {
+          s += (Math.hypot(x - 4, y - 4) <= 3.6) ? "X" : ".";
+        }
+        bubbleMask.push(s);
+      }
+      const bubble = _pixShade(_pixOutlined(bubbleMask), [
+        { test: (x, y) => (x - 2.5) * (x - 2.5) + (y - 2.5) * (y - 2.5) <= 2.2, ch: "W" },
+        { test: (x, y) => x + y >= 10, ch: "D" },
+      ]);
+      PIX_ICONS.bubble = _pixMakeCanvas(bubble, { K: "#16466b", W: "#eefaff", R: "#6ec6f0", D: "#3b83c2" }, S).toDataURL();
+
+      // --- 防具（チェストプレート: 肩+胴体、首の穴） ---
+      const armorMask = [
+        ".XX...XX.",
+        "XXXX.XXXX",
+        "XXXX.XXXX",
+        "XXXXXXXXX",
+        "XXXXXXXXX",
+        "XXXXXXXXX",
+        ".XXXXXXX.",
+        ".XXXXXXX.",
+        "..XXXXX..",
+      ];
+      const armorO = _pixOutlined(armorMask);
+      const armorFull = _pixShade(armorO, [
+        { test: (x, y) => x <= 1 && y <= 5, ch: "H" },
+        { test: (x, y) => x >= 7 || y >= 7, ch: "D" },
+      ]);
+      const armorEmpty = _pixShade(armorO, [
+        { test: (x, y) => x <= 1 && y <= 5, ch: "F" },
+        { test: (x, y) => x >= 7 || y >= 7, ch: "D" },
+      ], "E");
+      PIX_ICONS.armorFull = _pixMakeCanvas(armorFull, { K: "#14181f", H: "#f2f6fb", R: "#c8d0dc", D: "#8b95a5" }, S).toDataURL();
+      PIX_ICONS.armorEmpty = _pixMakeCanvas(armorEmpty, { K: "#0b0b0b", F: "#3a3f47", E: "#22262c", D: "#171a1f" }, S).toDataURL();
+
+      // CSSへ注入
+      const css = [
+        `.pixHeart { background-image: url(${PIX_ICONS.heartFull}); }`,
+        `.pixHeart.lost { background-image: url(${PIX_ICONS.heartEmpty}); }`,
+        `.pixHeart.half { background-image: url(${PIX_ICONS.heartFull}), url(${PIX_ICONS.heartEmpty}); }`,
+        `.pixFood { background-image: url(${PIX_ICONS.foodFull}); }`,
+        `.pixFood.lost { background-image: url(${PIX_ICONS.foodEmpty}); }`,
+        `.pixFood.half { background-image: url(${PIX_ICONS.foodFull}), url(${PIX_ICONS.foodEmpty}); }`,
+        `.pixBubble { background-image: url(${PIX_ICONS.bubble}); }`,
+        `.armorUnit { background-image: url(${PIX_ICONS.armorFull}); }`,
+        `.armorUnit.lost { background-image: url(${PIX_ICONS.armorEmpty}); }`,
+        `.armorUnit.half { background-image: url(${PIX_ICONS.armorFull}), url(${PIX_ICONS.armorEmpty}); background-size: 200% 100%, 100% 100%; background-position: left, center; }`,
+      ].join("\n");
+      const st = document.createElement("style");
+      st.id = "pixIconStyle";
+      st.textContent = css;
+      document.head.appendChild(st);
+    })();
+
     const armorUI = $("armorBar");
     const heartsUI = $("hearts");
     const bubblesUI = $("bubbles");
@@ -63541,13 +63826,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             let cls = " lost";
             if (armorPoints >= need) cls = "";
             else if (armorPoints === need - 1) cls = " half";
-            s.className = "armorUnit" + (cls ? cls : "");
+            s.className = "armorUnit pix" + (cls ? cls : "");
             armorUI.appendChild(s);
           }
         }
       }
 
-      // HP（0.5刻み対応）
+      // HP（0.5刻み対応・オリジナルピクセルアート）
       heartsUI.innerHTML = "";
       const maxHearts = Math.ceil(player.maxHp / 2); // 通常10
       // 体力を「半ハート単位」で扱う（例: 19.5hp => 39 half-units）
@@ -63559,10 +63844,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         let cls = " lost";
         if (have >= need) cls = "";                // full
         else if (have >= need - 3) cls = " half";  // half (0.5hp以上で半ハート表示)
-        s.className = "heart" + (cls ? cls : "");
-        s.textContent = "♥";
+        s.className = "pix pixHeart" + (cls ? cls : "");
         heartsUI.appendChild(s);
       }
+      // 低HP（6以下）でハートを点滅させる
+      heartsUI.classList.toggle("lowHp", player.hp <= 6 && player.hp > 0);
       // Air
       bubblesUI.innerHTML = "";
       if (player.air < player.maxAir) {
@@ -63570,8 +63856,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const currentBubbles = Math.ceil(player.air);
         for (let i = 0; i < maxBubbles; i++) {
           const s = document.createElement("span");
-          s.className = "bubble" + (i < currentBubbles ? "" : " lost");
-          s.textContent = "○";
+          s.className = "pix pixBubble" + (i < currentBubbles ? "" : " lost");
           bubblesUI.appendChild(s);
         }
       }
@@ -63585,12 +63870,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         // 左側(i=0)が高満腹度、右側(i=9)が低満腹度（枯渇すると右から減るように見える）
         const j = maxFood - 1 - i;
         const need = (j + 1) * 4; // このアイコンが満タンになるのに必要なhalf-units
-        
+
         let status = "lost";
         if (foodHalf >= need) status = "";
         else if (foodHalf >= need - 3) status = " half";
-        s.className = "foodUnit" + (status === "" ? "" : (status === " half" ? " half" : " lost"));
-        s.textContent = "🍖";
+        s.className = "pix pixFood" + (status === "" ? "" : (status === " half" ? " half" : " lost"));
         foodUI.appendChild(s);
       }
     }
@@ -63606,6 +63890,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       player.hp -= amount;
       if (player.hp > 0) sfxHurt(); // ダメージ音(死ぬときは下で死亡音)
+
+      // ハートを揺らす（本家風のダメージ演出）
+      heartsUI.classList.remove("shake");
+      void heartsUI.offsetWidth; // reflowでアニメーションを再始動
+      heartsUI.classList.add("shake");
+      setTimeout(() => heartsUI.classList.remove("shake"), 420);
 
       const dmgOv = $("damageOverlay");
       if (dmgOv) {
@@ -72381,10 +72671,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     }
 
     /* ===== 雲 ===== */
-    const CLOUD_Y = 90;
+    const CLOUD_Y = 96;
     const CLOUD_COUNT = 300;
-    const cloudGeo = new THREE.BoxGeometry(16, 6, 16);
-    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.65 });
+    const cloudGeo = new THREE.BoxGeometry(16, 3, 16);
+    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 });
     const cloudMesh = new THREE.InstancedMesh(cloudGeo, cloudMat, CLOUD_COUNT);
     cloudMesh.frustumCulled = false;
     scene.add(cloudMesh);
@@ -72394,7 +72684,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const cx = player.pos.x;
       const cz = player.pos.z;
       let idx = 0;
-      const step = 40;
+      const step = 48;
       const r = 8;
 
       for (let z = -r; z <= r; z++) {
@@ -72414,7 +72704,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             // Truly Relative
             dummy.position.set(wx - cx, CLOUD_Y, wz - cz);
             dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1 + n, 1, 1 + n);
+            dummy.scale.set(1.4 + n * 1.6, 1, 1.4 + n * 1.6);
             dummy.updateMatrix();
             cloudMesh.setMatrixAt(idx++, dummy.matrix);
           }
@@ -79515,9 +79805,36 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
     // スカイカラー用の永続オブジェクト（毎フレームのGCを防ぐ）
     const _daySky   = new THREE.Color(0xbfe9ff);
-    const _duskSky  = new THREE.Color(0xffaa66);
+    const _duskSky  = new THREE.Color(0xff9848);
     const _nightSky = new THREE.Color(0x050510);
     const _skyColor = new THREE.Color();
+
+    // ===== 群系別の大気色（空とフォグをほんのり染める。白=影響なし） =====
+    const BIOME_SKY_TINTS = {
+      desert: 0xffeecb, savanna: 0xfff2c8, savanna_plateau: 0xfff2c8,
+      jungle: 0xcdf2dc, sparse_jungle: 0xd6f5e2, bamboo_jungle: 0xc8f2d8,
+      swamp: 0xa9c4a2, mangrove_swamp: 0xa9c4a2, dark_forest: 0xb2c4ae,
+      cherry_grove: 0xffe6ef,
+      mesa: 0xffdfc2, eroded_badlands: 0xffdfc2, wooded_badlands: 0xffe5c8,
+      mushroom_fields: 0xe4d8f0,
+      tundra: 0xe6f2ff, ice_plains: 0xe9f5ff, snowy_taiga: 0xe2f0ff,
+      snowy_slopes: 0xe9f5ff, frozen_peaks: 0xe9f5ff, ice_spikes: 0xe9f5ff,
+      jagged_peaks: 0xe8f2ff, stony_peaks: 0xe0e8f0, grove: 0xdff0ec,
+      frozen_ocean: 0xdcedff, snowy_beach: 0xe9f5ff,
+      ocean: 0xcfe8fa, warm_ocean: 0xd2f0fa, lukewarm_ocean: 0xd0ecfa,
+      deep_ocean: 0xc4e2f8, river: 0xd0e8f4,
+      beach: 0xfff4dc, stony_shore: 0xdfe6ea,
+      windswept_hills: 0xe4eef8, windswept_forest: 0xe4eef8,
+      windswept_gravelly_hills: 0xe4eef8,
+      meadow: 0xeaf6e2, flower_forest: 0xf2ecff,
+      taiga: 0xdceee0, birch_forest: 0xe8f6e0, forest: 0xdff0dc,
+      old_growth_pine_taiga: 0xd8ecd8, old_growth_spruce_taiga: 0xd8ecd8,
+      old_growth_birch_forest: 0xe4f4dc,
+    };
+    const _biomeTint = new THREE.Color(0xffffff);
+    const _biomeTintTarget = new THREE.Color(0xffffff);
+    let _biomeTintTimer = 0;
+    let _cachedWaterTintEl = null;
 
     let lastTime = performance.now();
     function animate() {
@@ -79604,6 +79921,17 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // ===== 環境更新（昼夜・空・ライト） =====
       gameTime += dt;
       if (gameTime >= CYCLE_LENGTH) gameTime = 0;
+
+      // 群系別大気色: 0.5秒ごとにプレイヤー地点の群系を再計算し、目標色を滑らかに追従させる
+      _biomeTintTimer -= dt;
+      if (_biomeTintTimer <= 0) {
+        _biomeTintTimer = 0.5;
+        try {
+          const bName = getBiomeTypeAt(Math.floor(player.pos.x), Math.floor(player.pos.z));
+          _biomeTintTarget.setHex(BIOME_SKY_TINTS[bName] !== undefined ? BIOME_SKY_TINTS[bName] : 0xffffff);
+        } catch (e) { }
+      }
+      _biomeTint.lerp(_biomeTintTarget, Math.min(1, dt * 1.8));
       villageCheckCooldown -= dt;
       if (villageCheckCooldown <= 0) {
         tryGenerateVillagesAroundPlayer(settings.performanceMode ? 1 : 2);
@@ -79649,10 +79977,29 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       moonDisk.position.set(mx, my, mz);
       moon.target.position.set(0, 0, 0);
 
-      // ネザー/エンドには太陽・月・雲は存在しない
-      sunDisk.visible = (_dayFactor > 0.02) && currentDimension === 'overworld';
-      moonDisk.visible = (_nightFactor > 0.02) && currentDimension === 'overworld';
-      cloudMesh.visible = currentDimension === 'overworld' && !(settings && settings.performanceMode);
+      // ネザー/エンドには太陽・月・雲・星は存在しない
+      const _isOverworld = currentDimension === 'overworld';
+      sunDisk.visible = (_dayFactor > 0.02) && _isOverworld;
+      moonDisk.visible = (_nightFactor > 0.02) && _isOverworld;
+      sunHalo.visible = sunDisk.visible;
+      sunHalo.position.set(sx, sy, sz);
+      cloudMesh.visible = _isOverworld && !(settings && settings.performanceMode);
+
+      // 星空: 夜だけ表示。プレイヤー中心の天球をゆっくり回す
+      {
+        const showStars = _isOverworld && _nightFactor > 0.02;
+        starMesh.visible = showStars;
+        starMesh2.visible = showStars;
+        if (showStars) {
+          starMesh.position.set(player.pos.x, player.pos.y, player.pos.z);
+          starMesh2.position.copy(starMesh.position);
+          starMesh.rotation.z = ang * 0.5;
+          starMesh2.rotation.z = ang * 0.5;
+          const so = Math.min(1, _nightFactor * 1.5);
+          starMat.opacity = so * 0.85;
+          starMat2.opacity = so;
+        }
+      }
 
       updateHeldTorchLight();
       updateTorchLights();
@@ -79803,7 +80150,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         }
       }
 
-      const tw = Math.max(0, 1 - Math.abs(sunY) * 3.0);
+      const tw = Math.max(0, 1 - Math.abs(sunY) * 2.7);
       const toDay = Math.min(1, Math.max(0, (sunY - 0.05) / 0.35));
       const toNight = Math.min(1, Math.max(0, (-sunY - 0.10) / 0.35));
 
@@ -79819,9 +80166,28 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         _skyColor.copy(_nightSky).lerp(_duskSky, tw).lerp(_daySky, toDay).lerp(_nightSky, toNight);
         scene.fog.near = Math.max(30, RENDER_RADIUS - 25);
         scene.fog.far = RENDER_RADIUS + 30;
+        // 群系ごとの大気色を混ぜる（昼ほど強い。白=影響なし）
+        _skyColor.lerp(_biomeTint, 0.32 * (0.25 + 0.75 * _dayFactor));
       }
+      // 夕方ほど太陽のグローを強くする
+      sunHalo.material.opacity = sunDisk.visible ? (0.30 + 0.40 * tw) : 0;
       scene.background = _skyColor;
       scene.fog.color.copy(_skyColor);
+
+      // ===== 水中演出: 頭が水中なら青フィルタ+濃いフォグ =====
+      {
+        const wt = _cachedWaterTintEl || (_cachedWaterTintEl = document.getElementById('waterTint'));
+        const headY = Math.floor(player.pos.y + EYE);
+        const headInWater = getBlock(Math.floor(player.pos.x), headY, Math.floor(player.pos.z)) === WATER_ID;
+        if (wt) wt.style.opacity = headInWater ? '1' : '0';
+        if (headInWater) {
+          scene.fog.near = 1;
+          scene.fog.far = 26;
+          _skyColor.set(0x1d4c92);
+          scene.fog.color.copy(_skyColor);
+          scene.background = _skyColor;
+        }
+      }
 
       // タイトル画面（ゲーム開始前）の演出
       if (!gameStarted) {
