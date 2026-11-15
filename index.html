@@ -1229,34 +1229,100 @@
       pointer-events: none;
     }
 
-    /* タッチデバイス: パッドをホットバーと重ならない位置へ / ヒントは上部中央へ */
-    @media (hover: none) and (pointer: coarse) {
-      #touchUI .pad { bottom: 96px !important; }
-      #touchUI .hint { top: 8px; left: 50%; bottom: auto; transform: translateX(-50%); }
+    /* === タッチUIの配置（ベース: 広い画面でもタッチUIをONにできるため基準位置を定義） === */
+    #touchUI .pad-move { left: 18px; bottom: 24px; }
+    #touchUI .pad-look { right: 18px; bottom: 24px; opacity: 0.20; }
+    #touchUI .knob-look { opacity: 0; }
+    #touchUI .col-jump { right: 22px; bottom: 210px; }
+    #touchUI .col-act { right: 96px; bottom: 150px; }
+    #touchUI .col-inv { left: 22px; bottom: 210px; }
+    #touchUI .col-top { right: 22px; top: 64px; }
+    #touchUI .tbtn-sm { width: 54px; height: 54px; }
+
+    /* === タッチデバイス / 狭い画面: 本家PE風レイアウト ===
+       パッドはホットバーよ上、ボタンはパッドより上に置いて重なりをなくす。
+       (max-width: 700px) を併用しているのは、デスクトップでタッチUIをONにした
+       狭いウィンドウでも同じ崩れを避けるため + テスト容易性のため。 */
+    @media (hover: none) and (pointer: coarse),
+           (hover: none) and (pointer: none),
+           (max-width: 700px) {
+      #touchUI .pad { bottom: 132px !important; }
+      #touchUI .pad-move { left: 16px !important; }
+      #touchUI .pad-look { right: 16px !important; opacity: 0.24; }
+      #touchUI .col-jump { right: 16px; bottom: 320px; }
+      #touchUI .col-act { right: 94px; bottom: 320px; }
+      #touchUI .col-inv { left: 16px; bottom: 320px; }
+      #touchUI .col-top { right: 14px; top: 56px; }
+      #touchUI .tbtn { width: 62px; height: 62px; }
+      #touchUI .tbtn-sm { width: 50px; height: 50px; }
+      #touchUI .hint {
+        top: 8px; left: 50%; bottom: auto;
+        transform: translateX(-50%);
+        max-width: calc(100vw - 130px);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        font-size: 10px;
+      }
+      /* 手(持ちアイテム)がボタンと被るので縮小 */
+      .player-hand { transform: scale(0.75); transform-origin: bottom right; right: 20px; }
+      /* デスクトップ向けの説明はスマホでは意味がないので隠す */
+      #escHint, [data-i18n="ready.escHint"] { display: none; }
+    }
+
+    /* 横画面のスマホ（高さが狭い）: ボタンを下に寄せて画面内に収める */
+    @media (hover: none) and (pointer: coarse) and (max-height: 500px),
+           (max-width: 700px) and (max-height: 500px) {
+      #touchUI .pad { width: 140px; height: 140px; bottom: 64px !important; }
+      #touchUI .col-jump { right: 14px; bottom: 216px; }
+      #touchUI .col-act { right: 84px; bottom: 216px; }
+      #touchUI .col-inv { left: 14px; bottom: 216px; }
+      #touchUI .tbtn { width: 52px; height: 52px; }
+      #touchUI .tbtn-sm { width: 44px; height: 44px; }
+      #touchUI .hint { max-width: calc(100vw - 240px); }
+      .player-hand { transform: scale(0.62); transform-origin: bottom right; right: 12px; }
+      #statusBars { bottom: 74px; }
+      #xpBar { bottom: 60px; }
     }
 
     /* ==== モバイル・狭い画面でUIを画面内に収める ==== */
     @media (max-width: 700px) {
-      /* インベントリ: 縦積み+スクロールで全体が見えるように */
+      /* インベントリ: 縦積み+スクロールで全体が見えるように
+         （DOMは #invTopRow > #invCreativeColumn + #invMainColumn の構成） */
       #invWindow {
         flex-direction: column;
         gap: 12px;
         padding: 10px;
         max-width: calc(100vw - 16px);
-        max-height: calc(100vh - 20px);
+        max-height: calc(100vh - 130px);
         overflow-y: auto;
       }
-      #invTopRow { flex-wrap: wrap; }
-      #invRight { width: 100%; }
+      /* インベントリ開時はINV(閉じる)ボタンを画面左上の余白へ移す（内容と被らないように） */
+      #touchUI.ui-inv .col-inv {
+        bottom: auto;
+        left: 12px;
+        top: 10px;
+      }
+      #touchUI.ui-inv #btnInvTouch {
+        width: 50px;
+        height: 50px;
+      }
+      #invLeft, #invRight { width: 100%; }
+      #invTopRow { flex-direction: column; flex-wrap: nowrap; width: 100%; }
+      #invCreativeColumn { width: 100% !important; max-width: none !important; flex: 0 0 auto !important; }
+      #invMainColumn { width: 100% !important; max-width: none !important; flex: 0 0 auto !important; }
+      #invUtilityRow { flex-wrap: wrap; }
       .invSlot { width: 36px; height: 36px; }
-      .invGridLayer { grid-template-columns: repeat(9, 36px); }
-      #creativeGrid { grid-template-columns: repeat(auto-fill, 38px); max-height: 44vh; min-height: 0; }
+      #invMainGrid, #invHotbarGrid, #invChestGrid { grid-template-columns: repeat(9, 36px) !important; }
+      #creativeGrid { grid-template-columns: repeat(auto-fill, 40px) !important; max-height: 38vh; min-height: 0; }
+      #creativePanel { min-height: 0; }
       #invCraftGridHand { grid-template-columns: 36px 36px 20px 36px !important; grid-template-rows: 36px 36px !important; }
       #invCraftGridTable { grid-template-columns: repeat(4, 36px) !important; }
       #invFurnaceGrid { grid-template-columns: 36px 24px 36px !important; grid-template-rows: 36px 24px 36px !important; }
-      #invPreviewPanel { min-height: 110px !important; }
+      #invPreviewPanel { min-height: 110px !important; flex: 1 1 130px !important; }
       #craftList { height: 220px; }
+      #invHint { max-width: 100%; }
     }
+
+    /* ホットバー9スロットが狭い画面に収まる段階縮小 */
     @media (max-width: 560px) {
       #panel h1 { font-size: clamp(30px, 11vw, 64px); }
       #setupPhase .mc-btn { width: min(180px, 44vw) !important; }
@@ -1267,6 +1333,20 @@
       /* ハート等のステータス行を縮小 */
       #statusBars { transform: translateX(-50%) scale(0.78); transform-origin: bottom center; }
       #hearts, #food, #bubbles { max-width: 38vw; }
+    }
+    @media (max-width: 420px) {
+      /* 9×34 + gap32 + pad12 + 枠4 = 354px → 360px端末でも収まる */
+      #hotbar .slot { width: 30px; height: 30px; }
+      .icon { width: 20px; height: 20px; }
+      .count { font-size: 12px; }
+      #xpBar { bottom: 86px; }
+      #statusBars { bottom: 102px; }
+    }
+    @media (max-width: 350px) {
+      #hotbar .slot { width: 26px; height: 26px; }
+      #hotbar { gap: 3px; padding: 4px; }
+      .icon { width: 17px; height: 17px; }
+      .count { font-size: 11px; }
     }
 
     /* インベントリ開時: パッド・操作ボタン・チャットボタンは隠す（INV/MENUは閉じるために残す） */
@@ -78141,6 +78221,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       setKey("KeyD", rt);
     }
 
+    // スマホ: 移動パッドを手前に最大まで倒したらダッシュ扱い（本家PEと同じ操作感）
+    function isTouchSprint() {
+      return TOUCH_MODE && (vMoveY < -0.92);
+    }
+
     // Show/Hide UI when game running
     function setTouchUIVisible(vis) {
       if (!touchUI) return;
@@ -78239,8 +78324,25 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     }
 
     // Buttons
+    // JUMP: 押している間ジャンプ。クリエイティブでは300ms以内の2回押しで飛行トグル（本家PEと同じ）
+    let _lastJumpTap = 0;
     if (btnJumpTouch) {
-      btnJumpTouch.addEventListener("touchstart", (e) => { if (TOUCH_MODE) { keys.add(primaryCode("jump")); e.preventDefault(); } }, { passive: false });
+      btnJumpTouch.addEventListener("touchstart", (e) => {
+        if (!TOUCH_MODE) return;
+        keys.add(primaryCode("jump"));
+        e.preventDefault();
+        if (GAME_MODE === 'creative' && !isInventoryOpen) {
+          const now = performance.now();
+          if (now - _lastJumpTap < 300) {
+            flyMode = !flyMode;
+            player.vel.y = 0;
+            toast(flyMode ? "飛行モード: ON" : "飛行モード: OFF");
+            _lastJumpTap = -1000; // 連続トグル防止
+          } else {
+            _lastJumpTap = now;
+          }
+        }
+      }, { passive: false });
       btnJumpTouch.addEventListener("touchend", () => keys.delete(primaryCode("jump")));
       btnJumpTouch.addEventListener("touchcancel", () => keys.delete(primaryCode("jump")));
     }
@@ -78823,7 +78925,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     }
 
     function _handleMouseDownAction(e) {
-      if (document.pointerLockElement !== canvas) return;
+      // デスクトップはポインタロック中のみ。タッチモード（スマホ）はロック無しで操作できるようにする
       if (!TOUCH_MODE && document.pointerLockElement !== canvas) return;
 
       if (e.button === 1) {
@@ -80447,7 +80549,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // ゲーム中も遠景チャンクを定期解放する
       if (frameCount % 60 === 0) unloadFarChunks();
 
-      if (document.pointerLockElement === canvas) {
+      // ===== 移動・物理演算の実行条件 =====
+      // デスクトップ: ポインタロック中のみ。
+      // スマホ/タッチ(TOUCH_MODE): ポインタロックは存在しないので、ポーズ中でなければ常に実行する。
+      // （以前はポインタロック必須だったため、スマホでは一切移動できなかった）
+      const _physActive = (document.pointerLockElement === canvas) || (TOUCH_MODE && !isPaused);
+      if (_physActive) {
 
         // ===== Fall damage tracking (pre-physics) =====
         const _prevOnGround = player.onGround;
@@ -80459,7 +80566,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const isSwimming = !flyMode && waterState.bodySubmerged;
         const isClimbingVines = !flyMode && !isSwimming && isPlayerTouchingVine();
         const _speedMul = (player.effects && player.effects.speed) ? 1.4 : 1.0;
-        const speed = ((isDown("sprint") ? 8.0 : 4.6) * (flyMode ? 2.0 : 1.0)) * (isSwimming ? WATER_MOVE_FACTOR : 1.0) * (isClimbingVines ? 0.7 : 1.0) * _speedMul;
+        const speed = (((isDown("sprint") || isTouchSprint()) ? 8.0 : 4.6) * (flyMode ? 2.0 : 1.0)) * (isSwimming ? WATER_MOVE_FACTOR : 1.0) * (isClimbingVines ? 0.7 : 1.0) * _speedMul;
 
         // カメラ向き（XZ平面）から前/右ベクトルを作って移動（斜め視点でも直進できるように）
         const f = (isDown("forward") ? 1 : 0) - (isDown("back") ? 1 : 0);
@@ -80501,7 +80608,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
           // 移動による満腹度の消費
           if (!flyMode && GAME_MODE === 'survival') {
-            const cost = isDown("sprint") ? 0.25 : 0.02; // ダッシュは消費大
+            const cost = ((isDown("sprint") || isTouchSprint()) ? 0.25 : 0.02); // ダッシュは消費大
             decreaseFood(cost * dt);
           }
         }
@@ -81938,32 +82045,32 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
   </script>
 
-  <!-- Mobile Touch UI -->
+  <!-- Mobile Touch UI（位置はCSSで制御: #touchUI .col-* 参照） -->
   <div id="touchUI">
-    <div id="padMove" class="pad" style="left:18px; bottom:24px;">
+    <div id="padMove" class="pad pad-move">
       <div id="knobMove" class="knob"></div>
     </div>
-    <div id="padLook" class="pad" style="right:18px; bottom:24px; opacity:0.18;">
-      <div id="knobLook" class="knob" style="opacity:0.0;"></div>
+    <div id="padLook" class="pad pad-look">
+      <div id="knobLook" class="knob knob-look"></div>
     </div>
 
-    <div class="btnCol" style="right:22px; bottom:210px;">
+    <div class="btnCol col-jump">
       <button id="btnJumpTouch" class="tbtn">JUMP</button>
       <button id="btnSneakTouch" class="tbtn">SNEAK</button>
     </div>
 
-    <div class="btnCol" style="right:96px; bottom:150px;">
+    <div class="btnCol col-act">
       <button id="btnPlaceTouch" class="tbtn">PLACE</button>
       <button id="btnBreakTouch" class="tbtn">BREAK</button>
     </div>
 
-    <div class="btnCol" style="left:22px; bottom:210px;">
+    <div class="btnCol col-inv">
       <button id="btnInvTouch" class="tbtn">INV</button>
     </div>
 
-    <div class="btnCol" style="right:22px; top:64px;">
-      <button id="btnMenuTouch" class="tbtn" style="width:54px; height:54px;">☰</button>
-      <button id="btnChatTouch" class="tbtn" style="width:54px; height:54px;">💬</button>
+    <div class="btnCol col-top">
+      <button id="btnMenuTouch" class="tbtn tbtn-sm">☰</button>
+      <button id="btnChatTouch" class="tbtn tbtn-sm">💬</button>
     </div>
 
     <div class="hint">左=移動 / 右=視点 / BREAK長押し=採掘 / ☰=メニュー / 💬=チャット / INV=持ち物</div>
