@@ -55432,10 +55432,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       { blockId: 61, name: "Rotten Flesh", color: 0x8b5a2b, solid: false, isBlock: false },
 
       /* Armor (0〜4ドロップ) */
-      { blockId: 62, name: "Coal Helmet", color: 0x222222, solid: false, isBlock: false, equipSlot: "helmet", armor: 1, tier: 1 },
-      { blockId: 63, name: "Coal Chestplate", color: 0x222222, solid: false, isBlock: false, equipSlot: "chestplate", armor: 2, tier: 1 },
-      { blockId: 64, name: "Coal Leggings", color: 0x222222, solid: false, isBlock: false, equipSlot: "leggings", armor: 2, tier: 1 },
-      { blockId: 65, name: "Coal Boots", color: 0x222222, solid: false, isBlock: false, equipSlot: "boots", armor: 1, tier: 1 },
       { blockId: 66, name: "Copper Helmet", color: 0xb87333, solid: false, isBlock: false, equipSlot: "helmet", armor: 2, tier: 2 },
       { blockId: 67, name: "Copper Chestplate", color: 0xb87333, solid: false, isBlock: false, equipSlot: "chestplate", armor: 4, tier: 2 },
       { blockId: 68, name: "Copper Leggings", color: 0xb87333, solid: false, isBlock: false, equipSlot: "leggings", armor: 4, tier: 2 },
@@ -56911,7 +56907,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     // 使われず丸アイコンに落ちていたアイテム（トーテム/エリトラ/シュルカーシェル/瓶/ポーション類/ブレイズパウダー）
     const ICON_REUSE_BLOCKCANVAS_IDS = new Set([234, 247, 271, 272, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332]);
     // 道具/防具アイコンの素材色
-    const TOOL_MATERIAL_COLOR = { Wooden: '#8b5a2b', Stone: '#8a8a8a', Iron: '#d8d8d8', Gold: '#ffd700', Diamond: '#5ce1e6', Copper: '#c87137', Coal: '#2b2b2b' };
+    const TOOL_MATERIAL_COLOR = { Wooden: '#8b5a2b', Stone: '#8a8a8a', Iron: '#d8d8d8', Gold: '#ffd700', Diamond: '#5ce1e6', Copper: '#c87137', Netherite: '#45454c', Leather: '#a0642c', Chainmail: '#8a8a92', Turtle: '#2a7a4a' };
     const COCOA_ID = 108;
     const FARMLAND_ID = 110;
 
@@ -57549,6 +57545,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         "Coal Ore": "石炭鉱石",
         "Iron Ore": "鉄鉱石",
         "Coal": "石炭",
+        "Coal Block": "石炭ブロック",
         "Iron Ingot": "鉄インゴット",
         "Gold Ore": "金鉱石",
         "Gold Ingot": "金インゴット",
@@ -57631,8 +57628,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         "Gold Shovel": "金のシャベル", "Copper Shovel": "銅のシャベル",
         "Wooden Sword": "木の剣", "Iron Sword": "鉄の剣",
         "Diamond Sword": "ダイヤの剣", "Gold Sword": "金の剣", "Copper Sword": "銅の剣",
-        "Coal Helmet": "石炭のヘルメット", "Coal Chestplate": "石炭のチェストプレート",
-        "Coal Leggings": "石炭のレギンス", "Coal Boots": "石炭のブーツ",
         "Copper Helmet": "銅のヘルメット", "Copper Chestplate": "銅のチェストプレート",
         "Copper Leggings": "銅のレギンス", "Copper Boots": "銅のブーツ",
         "Iron Helmet": "鉄のヘルメット", "Iron Chestplate": "鉄のチェストプレート",
@@ -57787,13 +57782,16 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         Gold: "金",
         Diamond: "ダイヤモンド",
         Copper: "銅",
-        Coal: "石炭"
+        Netherite: "ネザライト",
+        Leather: "革",
+        Chainmail: "チェーンメイル"
       };
-      const toolJa = { Pickaxe: "ツルハシ", Axe: "斧", Shovel: "シャベル", Sword: "剣" };
+      const toolJa = { Pickaxe: "ツルハシ", Axe: "斧", Shovel: "シャベル", Sword: "剣", Hoe: "クワ" };
       const armorJa = { Helmet: "ヘルメット", Chestplate: "チェストプレート", Leggings: "レギンス", Boots: "ブーツ" };
-      let m = /^(Wooden|Stone|Iron|Gold|Diamond|Copper) (Pickaxe|Axe|Shovel|Sword)$/.exec(base);
+      let m = /^(Wooden|Stone|Iron|Gold|Diamond|Copper|Netherite) (Pickaxe|Axe|Shovel|Sword|Hoe)$/.exec(base);
       if (m) return materialJa[m[1]] + "の" + toolJa[m[2]];
-      m = /^(Coal|Copper|Iron|Gold|Diamond) (Helmet|Chestplate|Leggings|Boots)$/.exec(base);
+      if (base === "Turtle Helmet") return "ウミガメの甲羅";
+      m = /^(Copper|Iron|Gold|Diamond|Netherite|Leather|Chainmail) (Helmet|Chestplate|Leggings|Boots)$/.exec(base);
       if (m) return materialJa[m[1]] + "の" + armorJa[m[2]];
 
       const mobJa = { Pig: "ブタ", Sheep: "ヒツジ", Cow: "ウシ", Chicken: "ニワトリ", Zombie: "ゾンビ", Creeper: "クリーパー", Skeleton: "スケルトン", Villager: "村人", Spider: "クモ", Enderman: "エンダーマン", Witch: "ウィッチ", Slime: "スライム", Phantom: "ファントム", Rabbit: "ウサギ", Fox: "キツネ", Wolf: "オオカミ", Cat: "ネコ", Turtle: "カメ", Horse: "ウマ", Ghast: "ガスト", "Zombie Piglin": "ゾンビピグリン", Piglin: "ピグリン", Vindicator: "ヴィンディケーター", Evoker: "エヴォーカー", Blaze: "ブレイズ", "Wither Skeleton": "ウィザースケルトン", "Magma Cube": "マグマキューブ", Hoglin: "ホグリン", Strider: "ストライダー", "Piglin Brute": "ピグリンブルート", Shulker: "シュルカー", Bat: "コウモリ", Squid: "イカ", "Glow Squid": "発光イカ", Dolphin: "イルカ", Cod: "タラ", Salmon: "サーモン", "Tropical Fish": "熱帯魚", Pufferfish: "フグ", Bee: "ミツバチ", Mooshroom: "キノコ牛", Ocelot: "ヤマネコ", Parrot: "オウム", "Polar Bear": "ホッキョクグマ", Llama: "ラマ", Donkey: "ロバ", Mule: "ラバ", Goat: "ヤギ", Camel: "ラクダ", Frog: "カエル", "Iron Golem": "アイアンゴーレム", "Snow Golem": "スノーゴーレム", Husk: "ハスク", Stray: "ストレイ", Drowned: "ドロンド", Silverfish: "シルバーフィッシュ", Endermite: "エンダーマイト", Guardian: "ガーディアン", "Elder Guardian": "エルダーガーディアン", Pillager: "ピリジャー", Vex: "ヴェックス", Ravager: "ラヴェジャー", Warden: "ウォーデン", Wither: "ウィザー", "Ender Dragon": "エンダードラゴン" };
@@ -65168,7 +65166,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r * 1.3, 1.5 + Math.random() * 2, 0, Math.PI * 2);
           ctx.fill();
         }
-      } else if ((m = /^(Wooden|Stone|Iron|Gold|Copper|Diamond) (Pickaxe|Axe|Shovel|Sword)$/.exec(b && b.name))) {
+      } else if ((m = /^(Wooden|Stone|Iron|Gold|Copper|Diamond|Netherite) (Pickaxe|Axe|Shovel|Sword)$/.exec(b && b.name))) {
         // 道具: 素材色のヘッド+木の柄
         ctx.clearRect(0, 0, size, size);
         const matColor = TOOL_MATERIAL_COLOR[m[1]] || col;
@@ -65206,7 +65204,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           ctx.closePath();
           ctx.fill();
         }
-      } else if ((m = /^(Coal|Copper|Iron|Gold|Diamond) (Helmet|Chestplate|Leggings|Boots)$/.exec(b && b.name))) {
+      } else if ((m = /^(Copper|Iron|Gold|Diamond|Netherite|Leather|Chainmail|Turtle) (Helmet|Chestplate|Leggings|Boots)$/.exec(b && b.name))) {
         // 防具: 部位ごとのシルエット
         ctx.clearRect(0, 0, size, size);
         ctx.fillStyle = TOOL_MATERIAL_COLOR[m[1]] || col;
@@ -65313,7 +65311,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       Leather:   { m: '#a0642c', l: '#c4864a', d: '#6e421c' },
       Chainmail: { m: '#8a8a92', l: '#b0b0b8', d: '#565660' },
       Turtle:    { m: '#2a7a4a', l: '#4aa86a', d: '#14522e' },
-      Coal:    { m: '#44444a', l: '#6a6a72', d: '#1c1c20' },
     };
     const _PX_STICK = { m: '#8b5a2b', d: '#5a3a1a', l: '#a97a45' };
     function _pxShade(hex, f) { // f>0 明るく, f<0 暗く
@@ -65522,7 +65519,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       // ---- 道具(ツルハシ・斧・シャベル・剣): 柄は茶色、頭は素材の色 ----
       const toolM = /^(Wooden|Stone|Iron|Gold|Diamond|Copper|Netherite) (Pickaxe|Axe|Shovel|Sword|Hoe)$/.exec(name);
-      const armM = /^(Coal|Copper|Iron|Gold|Diamond|Netherite|Leather|Chainmail|Turtle) (Helmet|Chestplate|Leggings|Boots)$/.exec(name);
+      const armM = /^(Copper|Iron|Gold|Diamond|Netherite|Leather|Chainmail|Turtle) (Helmet|Chestplate|Leggings|Boots)$/.exec(name);
       const eggM = /Spawn Egg$/.test(name);
       const potionIds = { 322: ['#3f76e4', null], 324: ['#5a4fa8', null], 325: ['#e0343b', 'heart'], 326: ['#b5301f', 'fist'], 327: ['#7fd4ff', 'bolt'], 328: ['#f5902a', 'flame'], 329: ['#2d2fa0', 'eye'], 330: ['#f08cc0', 'heart2'], 331: ['#5fa53a', 'skull'], 332: ['#d8d0e8', 'feather'] };
       if (_pxCatKey(name)) {
@@ -77735,7 +77732,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
               234, // Totem of Undying
             ]],
             ['防具', [
-              62,63,64,65, // 石炭防具
+              759,760,761,762, // ネザライト防具
               66,67,68,69, // 銅防具
               70,71,72,73, // 鉄防具
               74,75,76,77, // 金防具
