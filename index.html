@@ -56788,9 +56788,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     // transparent/alphaTestを設定しないと、透明なはずの部分が黒く塗りつぶされてしまう）
     const ALPHA_CUTOUT_IDS = new Set([189, 228, 229, 249, 256, 264, 291, 292, 298, 300, 301, 306, 309, 310, 323, 320, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 618, 620, 634]);
     // 立方体ではなく、作物と同じ「交差した2枚板」で描画する植物/鍾乳石系ブロック（炎は本家同様、上下面のない交差板にする）
-    const CROP_STYLE_IDS = [112, 114, 116, 119, 189, 228, 229, 256, 298, 300, 301, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 571, 572, 589, 590, 619, 621, 635];
+    const CROP_STYLE_IDS = [112, 114, 116, 119, 189, 228, 229, 256, 292, 298, 300, 301, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 571, 572, 589, 590, 619, 621, 635];
     // ブロック全高のテクスチャを使うため、板の中心をブロック中央(0.5)に置くべきもの
-    const CROP_STYLE_FULLHEIGHT_IDS = new Set([189, 228, 229, 256, 298, 300, 301]);
+    const CROP_STYLE_FULLHEIGHT_IDS = new Set([189, 228, 229, 256, 292, 298, 300, 301]);
     // createBlockCanvas側には専用イラストがあるのに、平面アイコン生成(createFlatItemCanvas)側では
     // 使われず丸アイコンに落ちていたアイテム（トーテム/エリトラ/シュルカーシェル/瓶/ポーション類/ブレイズパウダー）
     const ICON_REUSE_BLOCKCANVAS_IDS = new Set([234, 247, 271, 272, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332]);
@@ -60471,6 +60471,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (dx === -1 && dz === 0) return 3; // support west
       return 0;
     }
+    // 垂れツタ(上のツタ/上の固体に吊り下がる)の判定: 本家同様、蔓は「壁面支持」または「上からの吊り下がり」で成立する
+    function hasVineHanger(x, y, z) {
+      const above = getBlock(x, y + 1, z);
+      return above === VINE_ID || isVineSupport(above);
+    }
     function getVineFacing(x, y, z) {
       const meta = getMetadata(x, y, z);
       const supports = [
@@ -60486,10 +60491,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       for (const s of supports) {
         if (isVineSupport(getBlock(x + s.dx, y, z + s.dz))) return s.meta;
       }
+      // 壁面支持がなければ上からの吊り下がり(垂れツタ=4)
+      if (hasVineHanger(x, y, z)) return 4;
       return null;
     }
     function canAttachVineAt(x, y, z, facing) {
       if (facing === null || facing === undefined) return false;
+      if (facing === 4) return hasVineHanger(x, y, z); // 垂れツタ: 上のツタ/固体が支え
       const supports = [
         { dx: 0, dz: -1 },
         { dx: 1, dz: 0 },
@@ -60521,9 +60529,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             } else if (facing === 2) {
               bMin = new THREE.Vector3(x, y, z + 1 - thickness);
               bMax = new THREE.Vector3(x + 1, y + 1, z + 1);
-            } else {
+            } else if (facing === 3) {
               bMin = new THREE.Vector3(x, y, z);
               bMax = new THREE.Vector3(x + thickness, y + 1, z + 1);
+            } else {
+              // 垂れツタ(4): 中央の細い柱として登れる
+              const hw = 0.38;
+              bMin = new THREE.Vector3(x + 0.5 - hw, y, z + 0.5 - hw);
+              bMax = new THREE.Vector3(x + 0.5 + hw, y + 1, z + 0.5 + hw);
             }
             if (aabbOverlap(aMin, aMax, bMin, bMax)) return true;
           }
@@ -61066,6 +61079,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
     function _carveWorm(chunk, x0, z0, wx, wy, wz, seed, rMin, rMax, lenMul) {
       rMin = rMin ?? 1.4; rMax = rMax ?? 2.6; lenMul = lenMul ?? 1.0;
+      // 【シーム解消】パスを先に決定論的に計算し、bboxがチャンクと交差する時だけ彫る。
+      // これでどのチャンクから生成しても同じセルが同じように彫られ、チャンク境界で洞窟が突然切れることがなくなる。
       let x = wx, y = wy, z = wz;
       let dx = rand3(seed, 10, 21) - 0.5;
       let dz = rand3(seed, 12, 23) - 0.5;
@@ -61073,13 +61088,18 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const mag0 = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
       dx /= mag0; dy /= mag0; dz /= mag0;
 
-      const len = Math.floor((80 + rand3(seed, 14, 25) * 140) * lenMul);
+      // 長すぎるワームは参照範囲(R=11チャンク)で収まるよう148で打ち止め
+      const len = Math.min(148, Math.floor((80 + rand3(seed, 14, 25) * 140) * lenMul));
       let r = rMin + rand3(seed, 15, 26) * (rMax - rMin);
 
+      const pxs = [], pys = [], pzs = [], prs = [];
+      let minX = x, maxX = x, minZ = z, maxZ = z, maxR = r;
       for (let i = 0; i < len; i++) {
-        // 途中でランダムに半径を変化させて不規則な太さに
         if (i % 12 === 0) r = rMin + rand3(seed + i, 15, 26) * (rMax - rMin);
-        _carveCaveSphere(chunk, x0, z0, x, y, z, r);
+        if (r > maxR) maxR = r;
+        pxs.push(x); pys.push(y); pzs.push(z); prs.push(r);
+        if (x < minX) minX = x; else if (x > maxX) maxX = x;
+        if (z < minZ) minZ = z; else if (z > maxZ) maxZ = z;
         const si = (seed * 997 + i * 1013) & 0x7fffffff;
         dx += (rand3(si, 20, 31) - 0.5) * 0.45;
         dy += (rand3(si, 21, 32) - 0.5) * 0.18;
@@ -61090,6 +61110,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         x += dx; y += dy; z += dz;
         if (y < -Y_OFFSET + 4 || y >= H - Y_OFFSET) break;
       }
+      // bbox判定(太さ分のマージン付き)
+      if (maxX + maxR < x0 || minX - maxR >= x0 + CHUNK_SIZE ||
+          maxZ + maxR < z0 || minZ - maxR >= z0 + CHUNK_SIZE) return;
+      for (let i = 0; i < pxs.length; i++) {
+        _carveCaveSphere(chunk, x0, z0, pxs[i], pys[i], pzs[i], prs[i]);
+      }
     }
 
     // 大空洞を掘る（scale=1:通常, 2-3:超大型）
@@ -61099,6 +61125,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const rY = (3 + rand3(seed, 31, 42) * 4) * scale;
       const rZ = (5 + rand3(seed, 32, 43) * 6) * scale;
       const riX = Math.ceil(rX), riY = Math.ceil(rY), riZ = Math.ceil(rZ);
+      // bbox判定(遠い起点の大空洞を安価に棄却)
+      if (wx + riX < x0 || wx - riX >= x0 + CHUNK_SIZE ||
+          wz + riZ < z0 || wz - riZ >= z0 + CHUNK_SIZE) return;
       for (let ody = -riY; ody <= riY; ody++) {
         const by = Math.floor(wy + ody);
         if (by < -Y_OFFSET + 5 || by >= H - Y_OFFSET) continue;
@@ -61109,7 +61138,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             const lx = Math.floor(wx + odx) - x0;
             const lz = Math.floor(wz + odz) - z0;
             if (lx < 0 || lx >= CHUNK_SIZE || lz < 0 || lz >= CHUNK_SIZE) continue;
-            chunk[chunkIndex(lx, by, lz)] = 0;
+            // 海底下の洞窟は水中洞窟にする(球彫りと一貫させる)
+            const gx = x0 + lx, gz = z0 + lz;
+            if (by <= SEA_LEVEL && getHydrologyAt(gx, gz).oceanMask > 0.05) {
+              chunk[chunkIndex(lx, by, lz)] = WATER_ID;
+            } else {
+              chunk[chunkIndex(lx, by, lz)] = 0;
+            }
           }
         }
       }
@@ -61166,8 +61201,11 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           const yLo = Math.max(-Y_OFFSET + 5, Math.ceil(rawLo + floorBump));
           const yHi = Math.min(H - Y_OFFSET - 1, Math.floor(rawHi));
           if (yLo > yHi) continue;
+          // 海底下の空洞は水中洞窟にする(球彫り・大空洞と一貫させる)
+          const hydro = getHydrologyAt(wx, wz);
+          const fillWater = hydro.oceanMask > 0.05;
           for (let y = yLo; y <= yHi; y++) {
-            chunk[chunkIndex(lx, y, lz)] = 0;
+            chunk[chunkIndex(lx, y, lz)] = (fillWater && y <= SEA_LEVEL) ? WATER_ID : 0;
           }
         }
       }
@@ -61181,12 +61219,15 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       const wyTop = surfH - 2;
       const wyBot = Math.max(-Y_OFFSET + 5, wyTop - depth);
       const len = 40 + Math.floor(rand3(seed, 51, 62) * 60);
+      // 【シーム解消】パスを先に決定論的に計算してbbox判定
       let rx = rand3(seed, 52, 63) - 0.5;
       let rz = rand3(seed, 53, 64) - 0.5;
-      const rmag = Math.sqrt(rx*rx + rz*rz) || 1;
-      rx /= rmag; rz /= rmag;
+      const rmag0 = Math.sqrt(rx*rx + rz*rz) || 1;
+      rx /= rmag0; rz /= rmag0;
       let cx2 = wx, cz2 = wz;
       const halfW = 1.5 + rand3(seed, 54, 65) * 2.5;
+      const pxs = [], pzs = [];
+      let minX = cx2, maxX = cx2, minZ = cz2, maxZ = cz2;
       for (let i = 0; i < len; i++) {
         const si = (seed * 883 + i * 1117) & 0x7fffffff;
         rx += (rand3(si, 60, 71) - 0.5) * 0.3;
@@ -61194,11 +61235,19 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const rm = Math.sqrt(rx*rx + rz*rz) || 1;
         rx /= rm; rz /= rm;
         cx2 += rx; cz2 += rz;
+        pxs.push(cx2); pzs.push(cz2);
+        if (cx2 < minX) minX = cx2; else if (cx2 > maxX) maxX = cx2;
+        if (cz2 < minZ) minZ = cz2; else if (cz2 > maxZ) maxZ = cz2;
+      }
+      // bbox判定(幅分のマージン付き)
+      if (maxX + 6 < x0 || minX - 6 >= x0 + CHUNK_SIZE ||
+          maxZ + 6 < z0 || minZ - 6 >= z0 + CHUNK_SIZE) return;
+      for (let i = 0; i < pxs.length; i++) {
         for (let y = wyBot; y <= wyTop; y++) {
           // 上に行くほど広く、下は細い
           const t = (y - wyBot) / Math.max(1, wyTop - wyBot);
           const w = halfW * (0.4 + 0.6 * t);
-          _carveCaveSphere(chunk, x0, z0, cx2, y, cz2, w);
+          _carveCaveSphere(chunk, x0, z0, pxs[i], y, pzs[i], w);
         }
       }
     }
@@ -61210,9 +61259,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       while (!g.next().done) { }
     }
     function* carveCavesGen(chunk, cx, cz, x0, z0) {
-      const R = 2;
-      for (let dcx = -R; dcx <= R; dcx++) {
-        for (let dcz = -R; dcz <= R; dcz++) {
+      // 【シーム解消】各特徴の「起点チャンク」を最大到達距離分まで全て評価する。
+      // 個々の彫り処理は決定論的なパス+bbox判定で遠い起点を安価に棄却するため、
+      // どのチャンクから生成しても同じセルが同じように彫られ、境界で洞窟が切れることがない。
+      //  ワーム: 長さ148+太さ → R=11 / 大空洞: 半径≤11 → R=2 / 渓谷: 長さ100+幅 → R=9 /
+      //  超巨大空洞: 半径160+枝ワーム → MR=15 / 深層大洞窟: 半径22+枝ワーム → DR=11
+      const RW = 11;
+      for (let dcx = -RW; dcx <= RW; dcx++) {
+        for (let dcz = -RW; dcz <= RW; dcz++) {
           const wcx = cx + dcx, wcz = cz + dcz;
           const baseS = Math.abs((wcx * 73856 + wcz * 19349) & 0x7fffffff) % 100000;
           const nWorms = 1 + Math.floor(rand3(wcx * 7 + 3, wcz * 7 + 5, 0, 9337) * 2);
@@ -61241,10 +61295,17 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
               const wy = -Y_OFFSET + 5 + rand3(seed, 5, 17) * (surfH + Y_OFFSET - 20);
               _carveWorm(chunk, x0, z0, wx, Math.max(-Y_OFFSET+5, wy), wz, seed, 1.5, 3.0, 1.1);
             }
-            yield; // ワーム1本ごとに区切る
           }
+        }
+        yield; // 1リングごとに区切る
+      }
 
-          // 大空洞（チャンク起点ごとに低確率）
+      // 大空洞（チャンク起点ごとに低確率。半径≤11なのでR=2でシームなし）
+      const RC = 2;
+      for (let dcx = -RC; dcx <= RC; dcx++) {
+        for (let dcz = -RC; dcz <= RC; dcz++) {
+          const wcx = cx + dcx, wcz = cz + dcz;
+          const baseS = Math.abs((wcx * 73856 + wcz * 19349) & 0x7fffffff) % 100000;
           if (rand3(wcx * 13 + 7, wcz * 11 + 3, 0, 5557) < 0.12) {
             const seed2 = (baseS + 50000) % 100000;
             const wx = wcx * CHUNK_SIZE + rand3(seed2, 2, 12) * CHUNK_SIZE;
@@ -61255,21 +61316,28 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
               _carveChamber(chunk, x0, z0, wx, wy, wz, seed2);
             }
           }
-
-          // 渓谷（低確率）
-          if (rand3(wcx * 17 + 5, wcz * 13 + 9, 0, 7717) < 0.08) {
-            const seed3 = (baseS + 75000) % 100000;
-            const wx = wcx * CHUNK_SIZE + rand3(seed3, 7, 17) * CHUNK_SIZE;
-            const wz = wcz * CHUNK_SIZE + rand3(seed3, 9, 19) * CHUNK_SIZE;
-            _carveRavine(chunk, x0, z0, wx, wz, seed3);
-          }
-          yield;
-
         }
       }
+      yield;
 
-      // 超巨大空洞（最大半径300ブロック）— 広域サーチ（R=9チャンク）
-      const MR = 9;
+      // 渓谷（低確率。長さ≤100+幅4 → R=9でシームなし）
+      const RR = 9;
+      for (let dcx = -RR; dcx <= RR; dcx++) {
+        for (let dcz = -RR; dcz <= RR; dcz++) {
+          const wcx = cx + dcx, wcz = cz + dcz;
+          if (rand3(wcx * 17 + 5, wcz * 13 + 9, 0, 7717) >= 0.08) continue;
+          const baseS = Math.abs((wcx * 73856 + wcz * 19349) & 0x7fffffff) % 100000;
+          const seed3 = (baseS + 75000) % 100000;
+          const wx = wcx * CHUNK_SIZE + rand3(seed3, 7, 17) * CHUNK_SIZE;
+          const wz = wcz * CHUNK_SIZE + rand3(seed3, 9, 19) * CHUNK_SIZE;
+          _carveRavine(chunk, x0, z0, wx, wz, seed3);
+        }
+        yield;
+      }
+
+      // 超巨大空洞（半径≤160に制限）— 広域サーチ（R=15チャンク）
+      // 地表をえぐって巨大クレーターになるのを防ぐため、天井が地表に届かないよう中心深度を制限する
+      const MR = 15;
       for (let mdcx = -MR; mdcx <= MR; mdcx++) {
         for (let mdcz = -MR; mdcz <= MR; mdcz++) {
           const mwcx = cx + mdcx, mwcz = cz + mdcz;
@@ -61280,14 +61348,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           const mwz = mwcz * CHUNK_SIZE + rand3(seed4, 13, 23) * CHUNK_SIZE;
           const surfH = getHeightAt(mwx, mwz);
           if (surfH < 30) continue;
-          // rX/rZ: 40〜300, rY: 高さは別途20〜50に固定
-          const rX = 40 + rand3(seed4, 15, 25) * 260;
-          const rZ = 40 + rand3(seed4, 16, 26) * 260;
+          // rX/rZ: 40〜160(旧300は広すぎて地表破壊・シームの元凶), rY: 20〜50
+          const rX = 40 + rand3(seed4, 15, 25) * 120;
+          const rZ = 40 + rand3(seed4, 16, 26) * 120;
           const rY = 20 + rand3(seed4, 17, 27) * 30;
-          // 空洞中心Y: 地表下〜深層
-          const mwy = -Y_OFFSET + 10 + rand3(seed4, 18, 28) * (surfH + Y_OFFSET - 20);
+          // 空洞中心Y: 地表下〜深層。天井(mwy+rY)が地表より6ブロック下に収まるよう制限
+          let mwy = -Y_OFFSET + 10 + rand3(seed4, 18, 28) * (surfH + Y_OFFSET - 20);
+          mwy = Math.min(mwy, surfH - rY - 6);
           _carveMegaChamber(chunk, x0, z0, mwx, mwy, mwz, rX, rY, rZ);
-          yield;
           // 枝ワームを2〜4本
           const nBranch = 2 + Math.floor(rand3(seed4, 19, 29) * 3);
           for (let b = 0; b < nBranch; b++) {
@@ -61297,11 +61365,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             _carveWorm(chunk, x0, z0, bx, mwy, bz, bSeed, 2.5, 5.5, 2.0);
             yield;
           }
+          yield;
         }
+        yield;
       }
 
       // ===== 深層大洞窟（y < 0 の巨大空洞ネットワーク） =====
-      const DR = 3;
+      // 枝ワームの最大到達(長さ148+太さ)をカバーするR=11
+      const DR = 11;
       for (let ddcx = -DR; ddcx <= DR; ddcx++) {
         for (let ddcz = -DR; ddcz <= DR; ddcz++) {
           const dwcx = cx + ddcx, dwcz = cz + ddcz;
@@ -61386,14 +61457,17 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }
       yield;
 
-      // ===== 地表溶岩だまり（低確率）=====
-      if (rand3(cx * 53 + 29, cz * 47 + 31, 0, 44401) < 0.015) {
-        const lseed = Math.abs((cx * 91283 + cz * 37447) & 0x7fffffff) % 100000;
-        const lpx = x0 + Math.floor(rand3(lseed, 70, 80) * CHUNK_SIZE);
-        const lpz = z0 + Math.floor(rand3(lseed, 71, 81) * CHUNK_SIZE);
-        const surfH = getHeightAt(lpx, lpz);
-        const biome = getBiomeTypeAt(lpx, lpz);
-        if (surfH > SEA_LEVEL + 2 && biome !== 'ocean' && biome !== 'ice_plains') {
+      // ===== 地表溶岩だまり（低確率。半径≤4なので起点±1チャンクを評価すればシームなし）=====
+      for (let dcx = -1; dcx <= 1; dcx++) {
+        for (let dcz = -1; dcz <= 1; dcz++) {
+          const scx = cx + dcx, scz = cz + dcz;
+          if (rand3(scx * 53 + 29, scz * 47 + 31, 0, 44401) >= 0.015) continue;
+          const lseed = Math.abs((scx * 91283 + scz * 37447) & 0x7fffffff) % 100000;
+          const lpx = scx * CHUNK_SIZE + Math.floor(rand3(lseed, 70, 80) * CHUNK_SIZE);
+          const lpz = scz * CHUNK_SIZE + Math.floor(rand3(lseed, 71, 81) * CHUNK_SIZE);
+          const surfH = getHeightAt(lpx, lpz);
+          const biome = getBiomeTypeAt(lpx, lpz);
+          if (surfH <= SEA_LEVEL + 2 || biome === 'ocean' || biome === 'ice_plains') continue;
           const poolR = 2 + Math.floor(rand3(lseed, 72, 82) * 3); // 半径2-4
           for (let pz = -poolR; pz <= poolR; pz++) {
             for (let px = -poolR; px <= poolR; px++) {
@@ -61402,11 +61476,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
               const plx = pwx - x0, plz = pwz - z0;
               if (plx < 0 || plx >= CHUNK_SIZE || plz < 0 || plz >= CHUNK_SIZE) continue;
               const ph = getHeightAt(pwx, pwz);
-              // くぼみに溶岩を入れる: 1-2ブロック掘り下げて溶岩で埋める
+              // くぼみに溶岩を入れる: 表面を1ブロック掘り、その下に溶岩(周囲より1段低い「池」になる)
               const py = ph - 2;
               if (py < -Y_OFFSET + 5 || py >= H - Y_OFFSET) continue;
-              chunk[chunkIndex(plx, py, plz)] = LAVA_ID;
-              if (ph - 1 < H - Y_OFFSET) chunk[chunkIndex(plx, ph - 1, plz)] = LAVA_ID;
+              // 溶岩の下が空洞だと宙に浮く。床が固体の時だけ置く
+              const under = chunk[chunkIndex(plx, py - 1, plz)];
+              if (under === 0 || under === WATER_ID || under === LAVA_ID) continue;
+              chunk[chunkIndex(plx, ph - 1, plz)] = 0;   // 表面を掘る
+              chunk[chunkIndex(plx, py, plz)] = LAVA_ID; // 溶岩
             }
           }
         }
@@ -61414,11 +61491,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     }
 
     // ===== 洞窟バイオーム判定 =====
+    // ※fbm(x, z, octaves, lacunarity, gain) の順。以前は lacunarity/gain が逆(0.5, 2.0)で、
+    //   高周波の斑点が支配して群系が細切れになっていた。正しい順(2.0, 0.5)にして大きな房を作る。
     function getCaveBiome(wx, wz, y) {
-      const n1 = fbm(wx * 0.008 + 3333, wz * 0.008 + 4444, 3, 0.5, 2.0);
-      const n2 = fbm(wx * 0.012 + 7777, wz * 0.012 + 8888, 2, 0.5, 2.0);
+      const n1 = fbm(wx * 0.008 + 3333, wz * 0.008 + 4444, 3, 2.0, 0.5);
+      const n2 = fbm(wx * 0.012 + 7777, wz * 0.012 + 8888, 2, 2.0, 0.5);
       if (y < -30) {
-        const deepN = fbm(wx * 0.006 + 5555, wz * 0.006 + 6666, 2, 0.5, 2.0);
+        const deepN = fbm(wx * 0.006 + 5555, wz * 0.006 + 6666, 2, 2.0, 0.5);
         if (deepN > 0.52) return 'deep_dark';
       }
       if (n1 > 0.55 && y < 30) return 'dripstone';
@@ -61452,31 +61531,46 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             const r = rand3(wx, y, wz, 55501);
 
             if (caveBiome === 'dripstone') {
+              // 群生マスク: 低周波ノイズで「鍾乳石の房」を作る(ランダムばら撒きより自然な群生になる)
+              const cl = fbm(wx * 0.045 + 9111, wz * 0.045 + 9222, 2, 2.0, 0.5);
+              const density = (cl > 0.60) ? 1.0 : (cl > 0.50) ? 0.5 : 0.12;
+              // 鍾乳石の上/石筍の下には置かない(吊り下がりは本物の天井からのみ)
+              const isFloor = isSolidBelow && belowBlock !== POINTED_DRIPSTONE_ID;
+              const isCeil = isSolidAbove && aboveBlock !== POINTED_DRIPSTONE_ID;
               // 床の装飾
-              if (isSolidBelow) {
-                if (belowBlock === 3 || belowBlock === DEEPSLATE_ID) {
-                  if (r < 0.12) chunk[belowI] = DRIPSTONE_BLOCK_ID;
+              if (isFloor) {
+                if ((belowBlock === 3 || belowBlock === DEEPSLATE_ID) && r < 0.12 * density) {
+                  chunk[belowI] = DRIPSTONE_BLOCK_ID;
                 }
-                if (r > 0.90 && r < 0.96) {
-                  chunk[ci] = POINTED_DRIPSTONE_ID; // 石筍（床から上へ）
+                const sr = rand3(wx, y, wz, 55811);
+                if (sr < 0.10 * density) {
+                  // 石筍（床から上へ）: 稀に高く伸びる
+                  const hh = (sr < 0.015) ? 3 + Math.floor(rand3(wx, y, wz, 55821) * 3)
+                           : (sr < 0.045) ? 2 : 1;
+                  for (let dy = 0; dy < hh; dy++) {
+                    const yi = y + dy;
+                    if (yi >= H - Y_OFFSET) break;
+                    const ii = chunkIndex(lx, yi, lz);
+                    if (chunk[ii] !== 0) break;
+                    chunk[ii] = POINTED_DRIPSTONE_ID;
+                  }
                 }
               }
               // 天井の装飾
-              if (isSolidAbove) {
-                if (aboveBlock === 3 || aboveBlock === DEEPSLATE_ID) {
-                  if (rand3(wx, y, wz, 55601) < 0.10) chunk[aboveI] = DRIPSTONE_BLOCK_ID;
+              if (isCeil) {
+                if ((aboveBlock === 3 || aboveBlock === DEEPSLATE_ID) && rand3(wx, y, wz, 55601) < 0.10 * density) {
+                  chunk[aboveI] = DRIPSTONE_BLOCK_ID;
                 }
                 const dr = rand3(wx, y, wz, 55701);
-                if (dr < 0.08) {
-                  chunk[ci] = POINTED_DRIPSTONE_ID; // 鍾乳石（天井から下へ）
-                  // 長い鍾乳石
-                  if (dr < 0.03 && y > -Y_OFFSET + 6) {
-                    const below2 = chunkIndex(lx, y - 1, lz);
-                    if (chunk[below2] === 0) chunk[below2] = POINTED_DRIPSTONE_ID;
-                    if (dr < 0.01 && y > -Y_OFFSET + 7) {
-                      const below3 = chunkIndex(lx, y - 2, lz);
-                      if (chunk[below3] === 0) chunk[below3] = POINTED_DRIPSTONE_ID;
-                    }
+                if (dr < 0.10 * density) {
+                  // 鍾乳石（天井から下へ）。稀に床まで届く「柱」になり、鍾乳石と石筍が繋がる
+                  const maxH = (dr < 0.004) ? 64 : (dr < 0.012) ? 4 : (dr < 0.035) ? 2 : 1;
+                  for (let dy = 0; dy < maxH; dy++) {
+                    const yi = y - dy;
+                    if (yi < -Y_OFFSET + 5) break;
+                    const ii = chunkIndex(lx, yi, lz);
+                    if (chunk[ii] !== 0) break;
+                    chunk[ii] = POINTED_DRIPSTONE_ID;
                   }
                 }
               }
@@ -61518,17 +61612,24 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
                 const cr = rand3(wx, y, wz, 56101);
                 if (cr < 0.10) {
                   chunk[ci] = GLOW_BERRIES_ID;
-                  // 長いツタ状に垂らす
-                  if (cr < 0.04) {
-                    for (let dy = 1; dy <= 3; dy++) {
-                      if (y - dy < -Y_OFFSET + 5) break;
-                      const vi = chunkIndex(lx, y - dy, lz);
-                      if (chunk[vi] !== 0) break;
-                      chunk[vi] = GLOW_BERRIES_ID;
-                    }
+                  // ツタ状に垂らす(稀に長く垂れ、床手前で自然に止まる)
+                  const chainLen = (cr < 0.012) ? 6 : (cr < 0.025) ? 4 : (cr < 0.04) ? 3 : 1;
+                  for (let dy = 1; dy <= chainLen; dy++) {
+                    if (y - dy < -Y_OFFSET + 5) break;
+                    const vi = chunkIndex(lx, y - dy, lz);
+                    if (chunk[vi] !== 0) break;
+                    chunk[vi] = GLOW_BERRIES_ID;
                   }
                 } else if (cr < 0.14) {
                   chunk[ci] = HANGING_ROOTS_ID;
+                  // 垂れ根も1〜4ブロックの鎖で垂らす
+                  const rl = 1 + Math.floor(rand3(wx, y, wz, 56151) * 4);
+                  for (let dy = 1; dy <= rl; dy++) {
+                    if (y - dy < -Y_OFFSET + 5) break;
+                    const ri2 = chunkIndex(lx, y - dy, lz);
+                    if (chunk[ri2] !== 0) break;
+                    chunk[ri2] = HANGING_ROOTS_ID;
+                  }
                 } else if (cr < 0.155) {
                   chunk[ci] = SPORE_BLOSSOM_ID;
                 }
@@ -61751,6 +61852,25 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     function pickVariant(x, y, z, blockId) {
       const h = hash3i(x + blockId * 97, y + blockId * 131, z + blockId * 193);
       return h % VARIANTS;
+    }
+    // 鍾乳石: 「根元/中間/先端」のsegment別テクスチャ選択(鎖の継ぎ目が繋がって見えるように)。
+    // グローベリー: ツタの「本体/先端(ベリーの房)」選択。カウントパスとインスタンスパスの両方で同じ値を使う。
+    function cropStyleVariantAt(getB, lx, y, lz, t, x0, z0) {
+      if (t === POINTED_DRIPSTONE_ID) {
+        const aboveB = getB(lx, y + 1, lz), belowB = getB(lx, y - 1, lz);
+        const aPD = aboveB === POINTED_DRIPSTONE_ID, bPD = belowB === POINTED_DRIPSTONE_ID;
+        const aSolid = aboveB !== 0 && aboveB !== WATER_ID && aboveB !== LAVA_ID && isSolid(aboveB);
+        const bSolid = belowB !== 0 && belowB !== WATER_ID && belowB !== LAVA_ID && isSolid(belowB);
+        if (aPD && bPD) return 1;         // 中間(柱)
+        if (bPD && aSolid) return 2;      // 吊り下がりの根元(天井に付く。広いのは上)
+        if (aPD && bSolid) return 2;      // 石筍の根元(床に付く。描画時に上向きへ反転)
+        if (bPD) return 0;                // 石筍の先端(下が鍾乳石・上が空気。描画時に反転)
+        if (bSolid && aSolid) return 1;   // 床と天井の隙間を埋める柱
+        if (bSolid) return 0;             // 単独石筍(先端形状・描画時に反転)
+        return 0;                         // 吊り下がりの先端/単独鍾乳石
+      }
+      if (t === GLOW_BERRIES_ID) return (getB(lx, y - 1, lz) === GLOW_BERRIES_ID) ? 0 : 1; // 0=本体,1=先端(ベリーの房)
+      return pickVariant(x0 + lx, y, z0 + lz, t);
     }
     function toHexCSS(hex) {
 
@@ -65747,13 +65867,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       else if (blockId === 291) { // 苔のカーペット
         for (let y = 11; y < N; y++) for (let x = 0; x < N; x++) { const r = rnd(); P(x, y, r < 0.3 ? '#3e6a1e' : r < 0.7 ? '#5a8a2e' : '#7aa84a'); } R(0, 11, 15, 11, '#86b84a');
       }
-      else if (blockId === 292) { // 光るベリー
-        for (const x of [3, 8, 12]) { R(x, 0, x, 9, '#3e8a30'); R(x - 1, 2, x - 1, 3, '#52a63e'); R(x + 1, 5, x + 1, 6, '#52a63e'); R(x - 1, 9, x + 1, 11, '#ffb020'); R(x, 10, x, 11, '#ffe070'); P(x - 1, 9, '#ff8a10'); }
-      }
-      else if (blockId === 298) { // 鍾乳石(尖った茶色の石)
-        for (let y = 0; y < N; y++) { const w = Math.max(0, Math.round((15 - y) * 0.42)); for (let x = 8 - w - 1; x <= 8 + w; x++) P(x, y, x < 8 - w + 1 ? '#a08a6a' : x > 8 + w - 2 ? '#5a4a34' : '#7a6648'); }
-        for (let k = 0; k < 8; k++) { const y = Math.floor(rnd() * 10), x = 7 + Math.floor(rnd() * 3); if (g[y][x]) P(x, y, '#9a8460'); }
-      }
       else if (blockId === 300) { // 垂れ根
         for (const x of [2, 5, 9, 12]) { const len = 7 + Math.floor(rnd() * 8); for (let y = 0; y < len; y++) P(x + (y % 5 === 3 ? 1 : 0), y, y % 3 ? '#8a6a44' : '#6a4e30'); R(x - 1, 0, x + 1, 1, '#8a6a44'); }
       }
@@ -66137,7 +66250,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       const base = BLOCKS.find(b => b.blockId === blockId);
       let hex = variantColor(base?.color ?? 0xffffff, blockId, variant);
-      if (_drawPixelItem(ctx, size, blockId, base)) return canvas; // アイテムは、専用のドット絵で描く
+      // 鍾乳石/グローベリーはvariant別のブロックテクスチャ(根元/中間/先端・本体/先端)を使うため、
+      // variant非対応のアイテムドット絵で上書きされないようにする
+      if (_drawPixelItem(ctx, size, blockId, base) && blockId !== 298 && blockId !== 292) return canvas; // アイテムは、専用のドット絵で描く
       if (_drawPixelBlock(ctx, size, blockId, variant, face, base, toHexCSS(hex))) return canvas; // ブロックも、専用のドット絵で描く
 
       // ノイズ描画ヘルパー
@@ -67092,13 +67207,49 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         ctx.fillStyle='#4a6e2e';ctx.fillRect(0,48,size,16);
         for(let i=0;i<30;i++){ctx.fillStyle='rgba(80,130,50,0.5)';ctx.fillRect(Math.floor(Math.random()*16)*4,48+Math.floor(Math.random()*4)*4,4,4);}
       } else if (blockId === GLOW_BERRIES_ID) {
+        // 洞窟のツタ: 天井から下へ「切れ目なく」続く蔓を描く(0=本体, 1=先端=ベリーの房)
         ctx.clearRect(0,0,size,size);
-        ctx.fillStyle='#3a5a20';
-        for(let i=0;i<6;i++){const lx=8+Math.floor(Math.random()*10)*4;ctx.fillRect(lx,4+i*8,4,8);}
-        ctx.fillStyle='#ffaa20';
-        for(let i=0;i<8;i++){ctx.beginPath();ctx.arc(12+Math.floor(Math.random()*10)*4,16+Math.floor(Math.random()*10)*4,3,0,Math.PI*2);ctx.fill();}
-        ctx.fillStyle='rgba(255,200,60,0.4)';
-        for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(12+Math.floor(Math.random()*10)*4,16+Math.floor(Math.random()*10)*4,5,0,Math.PI*2);ctx.fill();}
+        const isTip = (variant === 1);
+        const strandXs = [8, 20, 32, 44, 56];
+        for (let i = 0; i < 5; i++) {
+          const sx = strandXs[i] + (((i * 7 + variant * 5) % 3) - 1);
+          const len = 36 + (((i * 13 + variant * 11) % 4)) * 6; // 36-54px 天井から連続
+          ctx.fillStyle = (i % 2 === 0) ? '#3a5a20' : '#4a7a2a';
+          ctx.fillRect(sx, 0, 4, len);
+          // 蔓に沿った小さな葉
+          ctx.fillStyle = '#55822f';
+          ctx.fillRect(sx - 3, 6 + ((i * 11) % 26), 4, 3);
+          ctx.fillRect(sx + 3, 14 + ((i * 17) % 22), 4, 3);
+        }
+        if (!isTip) {
+          // 本体: まばらに実る
+          for (let i = 0; i < 3; i++) {
+            const bx = strandXs[(i * 2) % 5] + 2 + (((i + variant) % 3) - 1);
+            const by = 10 + ((i * 19 + variant * 7) % 30);
+            ctx.fillStyle = 'rgba(255,190,60,0.30)';
+            ctx.beginPath(); ctx.arc(bx, by, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffaa20';
+            ctx.beginPath(); ctx.arc(bx, by, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffd766';
+            ctx.fillRect(bx - 1, by - 1, 2, 2);
+          }
+        } else {
+          // 先端: 下端にベリーの房(本家のcave_vines_plantと同様、収穫できる姿)
+          const clusterY = 50;
+          for (let i = 0; i < 7; i++) {
+            const bx = 14 + ((i * 17 + variant * 13) % 9) * 4;
+            const by = clusterY - ((i % 3) * 7) + ((i * 5) % 5);
+            ctx.fillStyle = 'rgba(255,190,60,0.38)';
+            ctx.beginPath(); ctx.arc(bx, by, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffaa20';
+            ctx.beginPath(); ctx.arc(bx, by, 3.5, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffd766';
+            ctx.fillRect(bx - 1, by - 2, 2, 2);
+          }
+          // 房を支える蔓のしおれた先
+          ctx.fillStyle = '#2f4a1a';
+          for (let i = 0; i < 5; i++) ctx.fillRect(strandXs[i], 56, 4, 8);
+        }
       } else if (blockId === AZALEA_LEAVES_ID) {
         fillNoise(0x3a7a3a, 0.3, 0.12);
         for(let i=0;i<60;i++){const px=Math.floor(Math.random()*(size/4))*4,py=Math.floor(Math.random()*(size/4))*4;
@@ -67126,11 +67277,27 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         for(let i=0;i<80;i++){const px=Math.floor(Math.random()*(size/4))*4,py=Math.floor(Math.random()*(size/4))*4;
           ctx.fillStyle=Math.random()>0.5?'rgba(150,130,110,0.3)':'rgba(120,100,80,0.25)';ctx.fillRect(px,py,4,4);}
       } else if (blockId === POINTED_DRIPSTONE_ID) {
+        // 吊り下がり(天井側が上)基準で描く。石筍は描画時に上下反転される。
+        // variant 0=先端(広い根元→下端でとがる) 1=中間(上下とも柱幅で鎖が繋がる) 2=根元(広い根元→柱幅へ続く)
         ctx.clearRect(0,0,size,size);
         ctx.fillStyle='#8a7a6a';
-        ctx.beginPath();ctx.moveTo(24,0);ctx.lineTo(40,0);ctx.lineTo(36,48);ctx.lineTo(32,64);ctx.lineTo(28,48);ctx.closePath();ctx.fill();
-        ctx.fillStyle='rgba(120,100,80,0.4)';
-        ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(32,64);ctx.lineTo(28,48);ctx.closePath();ctx.fill();
+        if (variant === 1) {
+          ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(38,0);ctx.lineTo(36,64);ctx.lineTo(28,64);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(120,100,80,0.45)';
+          ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(31,0);ctx.lineTo(29,64);ctx.lineTo(28,64);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(60,50,40,0.35)';
+          ctx.beginPath();ctx.moveTo(36,0);ctx.lineTo(38,0);ctx.lineTo(36,64);ctx.lineTo(34,64);ctx.closePath();ctx.fill();
+        } else if (variant === 2) {
+          ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(44,0);ctx.lineTo(38,26);ctx.lineTo(36,64);ctx.lineTo(28,64);ctx.lineTo(26,26);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(120,100,80,0.4)';
+          ctx.beginPath();ctx.moveTo(22,0);ctx.lineTo(31,56);ctx.lineTo(28,58);ctx.lineTo(24,20);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(60,50,40,0.3)';
+          ctx.beginPath();ctx.moveTo(44,0);ctx.lineTo(38,26);ctx.lineTo(36,64);ctx.lineTo(34,64);ctx.lineTo(40,8);ctx.closePath();ctx.fill();
+        } else {
+          ctx.beginPath();ctx.moveTo(24,0);ctx.lineTo(40,0);ctx.lineTo(36,48);ctx.lineTo(32,64);ctx.lineTo(28,48);ctx.closePath();ctx.fill();
+          ctx.fillStyle='rgba(120,100,80,0.4)';
+          ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(32,64);ctx.lineTo(28,48);ctx.closePath();ctx.fill();
+        }
       } else if (blockId === ROOTED_DIRT_ID) {
         fillNoise(0x8b6844, 0.2, 0.12);
         ctx.fillStyle='rgba(100,80,40,0.3)';
@@ -67494,6 +67661,38 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           setMetadata(nx, y, nz, undefined);
           markBlockDirty(nx, y, nz);
         }
+      }
+      // 上方向: 壊したブロックにぶら下がっていたツタ鎖の検証(鎖の上から順に「壁支持 or 上の固体」を確認)
+      if (inBounds(x, y + 1, z) && getBlock(x, y + 1, z) === VINE_ID) {
+        let top = y + 1, guard = 0;
+        while (guard++ < 64 && inBounds(x, top + 1, z) && getBlock(x, top + 1, z) === VINE_ID) top++;
+        let chainOk = false;
+        for (let cy2 = top; cy2 >= y + 1; cy2--) {
+          if (getBlock(x, cy2, z) !== VINE_ID) break;
+          let wall = false;
+          for (const [dx2, dz2] of sideNeighbors) {
+            if (isVineSupport(getBlock(x + dx2, cy2, z + dz2))) { wall = true; break; }
+          }
+          const aboveB = getBlock(x, cy2 + 1, z);
+          const solidAbove = aboveB !== 0 && aboveB !== VINE_ID && isVineSupport(aboveB);
+          if (wall || solidAbove) { chainOk = true; continue; }
+          if (!chainOk) {
+            setBlock(x, cy2, z, 0);
+            setMetadata(x, cy2, z, undefined);
+            markBlockDirty(x, cy2, z);
+          }
+        }
+      }
+      // 下方向: 支えを失った垂れツタを順に取り除く(壁支持が見つかったら停止)
+      let vy2 = y - 1;
+      while (vy2 > -Y_OFFSET && inBounds(x, vy2, z) && getBlock(x, vy2, z) === VINE_ID) {
+        const facing2 = getVineFacing(x, vy2, z);
+        if (facing2 === null || facing2 === 4) {
+          setBlock(x, vy2, z, 0);
+          setMetadata(x, vy2, z, undefined);
+          markBlockDirty(x, vy2, z);
+          vy2--;
+        } else break;
       }
     }
     function getFacingFromPlacement(tx, tz) {
@@ -69038,7 +69237,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
               if (t === TORCH_ID) { torchCount++; continue; }
               if (t === 103) {
                 const v = pickVariant(x, y, z, t);
-                vineCounts.set(v, (vineCounts.get(v) || 0) + 1);
+                // 垂れツタ(壁支持なし)はX字の2枚で描くので2インスタンス分カウント
+                vineCounts.set(v, (vineCounts.get(v) || 0) + (getVineFacing(x, y, z) === 4 ? 2 : 1));
                 continue;
               }
               if (t === 107) {
@@ -69047,7 +69247,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
                 continue;
               }
               if (CROP_STYLE_IDS.includes(t)) {
-                const v = pickVariant(x, y, z, t);
+                const v = cropStyleVariantAt(_getB, lx, y, lz, t, x0, z0);
                 const key = `${t}:${v}`;
                 cropCounts.set(key, (cropCounts.get(key) || 0) + 1);
                 continue;
@@ -69430,6 +69630,18 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
                   else if (facing === 1) { ox = 0.49; rot = Math.PI / 2; }
                   else if (facing === 2) { oz = 0.49; rot = Math.PI; }
                   else if (facing === 3) { ox = -0.49; rot = -Math.PI / 2; }
+                  if (facing === 4) {
+                    // 垂れツタ: 中央のX字2枚(上のツタ/固体から下へ連なる)
+                    dummy.position.set(x - x0 + 0.5, y + 0.5, z - z0 + 0.5);
+                    dummy.scale.set(0.95, 1, 1);
+                    dummy.rotation.set(0, Math.PI / 4, 0);
+                    dummy.updateMatrix();
+                    target.setMatrixAt(target.count++, dummy.matrix);
+                    dummy.rotation.set(0, Math.PI / 4 + Math.PI / 2, 0);
+                    dummy.updateMatrix();
+                    target.setMatrixAt(target.count++, dummy.matrix);
+                    continue;
+                  }
                   dummy.position.set(x - x0 + 0.5 + ox, y + 0.5, z - z0 + 0.5 + oz);
                   dummy.rotation.set(0, rot, 0);
                   dummy.scale.set(1, 1, 1);
@@ -69458,32 +69670,38 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
                 continue;
               }
               if (CROP_STYLE_IDS.includes(t) && cropMeshes.size > 0) {
-                const v = pickVariant(x, y, z, t);
+                const v = cropStyleVariantAt(_getB, lx2, y, lz2, t, x0, z0);
                 const key = `${t}:${v}`;
                 const cropA = cropMeshes.get(`${key}:a`);
                 const cropB = cropMeshes.get(`${key}:b`);
-                // 鍾乳石/キノコ/根/胞子はテクスチャがブロック全高を使うため中央(0.5)、作物は地面寄り(0.45)
+                // 鍾乳石/キノコ/根/胞子/グローベリーはテクスチャがブロック全高を使うため中央(0.5)、作物は地面寄り(0.45)
                 const cropY = CROP_STYLE_FULLHEIGHT_IDS.has(t) ? y + 0.5 : y + 0.45;
-                // 鍾乳石の上下向き判定: 上がsolid=天井から下向き、下がsolid=床から上向き(反転)
+                // 上下向き判定: 床に根を張る(下が鍾乳石/固体)ものは先端を上へ反転
                 let xRot = 0;
                 if (t === POINTED_DRIPSTONE_ID) {
-                  const aboveB = _getB(lx2, y + 1, lz2);
-                  const belowB = _getB(lx2, y - 1, lz2);
-                  if (belowB && isSolid(belowB) && (!aboveB || !isSolid(aboveB))) {
+                  const aboveB2 = _getB(lx2, y + 1, lz2);
+                  const belowB2 = _getB(lx2, y - 1, lz2);
+                  const aPD2 = aboveB2 === POINTED_DRIPSTONE_ID;
+                  const bPD2 = belowB2 === POINTED_DRIPSTONE_ID;
+                  const aSolid2 = aboveB2 !== 0 && aboveB2 !== WATER_ID && aboveB2 !== LAVA_ID && isSolid(aboveB2);
+                  const bSolid2 = belowB2 !== 0 && belowB2 !== WATER_ID && belowB2 !== LAVA_ID && isSolid(belowB2);
+                  // 上向き(石筍)になる場合: 下が鍾乳石で上が空気=石筍の先端 / 上が鍾乳石で下が床=石筍の根元 / 単独石筍
+                  if ((bPD2 && !aPD2 && !aSolid2) || (aPD2 && bSolid2 && !bPD2) || (bSolid2 && !bPD2 && !aPD2 && !aSolid2)) {
                     xRot = Math.PI; // 床から上向き（石筍）: 先端を上に
                   }
                 }
                 if (cropA) {
                   dummy.position.set(x - x0 + 0.5, cropY, z - z0 + 0.5);
                   dummy.rotation.set(xRot, Math.PI / 4, 0);
-                  dummy.scale.set(1, 1, 1);
+                  // 全高テクスチャ系(cropGeoは0.9高)は縦方向を1.12倍に伸ばしてブロック目一杯にし、鎖の継ぎ目の隙間をなくす
+                  dummy.scale.set(1, CROP_STYLE_FULLHEIGHT_IDS.has(t) ? 1.12 : 1, 1);
                   dummy.updateMatrix();
                   cropA.setMatrixAt(cropA.count++, dummy.matrix);
                 }
                 if (cropB) {
                   dummy.position.set(x - x0 + 0.5, cropY, z - z0 + 0.5);
                   dummy.rotation.set(xRot, Math.PI / 4 + Math.PI / 2, 0);
-                  dummy.scale.set(1, 1, 1);
+                  dummy.scale.set(1, CROP_STYLE_FULLHEIGHT_IDS.has(t) ? 1.12 : 1, 1);
                   dummy.updateMatrix();
                   cropB.setMatrixAt(cropB.count++, dummy.matrix);
                 }
