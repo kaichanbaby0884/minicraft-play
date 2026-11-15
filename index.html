@@ -55239,7 +55239,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     const BLOCKS = [
       { blockId: 1, name: "Grass", color: 0x5ac55a, solid: true },
       { blockId: 2, name: "Dirt", color: 0x8a5a2a, solid: true },
-      { blockId: 3, name: "Stone", color: 0x8a8a90, solid: true },
+      { blockId: 3, name: "Stone", color: 0x8a8a90, solid: true, dropId: 333 },
       { blockId: 4, name: "Sand", color: 0xe0c878, solid: true },
       { blockId: 5, name: "Water", color: 0x2070cc, solid: false },
       { blockId: 6, name: "Log", color: 0x6a4020, solid: true },
@@ -55347,7 +55347,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       { blockId: 199, name: "Slime Spawn Egg", color: 0x51a03e, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "slime" },
       { blockId: 200, name: "Phantom Membrane", color: 0xc8dae8, solid: false, isBlock: false },
       { blockId: 201, name: "Ghast Tear", color: 0xe8e8f0, solid: false, isBlock: false },
-      { blockId: 201, name: "Phantom Spawn Egg", color: 0x4d5b8c, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "phantom" },
+      { blockId: 270, name: "Phantom Spawn Egg", color: 0x4d5b8c, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "phantom" },
       { blockId: 217, name: "Ghast Spawn Egg", color: 0xe8e8e8, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "ghast" },
       { blockId: 218, name: "Zombie Piglin Spawn Egg", color: 0xd4a07a, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "zombie_piglin" },
       { blockId: 232, name: "Piglin Spawn Egg", color: 0xd4a060, solid: false, isBlock: false, isSpawnEgg: true, spawnType: "piglin" },
@@ -55564,7 +55564,892 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       { blockId: 330, name: "Potion of Regeneration", color: 0xcd5cab, solid: false, isBlock: false },
       { blockId: 331, name: "Potion of Poison",      color: 0x4e9331, solid: false, isBlock: false },
       { blockId: 332, name: "Potion of Slow Falling", color: 0xf7f7d7, solid: false, isBlock: false },
+
+    /* ===== ▼▼ マイカラにあるのに無かったアイテム一括追加(~440種) ▼▼ ===== */
+      { blockId: 333, name: "Cobblestone", color: 0x7a7a80, solid: true },
+      { blockId: 334, name: "Mossy Cobblestone", color: 0x6e7a66, solid: true },
+      { blockId: 335, name: "Smooth Stone", color: 0xa0a0a6, solid: true },
+      { blockId: 336, name: "Granite", color: 0x9a6a56, solid: true },
+      { blockId: 337, name: "Polished Granite", color: 0xa87460, solid: true },
+      { blockId: 338, name: "Diorite", color: 0xc4c6ca, solid: true },
+      { blockId: 339, name: "Polished Diorite", color: 0xd2d4d8, solid: true },
+      { blockId: 340, name: "Andesite", color: 0x8e9298, solid: true },
+      { blockId: 341, name: "Polished Andesite", color: 0x9ca0a6, solid: true },
+      { blockId: 342, name: "Tuff", color: 0x6a6a62, solid: true },
+      { blockId: 343, name: "Calcite", color: 0xdfe0da, solid: true },
+      { blockId: 344, name: "Smooth Basalt", color: 0x4c4c54, solid: true },
+      { blockId: 345, name: "Cobbled Deepslate", color: 0x4e4e56, solid: true },
+      { blockId: 346, name: "Polished Deepslate", color: 0x565660, solid: true },
+      { blockId: 347, name: "Deepslate Bricks", color: 0x52525c, solid: true },
+      { blockId: 348, name: "Deepslate Tiles", color: 0x484852, solid: true },
+      { blockId: 349, name: "Chiseled Deepslate", color: 0x50505a, solid: true },
+      { blockId: 350, name: "Chiseled Stone Bricks", color: 0x8e8e8a, solid: true },
+      { blockId: 351, name: "Cracked Stone Bricks", color: 0x8c8c88, solid: true },
+      { blockId: 352, name: "Mossy Stone Bricks", color: 0x76806a, solid: true },
+      { blockId: 353, name: "Bricks", color: 0x9a5a48, solid: true },
+      { blockId: 354, name: "Mud", color: 0x3c3a37, solid: true },
+      { blockId: 355, name: "Packed Mud", color: 0x8a6a50, solid: true },
+      { blockId: 356, name: "Mud Bricks", color: 0x8a6850, solid: true },
+      { blockId: 357, name: "Sandstone", color: 0xd8cea0, solid: true },
+      { blockId: 358, name: "Chiseled Sandstone", color: 0xd8cea0, solid: true },
+      { blockId: 359, name: "Cut Sandstone", color: 0xd8cea0, solid: true },
+      { blockId: 360, name: "Smooth Sandstone", color: 0xd8cea0, solid: true },
+      { blockId: 361, name: "Red Sandstone", color: 0xb8552e, solid: true },
+      { blockId: 362, name: "Chiseled Red Sandstone", color: 0xb8552e, solid: true },
+      { blockId: 363, name: "Cut Red Sandstone", color: 0xb8552e, solid: true },
+      { blockId: 364, name: "Smooth Red Sandstone", color: 0xb8552e, solid: true },
+      { blockId: 365, name: "Quartz Block", color: 0xece9e2, solid: true },
+      { blockId: 366, name: "Chiseled Quartz Block", color: 0xece9e2, solid: true },
+      { blockId: 367, name: "Quartz Pillar", color: 0xece9e2, solid: true },
+      { blockId: 368, name: "Quartz Bricks", color: 0xece9e2, solid: true },
+      { blockId: 369, name: "Red Nether Bricks", color: 0x46060d, solid: true },
+      { blockId: 370, name: "Cracked Nether Bricks", color: 0x3a1520, solid: true },
+      { blockId: 371, name: "Chiseled Nether Bricks", color: 0x3a1520, solid: true },
+      { blockId: 372, name: "Gilded Blackstone", color: 0x2a2a32, solid: true },
+      { blockId: 373, name: "Crying Obsidian", color: 0x241038, solid: true, emitLight: 0.4 },
+      { blockId: 374, name: "Lodestone", color: 0x3a3a44, solid: true },
+      { blockId: 375, name: "Respawn Anchor", color: 0x2a0a3a, solid: true, emitLight: 0.8 },
+      { blockId: 376, name: "Coal Block", color: 0x101014, solid: true },
+      { blockId: 377, name: "Iron Block", color: 0xd8d8d8, solid: true },
+      { blockId: 378, name: "Copper Block", color: 0xc46f50, solid: true },
+      { blockId: 379, name: "Cut Copper", color: 0xc97b5a, solid: true },
+      { blockId: 380, name: "Diamond Block", color: 0x4aedd9, solid: true },
+      { blockId: 381, name: "Emerald Block", color: 0x17dd62, solid: true },
+      { blockId: 382, name: "Lapis Block", color: 0x2a4fbf, solid: true },
+      { blockId: 383, name: "Redstone Block", color: 0xaa0a0a, solid: true },
+      { blockId: 384, name: "Netherite Block", color: 0x3a3a3e, solid: true },
+      { blockId: 385, name: "Raw Iron Block", color: 0x9c8066, solid: true },
+      { blockId: 386, name: "Raw Gold Block", color: 0xddaa22, solid: true },
+      { blockId: 387, name: "Raw Copper Block", color: 0x8a5a3a, solid: true },
+      { blockId: 388, name: "Ancient Debris", color: 0x5e4238, solid: true },
+      { blockId: 389, name: "Nether Gold Ore", color: 0x7a3434, solid: true, dropId: 712 },
+      { blockId: 390, name: "Amethyst Block", color: 0x8a5ab8, solid: true },
+      { blockId: 391, name: "Budding Amethyst", color: 0x9a6ac8, solid: true },
+      { blockId: 392, name: "Light Gray Wool", color: 0x93938d, solid: true },
+      { blockId: 393, name: "Black Wool", color: 0x1d1d21, solid: true },
+      { blockId: 394, name: "Brown Wool", color: 0x835432, solid: true },
+      { blockId: 395, name: "Red Wool", color: 0xb02e26, solid: true },
+      { blockId: 396, name: "Orange Wool", color: 0xf9801d, solid: true },
+      { blockId: 397, name: "Yellow Wool", color: 0xfed83d, solid: true },
+      { blockId: 398, name: "Lime Wool", color: 0x80c71f, solid: true },
+      { blockId: 399, name: "Green Wool", color: 0x5e7c16, solid: true },
+      { blockId: 400, name: "Cyan Wool", color: 0x169c9c, solid: true },
+      { blockId: 401, name: "Light Blue Wool", color: 0x3ab3da, solid: true },
+      { blockId: 402, name: "Blue Wool", color: 0x3c44aa, solid: true },
+      { blockId: 403, name: "Purple Wool", color: 0x8932b8, solid: true },
+      { blockId: 404, name: "Magenta Wool", color: 0xc74ebd, solid: true },
+      { blockId: 405, name: "Pink Wool", color: 0xf38baa, solid: true },
+      { blockId: 406, name: "White Carpet", color: 0xe9ecec, solid: true, isBlock: true },
+      { blockId: 407, name: "Light Gray Carpet", color: 0x93938d, solid: true, isBlock: true },
+      { blockId: 408, name: "Gray Carpet", color: 0x474f52, solid: true, isBlock: true },
+      { blockId: 409, name: "Black Carpet", color: 0x1d1d21, solid: true, isBlock: true },
+      { blockId: 410, name: "Brown Carpet", color: 0x835432, solid: true, isBlock: true },
+      { blockId: 411, name: "Red Carpet", color: 0xb02e26, solid: true, isBlock: true },
+      { blockId: 412, name: "Orange Carpet", color: 0xf9801d, solid: true, isBlock: true },
+      { blockId: 413, name: "Yellow Carpet", color: 0xfed83d, solid: true, isBlock: true },
+      { blockId: 414, name: "Lime Carpet", color: 0x80c71f, solid: true, isBlock: true },
+      { blockId: 415, name: "Green Carpet", color: 0x5e7c16, solid: true, isBlock: true },
+      { blockId: 416, name: "Cyan Carpet", color: 0x169c9c, solid: true, isBlock: true },
+      { blockId: 417, name: "Light Blue Carpet", color: 0x3ab3da, solid: true, isBlock: true },
+      { blockId: 418, name: "Blue Carpet", color: 0x3c44aa, solid: true, isBlock: true },
+      { blockId: 419, name: "Purple Carpet", color: 0x8932b8, solid: true, isBlock: true },
+      { blockId: 420, name: "Magenta Carpet", color: 0xc74ebd, solid: true, isBlock: true },
+      { blockId: 421, name: "Pink Carpet", color: 0xf38baa, solid: true, isBlock: true },
+      { blockId: 422, name: "White Stained Glass", color: 0xf9fffe, solid: true, isBlock: true },
+      { blockId: 423, name: "Light Gray Stained Glass", color: 0x93938d, solid: true, isBlock: true },
+      { blockId: 424, name: "Gray Stained Glass", color: 0x474f52, solid: true, isBlock: true },
+      { blockId: 425, name: "Black Stained Glass", color: 0x1d1d21, solid: true, isBlock: true },
+      { blockId: 426, name: "Brown Stained Glass", color: 0x835432, solid: true, isBlock: true },
+      { blockId: 427, name: "Red Stained Glass", color: 0xb02e26, solid: true, isBlock: true },
+      { blockId: 428, name: "Orange Stained Glass", color: 0xf9801d, solid: true, isBlock: true },
+      { blockId: 429, name: "Yellow Stained Glass", color: 0xfed83d, solid: true, isBlock: true },
+      { blockId: 430, name: "Lime Stained Glass", color: 0x80c71f, solid: true, isBlock: true },
+      { blockId: 431, name: "Green Stained Glass", color: 0x5e7c16, solid: true, isBlock: true },
+      { blockId: 432, name: "Cyan Stained Glass", color: 0x169c9c, solid: true, isBlock: true },
+      { blockId: 433, name: "Light Blue Stained Glass", color: 0x3ab3da, solid: true, isBlock: true },
+      { blockId: 434, name: "Blue Stained Glass", color: 0x3c44aa, solid: true, isBlock: true },
+      { blockId: 435, name: "Purple Stained Glass", color: 0x8932b8, solid: true, isBlock: true },
+      { blockId: 436, name: "Magenta Stained Glass", color: 0xc74ebd, solid: true, isBlock: true },
+      { blockId: 437, name: "Pink Stained Glass", color: 0xf38baa, solid: true, isBlock: true },
+      { blockId: 438, name: "White Terracotta", color: 0xd1b1a1, solid: true },
+      { blockId: 439, name: "Light Gray Terracotta", color: 0x876a61, solid: true },
+      { blockId: 440, name: "Gray Terracotta", color: 0x392a24, solid: true },
+      { blockId: 441, name: "Black Terracotta", color: 0x251710, solid: true },
+      { blockId: 442, name: "Brown Terracotta", color: 0x4d3324, solid: true },
+      { blockId: 443, name: "Red Terracotta", color: 0x8e3c2e, solid: true },
+      { blockId: 444, name: "Orange Terracotta", color: 0xa25426, solid: true },
+      { blockId: 445, name: "Yellow Terracotta", color: 0xba8523, solid: true },
+      { blockId: 446, name: "Lime Terracotta", color: 0x677535, solid: true },
+      { blockId: 447, name: "Green Terracotta", color: 0x4b522a, solid: true },
+      { blockId: 448, name: "Cyan Terracotta", color: 0x575b5b, solid: true },
+      { blockId: 449, name: "Light Blue Terracotta", color: 0x71748a, solid: true },
+      { blockId: 450, name: "Blue Terracotta", color: 0x4a3a5b, solid: true },
+      { blockId: 451, name: "Purple Terracotta", color: 0x764656, solid: true },
+      { blockId: 452, name: "Magenta Terracotta", color: 0x96576d, solid: true },
+      { blockId: 453, name: "Pink Terracotta", color: 0xa24e4e, solid: true },
+      { blockId: 454, name: "White Concrete", color: 0xf9fffe, solid: true },
+      { blockId: 455, name: "Light Gray Concrete", color: 0x93938d, solid: true },
+      { blockId: 456, name: "Gray Concrete", color: 0x474f52, solid: true },
+      { blockId: 457, name: "Black Concrete", color: 0x1d1d21, solid: true },
+      { blockId: 458, name: "Brown Concrete", color: 0x835432, solid: true },
+      { blockId: 459, name: "Red Concrete", color: 0xb02e26, solid: true },
+      { blockId: 460, name: "Orange Concrete", color: 0xf9801d, solid: true },
+      { blockId: 461, name: "Yellow Concrete", color: 0xfed83d, solid: true },
+      { blockId: 462, name: "Lime Concrete", color: 0x80c71f, solid: true },
+      { blockId: 463, name: "Green Concrete", color: 0x5e7c16, solid: true },
+      { blockId: 464, name: "Cyan Concrete", color: 0x169c9c, solid: true },
+      { blockId: 465, name: "Light Blue Concrete", color: 0x3ab3da, solid: true },
+      { blockId: 466, name: "Blue Concrete", color: 0x3c44aa, solid: true },
+      { blockId: 467, name: "Purple Concrete", color: 0x8932b8, solid: true },
+      { blockId: 468, name: "Magenta Concrete", color: 0xc74ebd, solid: true },
+      { blockId: 469, name: "Pink Concrete", color: 0xf38baa, solid: true },
+      { blockId: 470, name: "White Concrete Powder", color: 0xf9fffe, solid: true },
+      { blockId: 471, name: "Light Gray Concrete Powder", color: 0x93938d, solid: true },
+      { blockId: 472, name: "Gray Concrete Powder", color: 0x474f52, solid: true },
+      { blockId: 473, name: "Black Concrete Powder", color: 0x1d1d21, solid: true },
+      { blockId: 474, name: "Brown Concrete Powder", color: 0x835432, solid: true },
+      { blockId: 475, name: "Red Concrete Powder", color: 0xb02e26, solid: true },
+      { blockId: 476, name: "Orange Concrete Powder", color: 0xf9801d, solid: true },
+      { blockId: 477, name: "Yellow Concrete Powder", color: 0xfed83d, solid: true },
+      { blockId: 478, name: "Lime Concrete Powder", color: 0x80c71f, solid: true },
+      { blockId: 479, name: "Green Concrete Powder", color: 0x5e7c16, solid: true },
+      { blockId: 480, name: "Cyan Concrete Powder", color: 0x169c9c, solid: true },
+      { blockId: 481, name: "Light Blue Concrete Powder", color: 0x3ab3da, solid: true },
+      { blockId: 482, name: "Blue Concrete Powder", color: 0x3c44aa, solid: true },
+      { blockId: 483, name: "Purple Concrete Powder", color: 0x8932b8, solid: true },
+      { blockId: 484, name: "Magenta Concrete Powder", color: 0xc74ebd, solid: true },
+      { blockId: 485, name: "Pink Concrete Powder", color: 0xf38baa, solid: true },
+      { blockId: 486, name: "Mangrove Log", color: 0x5a3222, solid: true },
+      { blockId: 487, name: "Mangrove Leaves", color: 0x4a7a2a, solid: true },
+      { blockId: 488, name: "Mangrove Planks", color: 0x8a5646, solid: true },
+      { blockId: 489, name: "Mangrove Slab", color: 0x8a5646, solid: true },
+      { blockId: 490, name: "Mangrove Stairs", color: 0x8a5646, solid: true },
+      { blockId: 491, name: "Mangrove Fence", color: 0x8a5646, solid: true },
+      { blockId: 492, name: "Mangrove Trapdoor", color: 0x8a5646, solid: true },
+      { blockId: 493, name: "Mangrove Door", color: 0x8a5646, solid: true },
+      { blockId: 494, name: "Bamboo Block", color: 0xb8b23e, solid: true },
+      { blockId: 495, name: "Bamboo Planks", color: 0xc8b864, solid: true },
+      { blockId: 496, name: "Bamboo Mosaic", color: 0xc8b864, solid: true },
+      { blockId: 497, name: "Bamboo Slab", color: 0xc8b864, solid: true },
+      { blockId: 498, name: "Bamboo Stairs", color: 0xc8b864, solid: true },
+      { blockId: 499, name: "Bamboo Fence", color: 0xc8b864, solid: true },
+      { blockId: 500, name: "Bamboo Trapdoor", color: 0xc8b864, solid: true },
+      { blockId: 501, name: "Bamboo Door", color: 0xc8b864, solid: true },
+      { blockId: 502, name: "Crimson Planks", color: 0x6a3438, solid: true },
+      { blockId: 503, name: "Crimson Slab", color: 0x6a3438, solid: true },
+      { blockId: 504, name: "Crimson Stairs", color: 0x6a3438, solid: true },
+      { blockId: 505, name: "Crimson Fence", color: 0x6a3438, solid: true },
+      { blockId: 506, name: "Crimson Trapdoor", color: 0x6a3438, solid: true },
+      { blockId: 507, name: "Crimson Door", color: 0x6a3438, solid: true },
+      { blockId: 508, name: "Warped Planks", color: 0x3a8a80, solid: true },
+      { blockId: 509, name: "Warped Slab", color: 0x3a8a80, solid: true },
+      { blockId: 510, name: "Warped Stairs", color: 0x3a8a80, solid: true },
+      { blockId: 511, name: "Warped Fence", color: 0x3a8a80, solid: true },
+      { blockId: 512, name: "Warped Trapdoor", color: 0x3a8a80, solid: true },
+      { blockId: 513, name: "Warped Door", color: 0x3a8a80, solid: true },
+      { blockId: 514, name: "Spruce Planks", color: 0x8c6640, solid: true },
+      { blockId: 515, name: "Birch Planks", color: 0xd8cfa0, solid: true },
+      { blockId: 516, name: "Acacia Planks", color: 0xc88040, solid: true },
+      { blockId: 517, name: "Cherry Planks", color: 0xa06070, solid: true },
+      { blockId: 518, name: "Polished Basalt", color: 0x585860, solid: true },
+      { blockId: 519, name: "Polished Blackstone", color: 0x2a2a32, solid: true },
+      { blockId: 520, name: "Prismarine Bricks", color: 0x63a598, solid: true },
+      { blockId: 521, name: "Oak Sapling", color: 0x4a8a28, solid: false, isBlock: true },
+      { blockId: 522, name: "Spruce Sapling", color: 0x3a6a2a, solid: false, isBlock: true },
+      { blockId: 523, name: "Birch Sapling", color: 0x6aa84a, solid: false, isBlock: true },
+      { blockId: 524, name: "Jungle Sapling", color: 0x3e8a30, solid: false, isBlock: true },
+      { blockId: 525, name: "Acacia Sapling", color: 0x6a9a2a, solid: false, isBlock: true },
+      { blockId: 526, name: "Dark Oak Sapling", color: 0x2f6a20, solid: false, isBlock: true },
+      { blockId: 527, name: "Cherry Sapling", color: 0xe8a0c0, solid: false, isBlock: true },
+      { blockId: 528, name: "Mangrove Propagule", color: 0x8a4a2a, solid: false, isBlock: true },
+      { blockId: 529, name: "Dandelion", color: 0xf0d828, solid: false, isBlock: true },
+      { blockId: 530, name: "Poppy", color: 0xe03024, solid: false, isBlock: true },
+      { blockId: 531, name: "Blue Orchid", color: 0x30a0e0, solid: false, isBlock: true },
+      { blockId: 532, name: "Allium", color: 0xd070e0, solid: false, isBlock: true },
+      { blockId: 533, name: "Azure Bluet", color: 0xe0e0d0, solid: false, isBlock: true },
+      { blockId: 534, name: "Red Tulip", color: 0xd84030, solid: false, isBlock: true },
+      { blockId: 535, name: "Orange Tulip", color: 0xe8902a, solid: false, isBlock: true },
+      { blockId: 536, name: "White Tulip", color: 0xf0f0f0, solid: false, isBlock: true },
+      { blockId: 537, name: "Pink Tulip", color: 0xe8b0d0, solid: false, isBlock: true },
+      { blockId: 538, name: "Oxeye Daisy", color: 0xf0f0e0, solid: false, isBlock: true },
+      { blockId: 539, name: "Cornflower", color: 0x4070d0, solid: false, isBlock: true },
+      { blockId: 540, name: "Lily of the Valley", color: 0xf0f0f0, solid: false, isBlock: true },
+      { blockId: 541, name: "Wither Rose", color: 0x3a2a2a, solid: false, isBlock: true },
+      { blockId: 542, name: "Torchflower", color: 0xf08020, solid: false, isBlock: true },
+      { blockId: 543, name: "Sunflower", color: 0xf0d028, solid: false, isBlock: true },
+      { blockId: 544, name: "Lilac", color: 0xb080c0, solid: false, isBlock: true },
+      { blockId: 545, name: "Rose Bush", color: 0xd03028, solid: false, isBlock: true },
+      { blockId: 546, name: "Peony", color: 0xe8a0c0, solid: false, isBlock: true },
+      { blockId: 547, name: "Pitcher Plant", color: 0xc0a0e0, solid: false, isBlock: true },
+      { blockId: 548, name: "Pitcher Pod", color: 0x8a6ab0, solid: false, isBlock: false },
+      { blockId: 549, name: "Red Mushroom", color: 0xd03028, solid: false, isBlock: true },
+      { blockId: 550, name: "Brown Mushroom", color: 0x8a6a4a, solid: false, isBlock: true },
+      { blockId: 551, name: "Short Grass", color: 0x4a9a2a, solid: false, isBlock: true },
+      { blockId: 552, name: "Fern", color: 0x4a8a2a, solid: false, isBlock: true },
+      { blockId: 553, name: "Large Fern", color: 0x4a8a2a, solid: false, isBlock: true },
+      { blockId: 554, name: "Dead Bush", color: 0x9a6a2a, solid: false, isBlock: true },
+      { blockId: 555, name: "Sugar Cane", color: 0x9ac47a, solid: false, isBlock: true },
+      { blockId: 556, name: "Kelp", color: 0x3a7a2a, solid: false, isBlock: true },
+      { blockId: 557, name: "Seagrass", color: 0x3a9a3a, solid: false, isBlock: true },
+      { blockId: 558, name: "Sea Pickle", color: 0x6a8a3a, solid: false, isBlock: true, emitLight: 0.8 },
+      { blockId: 559, name: "Lily Pad", color: 0x2f8a34, solid: false, isBlock: true },
+      { blockId: 560, name: "Cobweb", color: 0xe8e8e8, solid: false, isBlock: true },
+      { blockId: 561, name: "Tube Coral Block", color: 0x3156cc, solid: true },
+      { blockId: 562, name: "Brain Coral Block", color: 0xcf5d84, solid: true },
+      { blockId: 563, name: "Bubble Coral Block", color: 0xa81cd1, solid: true },
+      { blockId: 564, name: "Fire Coral Block", color: 0xcc423d, solid: true },
+      { blockId: 565, name: "Horn Coral Block", color: 0xd3cf72, solid: true },
+      { blockId: 566, name: "Dead Tube Coral Block", color: 0x9a8f7d, solid: true },
+      { blockId: 567, name: "Dead Brain Coral Block", color: 0x9a8f7d, solid: true },
+      { blockId: 568, name: "Dead Bubble Coral Block", color: 0x9a8f7d, solid: true },
+      { blockId: 569, name: "Dead Fire Coral Block", color: 0x9a8f7d, solid: true },
+      { blockId: 570, name: "Dead Horn Coral Block", color: 0x9a8f7d, solid: true },
+      { blockId: 571, name: "Azalea", color: 0x6a9a3a, solid: false, isBlock: true },
+      { blockId: 572, name: "Flowering Azalea", color: 0x8ab050, solid: false, isBlock: true },
+      { blockId: 573, name: "Pumpkin", color: 0xd8801a, solid: true },
+      { blockId: 574, name: "Carved Pumpkin", color: 0xd8801a, solid: true },
+      { blockId: 575, name: "Jack o'Lantern", color: 0xd8801a, solid: true, emitLight: 1.0 },
+      { blockId: 576, name: "Cake", color: 0xf0ead8, solid: true, isBlock: true },
+      { blockId: 577, name: "Hay Bale", color: 0xc8a818, solid: true },
+      { blockId: 578, name: "Bookshelf", color: 0x8a6a4a, solid: true },
+      { blockId: 579, name: "Chiseled Bookshelf", color: 0x8a6a4a, solid: true },
+      { blockId: 580, name: "Target", color: 0xd0c8b8, solid: true },
+      { blockId: 581, name: "Note Block", color: 0x6a4a2e, solid: true },
+      { blockId: 582, name: "Jukebox", color: 0x6a4a30, solid: true },
+      { blockId: 583, name: "Dispenser", color: 0x7a7a80, solid: true },
+      { blockId: 584, name: "Dropper", color: 0x7a7a80, solid: true },
+      { blockId: 585, name: "Hopper", color: 0x4a4a50, solid: true },
+      { blockId: 586, name: "Observer", color: 0x6a6a70, solid: true },
+      { blockId: 587, name: "Piston", color: 0xa89060, solid: true },
+      { blockId: 588, name: "Sticky Piston", color: 0xa89060, solid: true },
+      { blockId: 589, name: "Redstone Torch", color: 0xd83020, solid: false, isBlock: true, emitLight: 0.7 },
+      { blockId: 590, name: "Lever", color: 0x7a7a80, solid: false, isBlock: true },
+      { blockId: 591, name: "Ender Chest", color: 0x2a2a3a, solid: true },
+      { blockId: 592, name: "Shulker Box", color: 0xa872c0, solid: true },
+      { blockId: 593, name: "White Shulker Box", color: 0xf9fffe, solid: true },
+      { blockId: 594, name: "Light Gray Shulker Box", color: 0x93938d, solid: true },
+      { blockId: 595, name: "Gray Shulker Box", color: 0x474f52, solid: true },
+      { blockId: 596, name: "Black Shulker Box", color: 0x1d1d21, solid: true },
+      { blockId: 597, name: "Brown Shulker Box", color: 0x835432, solid: true },
+      { blockId: 598, name: "Red Shulker Box", color: 0xb02e26, solid: true },
+      { blockId: 599, name: "Orange Shulker Box", color: 0xf9801d, solid: true },
+      { blockId: 600, name: "Yellow Shulker Box", color: 0xfed83d, solid: true },
+      { blockId: 601, name: "Lime Shulker Box", color: 0x80c71f, solid: true },
+      { blockId: 602, name: "Green Shulker Box", color: 0x5e7c16, solid: true },
+      { blockId: 603, name: "Cyan Shulker Box", color: 0x169c9c, solid: true },
+      { blockId: 604, name: "Light Blue Shulker Box", color: 0x3ab3da, solid: true },
+      { blockId: 605, name: "Blue Shulker Box", color: 0x3c44aa, solid: true },
+      { blockId: 606, name: "Purple Shulker Box", color: 0x8932b8, solid: true },
+      { blockId: 607, name: "Magenta Shulker Box", color: 0xc74ebd, solid: true },
+      { blockId: 608, name: "Pink Shulker Box", color: 0xf38baa, solid: true },
+      { blockId: 609, name: "Sponge", color: 0xd8d860, solid: true },
+      { blockId: 610, name: "Wet Sponge", color: 0xa0a050, solid: true },
+      { blockId: 611, name: "Slime Block", color: 0x7ac06a, solid: true },
+      { blockId: 612, name: "Honey Block", color: 0xf0a830, solid: true },
+      { blockId: 613, name: "Ice", color: 0x96c0f0, solid: true },
+      { blockId: 614, name: "Packed Ice", color: 0x8ab0e8, solid: true },
+      { blockId: 615, name: "Blue Ice", color: 0x3a6ad8, solid: true },
+      { blockId: 616, name: "Snow Block", color: 0xf0f4ff, solid: true },
+      { blockId: 617, name: "Powder Snow", color: 0xf8f8ff, solid: true },
+      { blockId: 618, name: "Iron Bars", color: 0x909298, solid: true, isBlock: true },
+      { blockId: 619, name: "Chain", color: 0x5a5a62, solid: false, isBlock: true },
+      { blockId: 620, name: "Lantern", color: 0xf0c040, solid: false, isBlock: true, emitLight: 1.5 },
+      { blockId: 621, name: "Soul Torch", color: 0x40dddd, solid: false, isBlock: true, emitLight: 1.2 },
+      { blockId: 622, name: "Bee Nest", color: 0xc8a050, solid: true },
+      { blockId: 623, name: "Beehive", color: 0xb89040, solid: true },
+      { blockId: 624, name: "Composter", color: 0x8a6a3a, solid: true },
+      { blockId: 625, name: "Smoker", color: 0x7a7a80, solid: true },
+      { blockId: 626, name: "Blast Furnace", color: 0x6a6a70, solid: true },
+      { blockId: 627, name: "Stonecutter", color: 0x7a7a80, solid: true },
+      { blockId: 628, name: "Loom", color: 0xa89060, solid: true },
+      { blockId: 629, name: "Cartography Table", color: 0x8a6a3a, solid: true },
+      { blockId: 630, name: "Fletching Table", color: 0xc8b890, solid: true },
+      { blockId: 631, name: "Smithing Table", color: 0x4a4a52, solid: true },
+      { blockId: 632, name: "Grindstone", color: 0x7a7a80, solid: true },
+      { blockId: 633, name: "Bell", color: 0xe8c860, solid: true },
+      { blockId: 634, name: "Scaffolding", color: 0xc8b06a, solid: true, isBlock: true },
+      { blockId: 635, name: "Ladder", color: 0xa8863a, solid: false, isBlock: true },
+      { blockId: 636, name: "Anvil", color: 0x404048, solid: true },
+      { blockId: 637, name: "Cauldron", color: 0x4a4a52, solid: true },
+      { blockId: 638, name: "Barrel", color: 0x8a6a3a, solid: true },
+      { blockId: 639, name: "Bone Block", color: 0xdcdcc8, solid: true },
+      { blockId: 640, name: "Beacon", color: 0x3ad8e8, solid: true, emitLight: 1.2 },
+      { blockId: 641, name: "Conduit", color: 0x5aa8a0, solid: true, emitLight: 1.0 },
+      { blockId: 642, name: "Lightning Rod", color: 0xc97b5a, solid: true },
+      { blockId: 643, name: "Red Mushroom Block", color: 0xd03028, solid: true },
+      { blockId: 644, name: "Brown Mushroom Block", color: 0x8a6a4a, solid: true },
+      { blockId: 645, name: "Mushroom Stem", color: 0xd0d0c0, solid: true },
+      { blockId: 646, name: "Apple", color: 0xe03024, solid: false, isBlock: false, isFood: true, foodValue: 4, saturation: 2.4 },
+      { blockId: 647, name: "Golden Apple", color: 0xf0c030, solid: false, isBlock: false, isFood: true, foodValue: 4, saturation: 9.6 },
+      { blockId: 648, name: "Enchanted Golden Apple", color: 0xf0d060, solid: false, isBlock: false, isFood: true, foodValue: 4, saturation: 14.4 },
+      { blockId: 649, name: "Golden Carrot", color: 0xf0a830, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 7.2 },
+      { blockId: 650, name: "Bread", color: 0xc89850, solid: false, isBlock: false, isFood: true, foodValue: 5, saturation: 6.0 },
+      { blockId: 651, name: "Cookie", color: 0xc89850, solid: false, isBlock: false, isFood: true, foodValue: 2, saturation: 0.4 },
+      { blockId: 652, name: "Pumpkin Pie", color: 0xd8a050, solid: false, isBlock: false, isFood: true, foodValue: 8, saturation: 4.8 },
+      { blockId: 653, name: "Sweet Berries", color: 0xc02040, solid: false, isBlock: false, isFood: true, foodValue: 2, saturation: 0.4 },
+      { blockId: 654, name: "Honey Bottle", color: 0xd88010, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 1.2 },
+      { blockId: 655, name: "Dried Kelp", color: 0x3a4a2a, solid: false, isBlock: false, isFood: true, foodValue: 1, saturation: 0.6 },
+      { blockId: 656, name: "Raw Cod", color: 0x9a6850, solid: false, isBlock: false, isFood: true, foodValue: 2, saturation: 0.4 },
+      { blockId: 657, name: "Cooked Cod", color: 0xc89868, solid: false, isBlock: false, isFood: true, foodValue: 5, saturation: 6.0 },
+      { blockId: 658, name: "Raw Salmon", color: 0xb04a4a, solid: false, isBlock: false, isFood: true, foodValue: 2, saturation: 0.4 },
+      { blockId: 659, name: "Cooked Salmon", color: 0xc07a50, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 8.0 },
+      { blockId: 660, name: "Tropical Fish", color: 0xd07840, solid: false, isBlock: false, isFood: true, foodValue: 1, saturation: 0.2 },
+      { blockId: 661, name: "Pufferfish", color: 0xc0a040, solid: false, isBlock: false, isFood: true, foodValue: 1, saturation: 0.2 },
+      { blockId: 662, name: "Mushroom Stew", color: 0x8a6040, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 7.2 },
+      { blockId: 663, name: "Beetroot Soup", color: 0x8a2040, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 7.2 },
+      { blockId: 664, name: "Rabbit Stew", color: 0xc07840, solid: false, isBlock: false, isFood: true, foodValue: 10, saturation: 12.0 },
+      { blockId: 665, name: "Suspicious Stew", color: 0x8a6040, solid: false, isBlock: false, isFood: true, foodValue: 6, saturation: 7.2 },
+      { blockId: 666, name: "Raw Rabbit", color: 0xc07060, solid: false, isBlock: false, isFood: true, foodValue: 3, saturation: 1.8 },
+      { blockId: 667, name: "Cooked Rabbit", color: 0xb05a30, solid: false, isBlock: false, isFood: true, foodValue: 5, saturation: 6.0 },
+      { blockId: 668, name: "Baked Potato", color: 0xd0a850, solid: false, isBlock: false, isFood: true, foodValue: 5, saturation: 6.0 },
+      { blockId: 669, name: "Poisonous Potato", color: 0x8a9a50, solid: false, isBlock: false, isFood: true, foodValue: 2, saturation: 1.2 },
+      { blockId: 670, name: "Milk Bucket", color: 0xf0f0f0, solid: false, isBlock: false },
+      { blockId: 671, name: "Water Bucket", color: 0x3366cc, solid: false, isBlock: false },
+      { blockId: 672, name: "Lava Bucket", color: 0xe05010, solid: false, isBlock: false },
+      { blockId: 673, name: "Bucket", color: 0xb8b8c0, solid: false, isBlock: false },
+      { blockId: 674, name: "Snowball", color: 0xf0f4ff, solid: false, isBlock: false },
+      { blockId: 675, name: "Slime Ball", color: 0x7ac06a, solid: false, isBlock: false },
+      { blockId: 676, name: "Egg", color: 0xe8d8c0, solid: false, isBlock: false },
+      { blockId: 677, name: "Bone", color: 0xf0f0e8, solid: false, isBlock: false },
+      { blockId: 678, name: "Bone Meal", color: 0xe0e0d0, solid: false, isBlock: false },
+      { blockId: 679, name: "Sugar", color: 0xf0f0f0, solid: false, isBlock: false },
+      { blockId: 680, name: "Paper", color: 0xf4f4f0, solid: false, isBlock: false },
+      { blockId: 681, name: "Book", color: 0x8a4a2a, solid: false, isBlock: false },
+      { blockId: 682, name: "Enchanted Book", color: 0x7a3aa8, solid: false, isBlock: false },
+      { blockId: 683, name: "Ink Sac", color: 0x242428, solid: false, isBlock: false },
+      { blockId: 684, name: "Glow Ink Sac", color: 0x3a4a38, solid: false, isBlock: false },
+      { blockId: 685, name: "Amethyst Shard", color: 0xa06ad8, solid: false, isBlock: false },
+      { blockId: 686, name: "Echo Shard", color: 0x2a9a9a, solid: false, isBlock: false },
+      { blockId: 687, name: "Netherite Scrap", color: 0x6a5240, solid: false, isBlock: false },
+      { blockId: 688, name: "Netherite Ingot", color: 0x45454c, solid: false, isBlock: false },
+      { blockId: 689, name: "Nether Star", color: 0xf0f0c0, solid: false, isBlock: false },
+      { blockId: 690, name: "Heart of the Sea", color: 0x18a0a0, solid: false, isBlock: false },
+      { blockId: 691, name: "Nautilus Shell", color: 0xd8b878, solid: false, isBlock: false },
+      { blockId: 692, name: "Prismarine Shard", color: 0x5ab0a0, solid: false, isBlock: false },
+      { blockId: 693, name: "Prismarine Crystals", color: 0x9adcd0, solid: false, isBlock: false },
+      { blockId: 694, name: "Rabbit Hide", color: 0xa87858, solid: false, isBlock: false },
+      { blockId: 695, name: "Rabbit's Foot", color: 0xc08858, solid: false, isBlock: false },
+      { blockId: 696, name: "Fermented Spider Eye", color: 0x6a5a3a, solid: false, isBlock: false },
+      { blockId: 697, name: "Glistering Melon Slice", color: 0xc0d860, solid: false, isBlock: false },
+      { blockId: 698, name: "Honeycomb", color: 0xe8a020, solid: false, isBlock: false },
+      { blockId: 699, name: "Clay Ball", color: 0x9ea4b0, solid: false, isBlock: false },
+      { blockId: 700, name: "Brick", color: 0x9a5a48, solid: false, isBlock: false },
+      { blockId: 701, name: "Nether Brick", color: 0x3a1520, solid: false, isBlock: false },
+      { blockId: 702, name: "Firework Rocket", color: 0xd84040, solid: false, isBlock: false },
+      { blockId: 703, name: "Firework Star", color: 0xe8d860, solid: false, isBlock: false },
+      { blockId: 704, name: "Fire Charge", color: 0x803020, solid: false, isBlock: false },
+      { blockId: 705, name: "Experience Bottle", color: 0x8ac060, solid: false, isBlock: false },
+      { blockId: 706, name: "Goat Horn", color: 0xc8b890, solid: false, isBlock: false },
+      { blockId: 707, name: "Spyglass", color: 0x8a6a3a, solid: false, isBlock: false },
+      { blockId: 708, name: "Name Tag", color: 0xd8c890, solid: false, isBlock: false },
+      { blockId: 709, name: "Lead", color: 0xd8d0c0, solid: false, isBlock: false },
+      { blockId: 710, name: "Saddle", color: 0xa87040, solid: false, isBlock: false },
+      { blockId: 711, name: "Glowstone Dust", color: 0xf0d860, solid: false, isBlock: false },
+      { blockId: 712, name: "Gold Nugget", color: 0xf0c030, solid: false, isBlock: false },
+      { blockId: 713, name: "Iron Nugget", color: 0xd8d8d8, solid: false, isBlock: false },
+      { blockId: 714, name: "Charcoal", color: 0x3a3230, solid: false, isBlock: false },
+      { blockId: 715, name: "Bowl", color: 0x9a6a3a, solid: false, isBlock: false },
+      { blockId: 716, name: "Pumpkin Seeds", color: 0x9a8a3a, solid: false, isBlock: false },
+      { blockId: 717, name: "Melon Seeds", color: 0x8aa040, solid: false, isBlock: false },
+      { blockId: 718, name: "Shears", color: 0xc8ccd0, solid: false, isBlock: false },
+      { blockId: 719, name: "Fishing Rod", color: 0x8a6a3a, solid: false, isBlock: false },
+      { blockId: 720, name: "Carrot on a Stick", color: 0xef8a1a, solid: false, isBlock: false },
+      { blockId: 721, name: "Warped Fungus on a Stick", color: 0x20aa80, solid: false, isBlock: false },
+      { blockId: 722, name: "Crossbow", color: 0x8a6a3a, solid: false, isBlock: false },
+      { blockId: 723, name: "Trident", color: 0x5a8a8a, solid: false, isBlock: false, toolType: 'sword', tier: 4 },
+      { blockId: 724, name: "Shield", color: 0x8a6a3a, solid: false, isBlock: false },
+      { blockId: 725, name: "Mace", color: 0xc87b3a, solid: false, isBlock: false, toolType: 'sword', tier: 5 },
+      { blockId: 726, name: "Wind Charge", color: 0xa0e0d0, solid: false, isBlock: false },
+      { blockId: 727, name: "Brush", color: 0xa87840, solid: false, isBlock: false },
+      { blockId: 728, name: "Trial Key", color: 0xe8c060, solid: false, isBlock: false },
+      { blockId: 729, name: "Ominous Trial Key", color: 0xa08ad0, solid: false, isBlock: false },
+      { blockId: 730, name: "Heavy Core", color: 0x3a3a44, solid: false, isBlock: false },
+      { blockId: 731, name: "Compass", color: 0xc8ccd0, solid: false, isBlock: false },
+      { blockId: 732, name: "Clock", color: 0xf0c030, solid: false, isBlock: false },
+      { blockId: 733, name: "Music Disc 13", color: 0x8a6a4a, solid: false, isBlock: false },
+      { blockId: 734, name: "Music Disc Cat", color: 0x8a5a3a, solid: false, isBlock: false },
+      { blockId: 735, name: "Music Disc Blocks", color: 0xb07a3a, solid: false, isBlock: false },
+      { blockId: 736, name: "Music Disc Chirp", color: 0xa03a3a, solid: false, isBlock: false },
+      { blockId: 737, name: "Music Disc Far", color: 0x7a8a5a, solid: false, isBlock: false },
+      { blockId: 738, name: "Music Disc Mall", color: 0x5a7a9a, solid: false, isBlock: false },
+      { blockId: 739, name: "Music Disc Mellohi", color: 0x9a5a9a, solid: false, isBlock: false },
+      { blockId: 740, name: "Music Disc Stal", color: 0x8a8a7a, solid: false, isBlock: false },
+      { blockId: 741, name: "Music Disc Strad", color: 0xc0c060, solid: false, isBlock: false },
+      { blockId: 742, name: "Music Disc Ward", color: 0x3a8a5a, solid: false, isBlock: false },
+      { blockId: 743, name: "Music Disc Wait", color: 0x8aa0b0, solid: false, isBlock: false },
+      { blockId: 744, name: "Music Disc 11", color: 0x4a4a4a, solid: false, isBlock: false },
+      { blockId: 745, name: "Music Disc Pigstep", color: 0xc05a8a, solid: false, isBlock: false },
+      { blockId: 746, name: "Music Disc Otherside", color: 0x40c08a, solid: false, isBlock: false },
+      { blockId: 747, name: "Music Disc 5", color: 0x6a5a8a, solid: false, isBlock: false },
+      { blockId: 748, name: "Music Disc Relic", color: 0xa89060, solid: false, isBlock: false },
+      { blockId: 749, name: "Wooden Hoe", color: 0xb58a52, solid: false, isBlock: false, toolType: 'hoe', tier: 1 },
+      { blockId: 750, name: "Stone Hoe", color: 0x9aa3ad, solid: false, isBlock: false, toolType: 'hoe', tier: 2 },
+      { blockId: 751, name: "Iron Hoe", color: 0xcccccc, solid: false, isBlock: false, toolType: 'hoe', tier: 3 },
+      { blockId: 752, name: "Gold Hoe", color: 0xffdd00, solid: false, isBlock: false, toolType: 'hoe', tier: 3 },
+      { blockId: 753, name: "Diamond Hoe", color: 0x33ffff, solid: false, isBlock: false, toolType: 'hoe', tier: 4 },
+      { blockId: 754, name: "Netherite Pickaxe", color: 0x45454c, solid: false, isBlock: false, toolType: 'pickaxe', tier: 5 },
+      { blockId: 755, name: "Netherite Axe", color: 0x45454c, solid: false, isBlock: false, toolType: 'axe', tier: 5 },
+      { blockId: 756, name: "Netherite Shovel", color: 0x45454c, solid: false, isBlock: false, toolType: 'shovel', tier: 5 },
+      { blockId: 757, name: "Netherite Sword", color: 0x45454c, solid: false, isBlock: false, toolType: 'sword', tier: 5 },
+      { blockId: 758, name: "Netherite Hoe", color: 0x45454c, solid: false, isBlock: false, toolType: 'hoe', tier: 5 },
+      { blockId: 759, name: "Netherite Helmet", color: 0x45454c, solid: false, isBlock: false, equipSlot: 'helmet', armor: 3, tier: 5 },
+      { blockId: 760, name: "Netherite Chestplate", color: 0x45454c, solid: false, isBlock: false, equipSlot: 'chestplate', armor: 8, tier: 5 },
+      { blockId: 761, name: "Netherite Leggings", color: 0x45454c, solid: false, isBlock: false, equipSlot: 'leggings', armor: 6, tier: 5 },
+      { blockId: 762, name: "Netherite Boots", color: 0x45454c, solid: false, isBlock: false, equipSlot: 'boots', armor: 3, tier: 5 },
+      { blockId: 763, name: "Chainmail Helmet", color: 0x8a8a92, solid: false, isBlock: false, equipSlot: 'helmet', armor: 2, tier: 2 },
+      { blockId: 764, name: "Chainmail Chestplate", color: 0x8a8a92, solid: false, isBlock: false, equipSlot: 'chestplate', armor: 5, tier: 2 },
+      { blockId: 765, name: "Chainmail Leggings", color: 0x8a8a92, solid: false, isBlock: false, equipSlot: 'leggings', armor: 4, tier: 2 },
+      { blockId: 766, name: "Chainmail Boots", color: 0x8a8a92, solid: false, isBlock: false, equipSlot: 'boots', armor: 2, tier: 2 },
+      { blockId: 767, name: "Leather Helmet", color: 0xa0642c, solid: false, isBlock: false, equipSlot: 'helmet', armor: 1, tier: 1 },
+      { blockId: 768, name: "Leather Chestplate", color: 0xa0642c, solid: false, isBlock: false, equipSlot: 'chestplate', armor: 3, tier: 1 },
+      { blockId: 769, name: "Leather Leggings", color: 0xa0642c, solid: false, isBlock: false, equipSlot: 'leggings', armor: 2, tier: 1 },
+      { blockId: 770, name: "Leather Boots", color: 0xa0642c, solid: false, isBlock: false, equipSlot: 'boots', armor: 1, tier: 1 },
+      { blockId: 771, name: "Turtle Helmet", color: 0x2a7a4a, solid: false, isBlock: false, equipSlot: 'helmet', armor: 2, tier: 2 },
+      { blockId: 772, name: "Dragon's Breath", color: 0xc040d0, solid: false, isBlock: false },
     ];
+
+    // ===== 追加アイテムのID定数 =====
+    const COBBLESTONE_ID = 333;
+    const MOSSY_COBBLESTONE_ID = 334;
+    const SMOOTH_STONE_ID = 335;
+    const GRANITE_ID = 336;
+    const POLISHED_GRANITE_ID = 337;
+    const DIORITE_ID = 338;
+    const POLISHED_DIORITE_ID = 339;
+    const ANDESITE_ID = 340;
+    const POLISHED_ANDESITE_ID = 341;
+    const TUFF_ID = 342;
+    const CALCITE_ID = 343;
+    const SMOOTH_BASALT_ID = 344;
+    const COBBLED_DEEPSLATE_ID = 345;
+    const POLISHED_DEEPSLATE_ID = 346;
+    const DEEPSLATE_BRICKS_ID = 347;
+    const DEEPSLATE_TILES_ID = 348;
+    const CHISELED_DEEPSLATE_ID = 349;
+    const CHISELED_STONE_BRICKS_ID = 350;
+    const CRACKED_STONE_BRICKS_ID = 351;
+    const MOSSY_STONE_BRICKS_ID = 352;
+    const BRICKS_ID = 353;
+    const MUD_ID = 354;
+    const PACKED_MUD_ID = 355;
+    const MUD_BRICKS_ID = 356;
+    const SANDSTONE_ID = 357;
+    const CHISELED_SANDSTONE_ID = 358;
+    const CUT_SANDSTONE_ID = 359;
+    const SMOOTH_SANDSTONE_ID = 360;
+    const RED_SANDSTONE_ID = 361;
+    const CHISELED_RED_SANDSTONE_ID = 362;
+    const CUT_RED_SANDSTONE_ID = 363;
+    const SMOOTH_RED_SANDSTONE_ID = 364;
+    const QUARTZ_BLOCK_ID = 365;
+    const CHISELED_QUARTZ_BLOCK_ID = 366;
+    const QUARTZ_PILLAR_ID = 367;
+    const QUARTZ_BRICKS_ID = 368;
+    const RED_NETHER_BRICKS_ID = 369;
+    const CRACKED_NETHER_BRICKS_ID = 370;
+    const CHISELED_NETHER_BRICKS_ID = 371;
+    const GILDED_BLACKSTONE_ID = 372;
+    const CRYING_OBSIDIAN_ID = 373;
+    const LODESTONE_ID = 374;
+    const RESPAWN_ANCHOR_ID = 375;
+    const COAL_BLOCK_ID = 376;
+    const IRON_BLOCK_ID = 377;
+    const COPPER_BLOCK_ID = 378;
+    const CUT_COPPER_ID = 379;
+    const DIAMOND_BLOCK_ID = 380;
+    const EMERALD_BLOCK_ID = 381;
+    const LAPIS_BLOCK_ID = 382;
+    const REDSTONE_BLOCK_ID = 383;
+    const NETHERITE_BLOCK_ID = 384;
+    const RAW_IRON_BLOCK_ID = 385;
+    const RAW_GOLD_BLOCK_ID = 386;
+    const RAW_COPPER_BLOCK_ID = 387;
+    const ANCIENT_DEBRIS_ID = 388;
+    const NETHER_GOLD_ORE_ID = 389;
+    const AMETHYST_BLOCK_ID = 390;
+    const BUDDING_AMETHYST_ID = 391;
+    const LIGHT_GRAY_WOOL_ID = 392;
+    const BLACK_WOOL_ID = 393;
+    const BROWN_WOOL_ID = 394;
+    const RED_WOOL_ID = 395;
+    const ORANGE_WOOL_ID = 396;
+    const YELLOW_WOOL_ID = 397;
+    const LIME_WOOL_ID = 398;
+    const GREEN_WOOL_ID = 399;
+    const CYAN_WOOL_ID = 400;
+    const LIGHT_BLUE_WOOL_ID = 401;
+    const BLUE_WOOL_ID = 402;
+    const PURPLE_WOOL_ID = 403;
+    const MAGENTA_WOOL_ID = 404;
+    const PINK_WOOL_ID = 405;
+    const WHITE_CARPET_ID = 406;
+    const LIGHT_GRAY_CARPET_ID = 407;
+    const GRAY_CARPET_ID = 408;
+    const BLACK_CARPET_ID = 409;
+    const BROWN_CARPET_ID = 410;
+    const RED_CARPET_ID = 411;
+    const ORANGE_CARPET_ID = 412;
+    const YELLOW_CARPET_ID = 413;
+    const LIME_CARPET_ID = 414;
+    const GREEN_CARPET_ID = 415;
+    const CYAN_CARPET_ID = 416;
+    const LIGHT_BLUE_CARPET_ID = 417;
+    const BLUE_CARPET_ID = 418;
+    const PURPLE_CARPET_ID = 419;
+    const MAGENTA_CARPET_ID = 420;
+    const PINK_CARPET_ID = 421;
+    const WHITE_STAINED_GLASS_ID = 422;
+    const LIGHT_GRAY_STAINED_GLASS_ID = 423;
+    const GRAY_STAINED_GLASS_ID = 424;
+    const BLACK_STAINED_GLASS_ID = 425;
+    const BROWN_STAINED_GLASS_ID = 426;
+    const RED_STAINED_GLASS_ID = 427;
+    const ORANGE_STAINED_GLASS_ID = 428;
+    const YELLOW_STAINED_GLASS_ID = 429;
+    const LIME_STAINED_GLASS_ID = 430;
+    const GREEN_STAINED_GLASS_ID = 431;
+    const CYAN_STAINED_GLASS_ID = 432;
+    const LIGHT_BLUE_STAINED_GLASS_ID = 433;
+    const BLUE_STAINED_GLASS_ID = 434;
+    const PURPLE_STAINED_GLASS_ID = 435;
+    const MAGENTA_STAINED_GLASS_ID = 436;
+    const PINK_STAINED_GLASS_ID = 437;
+    const WHITE_TERRACOTTA_ID = 438;
+    const LIGHT_GRAY_TERRACOTTA_ID = 439;
+    const GRAY_TERRACOTTA_ID = 440;
+    const BLACK_TERRACOTTA_ID = 441;
+    const BROWN_TERRACOTTA_ID = 442;
+    const RED_TERRACOTTA_ID = 443;
+    const ORANGE_TERRACOTTA_ID = 444;
+    const YELLOW_TERRACOTTA_ID = 445;
+    const LIME_TERRACOTTA_ID = 446;
+    const GREEN_TERRACOTTA_ID = 447;
+    const CYAN_TERRACOTTA_ID = 448;
+    const LIGHT_BLUE_TERRACOTTA_ID = 449;
+    const BLUE_TERRACOTTA_ID = 450;
+    const PURPLE_TERRACOTTA_ID = 451;
+    const MAGENTA_TERRACOTTA_ID = 452;
+    const PINK_TERRACOTTA_ID = 453;
+    const WHITE_CONCRETE_ID = 454;
+    const LIGHT_GRAY_CONCRETE_ID = 455;
+    const GRAY_CONCRETE_ID = 456;
+    const BLACK_CONCRETE_ID = 457;
+    const BROWN_CONCRETE_ID = 458;
+    const RED_CONCRETE_ID = 459;
+    const ORANGE_CONCRETE_ID = 460;
+    const YELLOW_CONCRETE_ID = 461;
+    const LIME_CONCRETE_ID = 462;
+    const GREEN_CONCRETE_ID = 463;
+    const CYAN_CONCRETE_ID = 464;
+    const LIGHT_BLUE_CONCRETE_ID = 465;
+    const BLUE_CONCRETE_ID = 466;
+    const PURPLE_CONCRETE_ID = 467;
+    const MAGENTA_CONCRETE_ID = 468;
+    const PINK_CONCRETE_ID = 469;
+    const WHITE_CONCRETE_POWDER_ID = 470;
+    const LIGHT_GRAY_CONCRETE_POWDER_ID = 471;
+    const GRAY_CONCRETE_POWDER_ID = 472;
+    const BLACK_CONCRETE_POWDER_ID = 473;
+    const BROWN_CONCRETE_POWDER_ID = 474;
+    const RED_CONCRETE_POWDER_ID = 475;
+    const ORANGE_CONCRETE_POWDER_ID = 476;
+    const YELLOW_CONCRETE_POWDER_ID = 477;
+    const LIME_CONCRETE_POWDER_ID = 478;
+    const GREEN_CONCRETE_POWDER_ID = 479;
+    const CYAN_CONCRETE_POWDER_ID = 480;
+    const LIGHT_BLUE_CONCRETE_POWDER_ID = 481;
+    const BLUE_CONCRETE_POWDER_ID = 482;
+    const PURPLE_CONCRETE_POWDER_ID = 483;
+    const MAGENTA_CONCRETE_POWDER_ID = 484;
+    const PINK_CONCRETE_POWDER_ID = 485;
+    const MANGROVE_LOG_ID = 486;
+    const MANGROVE_LEAVES_ID = 487;
+    const MANGROVE_PLANKS_ID = 488;
+    const MANGROVE_SLAB_ID = 489;
+    const MANGROVE_STAIRS_ID = 490;
+    const MANGROVE_FENCE_ID = 491;
+    const MANGROVE_TRAPDOOR_ID = 492;
+    const MANGROVE_DOOR_ID = 493;
+    const BAMBOO_BLOCK_ID = 494;
+    const BAMBOO_PLANKS_ID = 495;
+    const BAMBOO_MOSAIC_ID = 496;
+    const BAMBOO_SLAB_ID = 497;
+    const BAMBOO_STAIRS_ID = 498;
+    const BAMBOO_FENCE_ID = 499;
+    const BAMBOO_TRAPDOOR_ID = 500;
+    const BAMBOO_DOOR_ID = 501;
+    const CRIMSON_PLANKS_ID = 502;
+    const CRIMSON_SLAB_ID = 503;
+    const CRIMSON_STAIRS_ID = 504;
+    const CRIMSON_FENCE_ID = 505;
+    const CRIMSON_TRAPDOOR_ID = 506;
+    const CRIMSON_DOOR_ID = 507;
+    const WARPED_PLANKS_ID = 508;
+    const WARPED_SLAB_ID = 509;
+    const WARPED_STAIRS_ID = 510;
+    const WARPED_FENCE_ID = 511;
+    const WARPED_TRAPDOOR_ID = 512;
+    const WARPED_DOOR_ID = 513;
+    const SPRUCE_PLANKS_ID = 514;
+    const BIRCH_PLANKS_ID = 515;
+    const ACACIA_PLANKS_ID = 516;
+    const CHERRY_PLANKS_ID = 517;
+    const POLISHED_BASALT_ID = 518;
+    const POLISHED_BLACKSTONE_ID = 519;
+    const PRISMARINE_BRICKS_ID = 520;
+    const OAK_SAPLING_ID = 521;
+    const SPRUCE_SAPLING_ID = 522;
+    const BIRCH_SAPLING_ID = 523;
+    const JUNGLE_SAPLING_ID = 524;
+    const ACACIA_SAPLING_ID = 525;
+    const DARK_OAK_SAPLING_ID = 526;
+    const CHERRY_SAPLING_ID = 527;
+    const MANGROVE_PROPAGULE_ID = 528;
+    const DANDELION_ID = 529;
+    const POPPY_ID = 530;
+    const BLUE_ORCHID_ID = 531;
+    const ALLIUM_ID = 532;
+    const AZURE_BLUET_ID = 533;
+    const RED_TULIP_ID = 534;
+    const ORANGE_TULIP_ID = 535;
+    const WHITE_TULIP_ID = 536;
+    const PINK_TULIP_ID = 537;
+    const OXEYE_DAISY_ID = 538;
+    const CORNFLOWER_ID = 539;
+    const LILY_OF_THE_VALLEY_ID = 540;
+    const WITHER_ROSE_ID = 541;
+    const TORCHFLOWER_ID = 542;
+    const SUNFLOWER_ID = 543;
+    const LILAC_ID = 544;
+    const ROSE_BUSH_ID = 545;
+    const PEONY_ID = 546;
+    const PITCHER_PLANT_ID = 547;
+    const PITCHER_POD_ID = 548;
+    const RED_MUSHROOM_ID = 549;
+    const BROWN_MUSHROOM_ID = 550;
+    const SHORT_GRASS_ID = 551;
+    const FERN_ID = 552;
+    const LARGE_FERN_ID = 553;
+    const DEAD_BUSH_ID = 554;
+    const SUGAR_CANE_ID = 555;
+    const KELP_ID = 556;
+    const SEAGRASS_ID = 557;
+    const SEA_PICKLE_ID = 558;
+    const LILY_PAD_ID = 559;
+    const COBWEB_ID = 560;
+    const TUBE_CORAL_BLOCK_ID = 561;
+    const BRAIN_CORAL_BLOCK_ID = 562;
+    const BUBBLE_CORAL_BLOCK_ID = 563;
+    const FIRE_CORAL_BLOCK_ID = 564;
+    const HORN_CORAL_BLOCK_ID = 565;
+    const DEAD_TUBE_CORAL_BLOCK_ID = 566;
+    const DEAD_BRAIN_CORAL_BLOCK_ID = 567;
+    const DEAD_BUBBLE_CORAL_BLOCK_ID = 568;
+    const DEAD_FIRE_CORAL_BLOCK_ID = 569;
+    const DEAD_HORN_CORAL_BLOCK_ID = 570;
+    const AZALEA_ID = 571;
+    const FLOWERING_AZALEA_ID = 572;
+    const PUMPKIN_ID = 573;
+    const CARVED_PUMPKIN_ID = 574;
+    const JACK_O_LANTERN_ID = 575;
+    const CAKE_ID = 576;
+    const HAY_BALE_ID = 577;
+    const BOOKSHELF_ID = 578;
+    const CHISELED_BOOKSHELF_ID = 579;
+    const TARGET_ID = 580;
+    const NOTE_BLOCK_ID = 581;
+    const JUKEBOX_ID = 582;
+    const DISPENSER_ID = 583;
+    const DROPPER_ID = 584;
+    const HOPPER_ID = 585;
+    const OBSERVER_ID = 586;
+    const PISTON_ID = 587;
+    const STICKY_PISTON_ID = 588;
+    const REDSTONE_TORCH_ID = 589;
+    const LEVER_ID = 590;
+    const ENDER_CHEST_ID = 591;
+    const SHULKER_BOX_ID = 592;
+    const WHITE_SHULKER_BOX_ID = 593;
+    const LIGHT_GRAY_SHULKER_BOX_ID = 594;
+    const GRAY_SHULKER_BOX_ID = 595;
+    const BLACK_SHULKER_BOX_ID = 596;
+    const BROWN_SHULKER_BOX_ID = 597;
+    const RED_SHULKER_BOX_ID = 598;
+    const ORANGE_SHULKER_BOX_ID = 599;
+    const YELLOW_SHULKER_BOX_ID = 600;
+    const LIME_SHULKER_BOX_ID = 601;
+    const GREEN_SHULKER_BOX_ID = 602;
+    const CYAN_SHULKER_BOX_ID = 603;
+    const LIGHT_BLUE_SHULKER_BOX_ID = 604;
+    const BLUE_SHULKER_BOX_ID = 605;
+    const PURPLE_SHULKER_BOX_ID = 606;
+    const MAGENTA_SHULKER_BOX_ID = 607;
+    const PINK_SHULKER_BOX_ID = 608;
+    const SPONGE_ID = 609;
+    const WET_SPONGE_ID = 610;
+    const SLIME_BLOCK_ID = 611;
+    const HONEY_BLOCK_ID = 612;
+    const ICE_ID = 613;
+    const PACKED_ICE_ID = 614;
+    const BLUE_ICE_ID = 615;
+    const SNOW_BLOCK_ID = 616;
+    const POWDER_SNOW_ID = 617;
+    const IRON_BARS_ID = 618;
+    const CHAIN_ID = 619;
+    const LANTERN_ID = 620;
+    const SOUL_TORCH_ID = 621;
+    const BEE_NEST_ID = 622;
+    const BEEHIVE_ID = 623;
+    const COMPOSTER_ID = 624;
+    const SMOKER_ID = 625;
+    const BLAST_FURNACE_ID = 626;
+    const STONECUTTER_ID = 627;
+    const LOOM_ID = 628;
+    const CARTOGRAPHY_TABLE_ID = 629;
+    const FLETCHING_TABLE_ID = 630;
+    const SMITHING_TABLE_ID = 631;
+    const GRINDSTONE_ID = 632;
+    const BELL_ID = 633;
+    const SCAFFOLDING_ID = 634;
+    const LADDER_ID = 635;
+    const ANVIL_ID = 636;
+    const CAULDRON_ID = 637;
+    const BARREL_ID = 638;
+    const BONE_BLOCK_ID = 639;
+    const BEACON_ID = 640;
+    const CONDUIT_ID = 641;
+    const LIGHTNING_ROD_ID = 642;
+    const RED_MUSHROOM_BLOCK_ID = 643;
+    const BROWN_MUSHROOM_BLOCK_ID = 644;
+    const MUSHROOM_STEM_ID = 645;
+    const APPLE_ID = 646;
+    const GOLDEN_APPLE_ID = 647;
+    const ENCHANTED_GOLDEN_APPLE_ID = 648;
+    const GOLDEN_CARROT_ID = 649;
+    const BREAD_ID = 650;
+    const COOKIE_ID = 651;
+    const PUMPKIN_PIE_ID = 652;
+    const SWEET_BERRIES_ID = 653;
+    const HONEY_BOTTLE_ID = 654;
+    const DRIED_KELP_ID = 655;
+    const RAW_COD_ID = 656;
+    const COOKED_COD_ID = 657;
+    const RAW_SALMON_ID = 658;
+    const COOKED_SALMON_ID = 659;
+    const TROPICAL_FISH_ID = 660;
+    const PUFFERFISH_ID = 661;
+    const MUSHROOM_STEW_ID = 662;
+    const BEETROOT_SOUP_ID = 663;
+    const RABBIT_STEW_ID = 664;
+    const SUSPICIOUS_STEW_ID = 665;
+    const RAW_RABBIT_ID = 666;
+    const COOKED_RABBIT_ID = 667;
+    const BAKED_POTATO_ID = 668;
+    const POISONOUS_POTATO_ID = 669;
+    const MILK_BUCKET_ID = 670;
+    const WATER_BUCKET_ID = 671;
+    const LAVA_BUCKET_ID = 672;
+    const BUCKET_ID = 673;
+    const SNOWBALL_ID = 674;
+    const SLIME_BALL_ID = 675;
+    const EGG_ID = 676;
+    const BONE_ID = 677;
+    const BONE_MEAL_ID = 678;
+    const SUGAR_ID = 679;
+    const PAPER_ID = 680;
+    const BOOK_ID = 681;
+    const ENCHANTED_BOOK_ID = 682;
+    const INK_SAC_ID = 683;
+    const GLOW_INK_SAC_ID = 684;
+    const AMETHYST_SHARD_ID = 685;
+    const ECHO_SHARD_ID = 686;
+    const NETHERITE_SCRAP_ID = 687;
+    const NETHERITE_INGOT_ID = 688;
+    const NETHER_STAR_ID = 689;
+    const HEART_OF_THE_SEA_ID = 690;
+    const NAUTILUS_SHELL_ID = 691;
+    const PRISMARINE_SHARD_ID = 692;
+    const PRISMARINE_CRYSTALS_ID = 693;
+    const RABBIT_HIDE_ID = 694;
+    const RABBIT_S_FOOT_ID = 695;
+    const FERMENTED_SPIDER_EYE_ID = 696;
+    const GLISTERING_MELON_SLICE_ID = 697;
+    const HONEYCOMB_ID = 698;
+    const CLAY_BALL_ID = 699;
+    const BRICK_ID = 700;
+    const NETHER_BRICK_ID = 701;
+    const FIREWORK_ROCKET_ID = 702;
+    const FIREWORK_STAR_ID = 703;
+    const FIRE_CHARGE_ID = 704;
+    const EXPERIENCE_BOTTLE_ID = 705;
+    const GOAT_HORN_ID = 706;
+    const SPYGLASS_ID = 707;
+    const NAME_TAG_ID = 708;
+    const LEAD_ID = 709;
+    const SADDLE_ID = 710;
+    const GLOWSTONE_DUST_ID = 711;
+    const GOLD_NUGGET_ID = 712;
+    const IRON_NUGGET_ID = 713;
+    const CHARCOAL_ID = 714;
+    const BOWL_ID = 715;
+    const PUMPKIN_SEEDS_ID = 716;
+    const MELON_SEEDS_ID = 717;
+    const SHEARS_ID = 718;
+    const FISHING_ROD_ID = 719;
+    const CARROT_ON_A_STICK_ID = 720;
+    const WARPED_FUNGUS_ON_A_STICK_ID = 721;
+    const CROSSBOW_ID = 722;
+    const TRIDENT_ID = 723;
+    const SHIELD_ID = 724;
+    const MACE_ID = 725;
+    const WIND_CHARGE_ID = 726;
+    const BRUSH_ID = 727;
+    const TRIAL_KEY_ID = 728;
+    const OMINOUS_TRIAL_KEY_ID = 729;
+    const HEAVY_CORE_ID = 730;
+    const COMPASS_ID = 731;
+    const CLOCK_ID = 732;
+    const MUSIC_DISC_13_ID = 733;
+    const MUSIC_DISC_CAT_ID = 734;
+    const MUSIC_DISC_BLOCKS_ID = 735;
+    const MUSIC_DISC_CHIRP_ID = 736;
+    const MUSIC_DISC_FAR_ID = 737;
+    const MUSIC_DISC_MALL_ID = 738;
+    const MUSIC_DISC_MELLOHI_ID = 739;
+    const MUSIC_DISC_STAL_ID = 740;
+    const MUSIC_DISC_STRAD_ID = 741;
+    const MUSIC_DISC_WARD_ID = 742;
+    const MUSIC_DISC_WAIT_ID = 743;
+    const MUSIC_DISC_11_ID = 744;
+    const MUSIC_DISC_PIGSTEP_ID = 745;
+    const MUSIC_DISC_OTHERSIDE_ID = 746;
+    const MUSIC_DISC_5_ID = 747;
+    const MUSIC_DISC_RELIC_ID = 748;
+    const WOODEN_HOE_ID = 749;
+    const STONE_HOE_ID = 750;
+    const IRON_HOE_ID = 751;
+    const GOLD_HOE_ID = 752;
+    const DIAMOND_HOE_ID = 753;
+    const NETHERITE_PICKAXE_ID = 754;
+    const NETHERITE_AXE_ID = 755;
+    const NETHERITE_SHOVEL_ID = 756;
+    const NETHERITE_SWORD_ID = 757;
+    const NETHERITE_HOE_ID = 758;
+    const NETHERITE_HELMET_ID = 759;
+    const NETHERITE_CHESTPLATE_ID = 760;
+    const NETHERITE_LEGGINGS_ID = 761;
+    const NETHERITE_BOOTS_ID = 762;
+    const CHAINMAIL_HELMET_ID = 763;
+    const CHAINMAIL_CHESTPLATE_ID = 764;
+    const CHAINMAIL_LEGGINGS_ID = 765;
+    const CHAINMAIL_BOOTS_ID = 766;
+    const LEATHER_HELMET_ID = 767;
+    const LEATHER_CHESTPLATE_ID = 768;
+    const LEATHER_LEGGINGS_ID = 769;
+    const LEATHER_BOOTS_ID = 770;
+    const TURTLE_HELMET_ID = 771;
+    const DRAGON_S_BREATH_ID = 772;
+
 
     // ===== 洞窟バイオーム用ブロック =====
     const MOSS_BLOCK_ID = 290;
@@ -55661,6 +56546,28 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (b.blockId === GRAY_WOOL_ID) { b.hardness = 0.8; }
       if (b.blockId === GLASS_ID) { b.hardness = 0.3; }
       if (b.blockId >= 321 && b.blockId <= 332) { b.hardness = 0.0; } // 瓶・ポーション類
+      // ===== ▼▼ 追加ブロックの硬度 ▼▼ =====
+      const _newPlants = [521,522,523,524,525,526,527,528,529,530,531,532,533,534,535,536,537,538,539,540,541,542,543,544,545,546,547,549,550,551,552,553,554,555,556,557,558,559,560,571,572,589,590,619,621,635];
+      if (_newPlants.includes(b.blockId)) { b.hardness = 0.0; }
+      const _newStone = [333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,374,518,519,520,577,578,579,580,581,582,583,584,585,586,587,588,591,609,610,611,612,622,623,624,625,626,627,628,629,630,631,632,633,634,636,637,638,639,640,641,642,643,644,645];
+      if (_newStone.includes(b.blockId)) { b.hardness = 1.5; b.effectiveTool = 'pickaxe'; b.reqTier = 1; }
+      if (b.blockId === 373 || b.blockId === 375) { b.hardness = 50.0; b.effectiveTool = 'pickaxe'; b.reqTier = 4; } // 泣く黒曜石・リスポーンアンカー
+      if (b.blockId === 388) { b.hardness = 30.0; b.effectiveTool = 'pickaxe'; b.reqTier = 4; } // 古代の残骸
+      if (b.blockId === 389) { b.hardness = 3.0; b.effectiveTool = 'pickaxe'; b.reqTier = 1; } // ネザー金鉱石
+      if ([376,377,378,379,380,381,382,383,384,385,386,387,390,391].includes(b.blockId)) { b.hardness = 3.0; b.effectiveTool = 'pickaxe'; b.reqTier = 2; } // 金属・アメジスト系
+      const _newWood = [486,488,489,490,491,492,493,494,495,496,497,498,499,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515,516,517];
+      if (_newWood.includes(b.blockId)) { b.hardness = 2.0; b.effectiveTool = 'axe'; }
+      if (b.blockId === 487) { b.hardness = 0.2; } // マングローブの葉
+      if (b.blockId >= 392 && b.blockId <= 421) { b.hardness = 0.8; } // 羊毛・カーペット
+      if (b.blockId >= 422 && b.blockId <= 437) { b.hardness = 0.3; } // 色ガラス
+      if (b.blockId >= 438 && b.blockId <= 485) { b.hardness = 1.25; b.effectiveTool = 'pickaxe'; } // テラコッタ・コンクリート
+      if (b.blockId >= 561 && b.blockId <= 570) { b.hardness = 1.5; b.effectiveTool = 'pickaxe'; } // サンゴ
+      if (b.blockId === 616 || b.blockId === 617) { b.hardness = 0.2; b.effectiveTool = 'shovel'; } // 雪系
+      if (b.blockId >= 613 && b.blockId <= 615) { b.hardness = 0.5; b.effectiveTool = 'pickaxe'; } // 氷
+      if (b.blockId === 618) { b.hardness = 3.0; b.effectiveTool = 'pickaxe'; b.reqTier = 2; } // 鉄格子
+      if (b.blockId === 576) { b.hardness = 0.5; } // ケーキ
+      if (b.blockId === 354) { b.hardness = 0.5; b.effectiveTool = 'shovel'; } // 泥
+      // ===== ▲▲ 追加ブロックの硬度ここまで ▲▲
     }
 
     // ===== Helpers =====
@@ -55683,6 +56590,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (tt === 'axe') return Math.max(1, Math.round(1 + tier * 1.7));
       if (tt === 'pickaxe') return Math.max(1, Math.round(1 + tier * 1.4));
       if (tt === 'shovel') return Math.max(1, Math.round(1 + tier * 1.2));
+      if (tt === 'hoe') return Math.max(1, Math.round(1 + tier * 1.1));
       return 2;
     }
     // 手に持っている物ごとのノックバックの強さ(横・縦の倍率)。素手は軽く、斧は重く飛ばし、剣は標準
@@ -55808,21 +56716,27 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     const DARK_OAK_DOOR_ID=184, CHERRY_DOOR_ID=185, JUNGLE_DOOR_ID=186, IRON_DOOR_ID=187;
     // IDセット (全木材対応)
     const SLAB_IDS   = new Set([OAK_SLAB_ID, STONE_SLAB_ID, COBBLE_SLAB_ID,
-                                 SPRUCE_SLAB_ID, BIRCH_SLAB_ID, ACACIA_SLAB_ID, DARK_OAK_SLAB_ID, CHERRY_SLAB_ID, JUNGLE_SLAB_ID, 262]);
+                                 SPRUCE_SLAB_ID, BIRCH_SLAB_ID, ACACIA_SLAB_ID, DARK_OAK_SLAB_ID, CHERRY_SLAB_ID, JUNGLE_SLAB_ID, 262,
+                                 489, 497, 503, 509, 576]);
     const STAIR_IDS  = new Set([OAK_STAIRS_ID, STONE_STAIRS_ID, COBBLE_STAIRS_ID, SBRICK_STAIRS_ID,
-                                 SPRUCE_STAIRS_ID, BIRCH_STAIRS_ID, ACACIA_STAIRS_ID, DARK_OAK_STAIRS_ID, CHERRY_STAIRS_ID, JUNGLE_STAIRS_ID, 263]);
+                                 SPRUCE_STAIRS_ID, BIRCH_STAIRS_ID, ACACIA_STAIRS_ID, DARK_OAK_STAIRS_ID, CHERRY_STAIRS_ID, JUNGLE_STAIRS_ID, 263,
+                                 490, 498, 504, 510]);
     const FENCE_IDS  = new Set([OAK_FENCE_ID, STONE_WALL_ID, FENCE_GATE_ID,
-                                 SPRUCE_FENCE_ID, BIRCH_FENCE_ID, ACACIA_FENCE_ID, DARK_OAK_FENCE_ID, CHERRY_FENCE_ID, JUNGLE_FENCE_ID]);
+                                 SPRUCE_FENCE_ID, BIRCH_FENCE_ID, ACACIA_FENCE_ID, DARK_OAK_FENCE_ID, CHERRY_FENCE_ID, JUNGLE_FENCE_ID,
+                                 491, 499, 505, 511]);
     const TRAP_IDS   = new Set([OAK_TRAPDOOR_ID, IRON_TRAPDOOR_ID,
-                                 SPRUCE_TRAP_ID, BIRCH_TRAP_ID, ACACIA_TRAP_ID, DARK_OAK_TRAP_ID, CHERRY_TRAP_ID, JUNGLE_TRAP_ID]);
+                                 SPRUCE_TRAP_ID, BIRCH_TRAP_ID, ACACIA_TRAP_ID, DARK_OAK_TRAP_ID, CHERRY_TRAP_ID, JUNGLE_TRAP_ID,
+                                 492, 500, 506, 512]);
     const DOOR_IDS   = new Set([OAK_DOOR_ID, SPRUCE_DOOR_ID, BIRCH_DOOR_ID, ACACIA_DOOR_ID,
-                                 DARK_OAK_DOOR_ID, CHERRY_DOOR_ID, JUNGLE_DOOR_ID, IRON_DOOR_ID]);
-    const WOOD_FENCE_IDS = new Set([OAK_FENCE_ID, SPRUCE_FENCE_ID, BIRCH_FENCE_ID, ACACIA_FENCE_ID, DARK_OAK_FENCE_ID, CHERRY_FENCE_ID, JUNGLE_FENCE_ID]);
+                                 DARK_OAK_DOOR_ID, CHERRY_DOOR_ID, JUNGLE_DOOR_ID, IRON_DOOR_ID,
+                                 493, 501, 507, 513]);
+    const WOOD_FENCE_IDS = new Set([OAK_FENCE_ID, SPRUCE_FENCE_ID, BIRCH_FENCE_ID, ACACIA_FENCE_ID, DARK_OAK_FENCE_ID, CHERRY_FENCE_ID, JUNGLE_FENCE_ID,
+                                    491, 499, 505, 511]);
     // テクスチャがclearRectで背景を透過にしているブロック（キューブ全面テクスチャとして描画される際に
     // transparent/alphaTestを設定しないと、透明なはずの部分が黒く塗りつぶされてしまう）
-    const ALPHA_CUTOUT_IDS = new Set([189, 228, 229, 249, 256, 264, 291, 292, 298, 300, 301, 306, 309, 310, 323, 320]);
+    const ALPHA_CUTOUT_IDS = new Set([189, 228, 229, 249, 256, 264, 291, 292, 298, 300, 301, 306, 309, 310, 323, 320, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 618, 620, 634]);
     // 立方体ではなく、作物と同じ「交差した2枚板」で描画する植物/鍾乳石系ブロック（炎は本家同様、上下面のない交差板にする）
-    const CROP_STYLE_IDS = [112, 114, 116, 119, 189, 228, 229, 256, 298, 300, 301];
+    const CROP_STYLE_IDS = [112, 114, 116, 119, 189, 228, 229, 256, 298, 300, 301, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 571, 572, 589, 590, 619, 621, 635];
     // ブロック全高のテクスチャを使うため、板の中心をブロック中央(0.5)に置くべきもの
     const CROP_STYLE_FULLHEIGHT_IDS = new Set([189, 228, 229, 256, 298, 300, 301]);
     // createBlockCanvas側には専用イラストがあるのに、平面アイコン生成(createFlatItemCanvas)側では
@@ -55972,6 +56886,111 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // エンドストーンレンガ: エンドストーン4個
       { out: 269, count: 4, grid: [[END_STONE_ID, END_STONE_ID], [END_STONE_ID, END_STONE_ID]], table: true },
     ];
+    // ===== ▼▼ 追加レシピ(本家準拠の簡易版) ▼▼ =====
+    RECIPES.push(
+      // --- 食料 ---
+      { out: BREAD_ID, count: 1, table: true, grid: [[121, 121, 121]] },
+      { out: COOKIE_ID, count: 8, table: true, grid: [[121, COCOA_ID], [121, COCOA_ID]] },
+      { out: PUMPKIN_PIE_ID, count: 1, table: true, grid: [[PUMPKIN_ID], [SUGAR_ID], [EGG_ID]] },
+      { out: CAKE_ID, count: 1, table: true, grid: [[MILK_BUCKET_ID, MILK_BUCKET_ID, MILK_BUCKET_ID], [SUGAR_ID, EGG_ID, SUGAR_ID], [121, 121, 121]] },
+      { out: GOLDEN_APPLE_ID, count: 1, table: true, grid: [[GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID], [GOLD_INGOT_ID, APPLE_ID, GOLD_INGOT_ID], [GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID]] },
+      { out: GOLDEN_CARROT_ID, count: 1, table: true, grid: [[GOLD_NUGGET_ID, GOLD_NUGGET_ID, GOLD_NUGGET_ID], [GOLD_NUGGET_ID, 113, GOLD_NUGGET_ID], [GOLD_NUGGET_ID, GOLD_NUGGET_ID, GOLD_NUGGET_ID]] },
+      { out: SUGAR_ID, count: 1, in: [{ blockId: SUGAR_CANE_ID, count: 1 }] },
+      { out: BOWL_ID, count: 4, grid: [[PLANKS_ID, 0, PLANKS_ID], [0, PLANKS_ID, 0]] },
+      { out: MUSHROOM_STEW_ID, count: 1, in: [{ blockId: BOWL_ID, count: 1 }, { blockId: RED_MUSHROOM_ID, count: 1 }, { blockId: BROWN_MUSHROOM_ID, count: 1 }] },
+      { out: BEETROOT_SOUP_ID, count: 1, in: [{ blockId: BOWL_ID, count: 1 }, { blockId: 118, count: 1 }, { blockId: 118, count: 1 }] },
+      { out: RABBIT_STEW_ID, count: 1, in: [{ blockId: BOWL_ID, count: 1 }, { blockId: COOKED_RABBIT_ID, count: 1 }, { blockId: 113, count: 1 }, { blockId: 115, count: 1 }] },
+      // --- 紙・本・素材 ---
+      { out: PAPER_ID, count: 3, grid: [[SUGAR_CANE_ID, SUGAR_CANE_ID, SUGAR_CANE_ID]] },
+      { out: BOOK_ID, count: 1, in: [{ blockId: PAPER_ID, count: 3 }, { blockId: 208, count: 1 }] },
+      { out: BOOKSHELF_ID, count: 1, table: true, grid: [[PLANKS_ID, PLANKS_ID, PLANKS_ID], [BOOK_ID, BOOK_ID, BOOK_ID], [PLANKS_ID, PLANKS_ID, PLANKS_ID]] },
+      { out: GOLD_NUGGET_ID, count: 9, in: [{ blockId: GOLD_INGOT_ID, count: 1 }] },
+      { out: GOLD_INGOT_ID, count: 1, in: [{ blockId: GOLD_NUGGET_ID, count: 9 }] },
+      { out: IRON_NUGGET_ID, count: 9, in: [{ blockId: IRON_INGOT_ID, count: 1 }] },
+      { out: IRON_INGOT_ID, count: 1, in: [{ blockId: IRON_NUGGET_ID, count: 9 }] },
+      { out: BONE_MEAL_ID, count: 3, in: [{ blockId: BONE_ID, count: 1 }] },
+      { out: BONE_BLOCK_ID, count: 1, table: true, grid: [[BONE_MEAL_ID, BONE_MEAL_ID, BONE_MEAL_ID], [BONE_MEAL_ID, BONE_MEAL_ID, BONE_MEAL_ID], [BONE_MEAL_ID, BONE_MEAL_ID, BONE_MEAL_ID]] },
+      { out: BRICKS_ID, count: 1, table: true, grid: [[BRICK_ID, BRICK_ID], [BRICK_ID, BRICK_ID]] },
+      { out: IRON_BARS_ID, count: 12, table: true, grid: [[IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID], [IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID]] },
+      { out: LANTERN_ID, count: 1, table: true, grid: [[IRON_NUGGET_ID, IRON_NUGGET_ID, IRON_NUGGET_ID], [IRON_NUGGET_ID, TORCH_ID, IRON_NUGGET_ID], [IRON_NUGGET_ID, IRON_NUGGET_ID, IRON_NUGGET_ID]] },
+      { out: CHAIN_ID, count: 2, table: true, grid: [[IRON_INGOT_ID], [IRON_NUGGET_ID], [IRON_INGOT_ID]] },
+      { out: BUCKET_ID, count: 1, table: true, grid: [[IRON_INGOT_ID, 0, IRON_INGOT_ID], [0, IRON_INGOT_ID, 0]] },
+      { out: SHEARS_ID, count: 1, grid: [[0, IRON_INGOT_ID], [IRON_INGOT_ID, 0]] },
+      { out: COMPASS_ID, count: 1, table: true, grid: [[IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID], [IRON_INGOT_ID, 83, IRON_INGOT_ID], [IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID]] },
+      { out: CLOCK_ID, count: 1, table: true, grid: [[GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID], [GOLD_INGOT_ID, 83, GOLD_INGOT_ID], [GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID]] },
+      { out: FISHING_ROD_ID, count: 1, table: true, grid: [[0, 0, STICK_ID], [0, STICK_ID, STRING_ID], [STICK_ID, 0, STRING_ID]] },
+      { out: CARROT_ON_A_STICK_ID, count: 1, grid: [[STICK_ID], [113]] },
+      { out: WARPED_FUNGUS_ON_A_STICK_ID, count: 1, grid: [[STICK_ID], [229]] },
+      { out: CROSSBOW_ID, count: 1, table: true, grid: [[STICK_ID, IRON_INGOT_ID, STICK_ID], [STRING_ID, STICK_ID, STRING_ID], [0, STICK_ID, 0]] },
+      { out: SHIELD_ID, count: 1, table: true, grid: [[PLANKS_ID, IRON_INGOT_ID, PLANKS_ID], [PLANKS_ID, PLANKS_ID, PLANKS_ID], [0, PLANKS_ID, 0]] },
+      { out: BRUSH_ID, count: 1, table: true, grid: [[IRON_INGOT_ID], [STICK_ID], [14]] },
+      { out: LEAD_ID, count: 1, in: [{ blockId: STRING_ID, count: 4 }, { blockId: SLIME_BALL_ID, count: 1 }] },
+      { out: HAY_BALE_ID, count: 1, table: true, grid: [[121, 121, 121], [121, 121, 121], [121, 121, 121]] },
+      { out: SLIME_BLOCK_ID, count: 1, table: true, grid: [[SLIME_BALL_ID, SLIME_BALL_ID, SLIME_BALL_ID], [SLIME_BALL_ID, SLIME_BALL_ID, SLIME_BALL_ID], [SLIME_BALL_ID, SLIME_BALL_ID, SLIME_BALL_ID]] },
+      { out: SLIME_BALL_ID, count: 9, in: [{ blockId: SLIME_BLOCK_ID, count: 1 }] },
+      { out: HONEY_BLOCK_ID, count: 1, grid: [[HONEY_BOTTLE_ID, HONEY_BOTTLE_ID], [HONEY_BOTTLE_ID, HONEY_BOTTLE_ID]] },
+      { out: SNOW_BLOCK_ID, count: 1, grid: [[SNOWBALL_ID, SNOWBALL_ID], [SNOWBALL_ID, SNOWBALL_ID]] },
+      { out: SOUL_TORCH_ID, count: 4, grid: [[219], [STICK_ID]] },
+      { out: REDSTONE_TORCH_ID, count: 4, grid: [[83], [STICK_ID]] },
+      // --- 金属ブロック ---
+      { out: IRON_BLOCK_ID, count: 1, table: true, grid: [[IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID], [IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID], [IRON_INGOT_ID, IRON_INGOT_ID, IRON_INGOT_ID]] },
+      { out: IRON_INGOT_ID, count: 9, in: [{ blockId: IRON_BLOCK_ID, count: 1 }] },
+      { out: 233, count: 1, table: true, grid: [[GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID], [GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID], [GOLD_INGOT_ID, GOLD_INGOT_ID, GOLD_INGOT_ID]] },
+      { out: GOLD_INGOT_ID, count: 9, in: [{ blockId: 233, count: 1 }] },
+      { out: DIAMOND_BLOCK_ID, count: 1, table: true, grid: [[40, 40, 40], [40, 40, 40], [40, 40, 40]] },
+      { out: 40, count: 9, in: [{ blockId: DIAMOND_BLOCK_ID, count: 1 }] },
+      { out: EMERALD_BLOCK_ID, count: 1, table: true, grid: [[44, 44, 44], [44, 44, 44], [44, 44, 44]] },
+      { out: 44, count: 9, in: [{ blockId: EMERALD_BLOCK_ID, count: 1 }] },
+      { out: LAPIS_BLOCK_ID, count: 1, table: true, grid: [[85, 85, 85], [85, 85, 85], [85, 85, 85]] },
+      { out: 85, count: 9, in: [{ blockId: LAPIS_BLOCK_ID, count: 1 }] },
+      { out: REDSTONE_BLOCK_ID, count: 1, table: true, grid: [[83, 83, 83], [83, 83, 83], [83, 83, 83]] },
+      { out: 83, count: 9, in: [{ blockId: REDSTONE_BLOCK_ID, count: 1 }] },
+      { out: COAL_BLOCK_ID, count: 1, table: true, grid: [[29, 29, 29], [29, 29, 29], [29, 29, 29]] },
+      { out: 29, count: 9, in: [{ blockId: COAL_BLOCK_ID, count: 1 }] },
+      { out: COPPER_BLOCK_ID, count: 1, table: true, grid: [[COPPER_INGOT_ID, COPPER_INGOT_ID, COPPER_INGOT_ID], [COPPER_INGOT_ID, COPPER_INGOT_ID, COPPER_INGOT_ID], [COPPER_INGOT_ID, COPPER_INGOT_ID, COPPER_INGOT_ID]] },
+      { out: COPPER_INGOT_ID, count: 9, in: [{ blockId: COPPER_BLOCK_ID, count: 1 }] },
+      { out: NETHERITE_BLOCK_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID, NETHERITE_INGOT_ID, NETHERITE_INGOT_ID], [NETHERITE_INGOT_ID, NETHERITE_INGOT_ID, NETHERITE_INGOT_ID], [NETHERITE_INGOT_ID, NETHERITE_INGOT_ID, NETHERITE_INGOT_ID]] },
+      { out: NETHERITE_INGOT_ID, count: 9, in: [{ blockId: NETHERITE_BLOCK_ID, count: 1 }] },
+      { out: NETHERITE_INGOT_ID, count: 1, in: [{ blockId: NETHERITE_SCRAP_ID, count: 4 }, { blockId: GOLD_INGOT_ID, count: 4 }] },
+      { out: NETHERITE_SCRAP_ID, count: 1, in: [{ blockId: ANCIENT_DEBRIS_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      // --- クワ ---
+      { out: WOODEN_HOE_ID, count: 1, table: true, grid: [[PLANKS_ID, PLANKS_ID], [0, STICK_ID], [0, STICK_ID]] },
+      { out: STONE_HOE_ID, count: 1, table: true, grid: [[3, 3], [0, STICK_ID], [0, STICK_ID]] },
+      { out: IRON_HOE_ID, count: 1, table: true, grid: [[IRON_INGOT_ID, IRON_INGOT_ID], [0, STICK_ID], [0, STICK_ID]] },
+      { out: GOLD_HOE_ID, count: 1, table: true, grid: [[GOLD_INGOT_ID, GOLD_INGOT_ID], [0, STICK_ID], [0, STICK_ID]] },
+      { out: DIAMOND_HOE_ID, count: 1, table: true, grid: [[40, 40], [0, STICK_ID], [0, STICK_ID]] },
+      // --- ネザライト道具 ---
+      { out: NETHERITE_PICKAXE_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID, NETHERITE_INGOT_ID, NETHERITE_INGOT_ID], [0, STICK_ID, 0], [0, STICK_ID, 0]] },
+      { out: NETHERITE_AXE_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID, NETHERITE_INGOT_ID, 0], [NETHERITE_INGOT_ID, STICK_ID, 0], [0, STICK_ID, 0]] },
+      { out: NETHERITE_SHOVEL_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID], [STICK_ID], [STICK_ID]] },
+      { out: NETHERITE_SWORD_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID], [NETHERITE_INGOT_ID], [STICK_ID]] },
+      { out: NETHERITE_HOE_ID, count: 1, table: true, grid: [[NETHERITE_INGOT_ID, NETHERITE_INGOT_ID], [0, STICK_ID], [0, STICK_ID]] },
+      // --- 磨き石・レンガ系 ---
+      { out: POLISHED_GRANITE_ID, count: 4, grid: [[GRANITE_ID, GRANITE_ID], [GRANITE_ID, GRANITE_ID]] },
+      { out: POLISHED_DIORITE_ID, count: 4, grid: [[DIORITE_ID, DIORITE_ID], [DIORITE_ID, DIORITE_ID]] },
+      { out: POLISHED_ANDESITE_ID, count: 4, grid: [[ANDESITE_ID, ANDESITE_ID], [ANDESITE_ID, ANDESITE_ID]] },
+      { out: POLISHED_DEEPSLATE_ID, count: 4, grid: [[DEEPSLATE_ID, DEEPSLATE_ID], [DEEPSLATE_ID, DEEPSLATE_ID]] },
+      { out: POLISHED_BLACKSTONE_ID, count: 4, grid: [[BLACKSTONE_ID, BLACKSTONE_ID], [BLACKSTONE_ID, BLACKSTONE_ID]] },
+      { out: POLISHED_BASALT_ID, count: 4, grid: [[BASALT_ID, BASALT_ID], [BASALT_ID, BASALT_ID]] },
+      { out: MUD_BRICKS_ID, count: 4, grid: [[PACKED_MUD_ID, PACKED_MUD_ID], [PACKED_MUD_ID, PACKED_MUD_ID]] },
+      { out: PACKED_MUD_ID, count: 1, in: [{ blockId: MUD_ID, count: 1 }, { blockId: 121, count: 1 }] },
+      { out: QUARTZ_BLOCK_ID, count: 1, table: true, grid: [[215, 215], [215, 215]] },
+      { out: RED_NETHER_BRICKS_ID, count: 1, in: [{ blockId: 230, count: 1 }, { blockId: 213, count: 1 }] },
+      // --- 精錬(かまど) ---
+      { out: 3, count: 1, in: [{ blockId: COBBLESTONE_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: SMOOTH_STONE_ID, count: 1, in: [{ blockId: 3, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: SMOOTH_SANDSTONE_ID, count: 1, in: [{ blockId: SANDSTONE_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: SMOOTH_RED_SANDSTONE_ID, count: 1, in: [{ blockId: RED_SANDSTONE_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: SMOOTH_BASALT_ID, count: 1, in: [{ blockId: BASALT_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: CHARCOAL_ID, count: 1, in: [{ blockId: 6, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: NETHER_BRICK_ID, count: 1, in: [{ blockId: NETHERRACK_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: BRICK_ID, count: 1, in: [{ blockId: CLAY_BALL_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: DRIED_KELP_ID, count: 1, in: [{ blockId: KELP_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: COOKED_COD_ID, count: 1, in: [{ blockId: RAW_COD_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: COOKED_SALMON_ID, count: 1, in: [{ blockId: RAW_SALMON_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: COOKED_RABBIT_ID, count: 1, in: [{ blockId: RAW_RABBIT_ID, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' },
+      { out: BAKED_POTATO_ID, count: 1, in: [{ blockId: 115, count: 1 }, { blockId: 29, count: 1 }], station: 'furnace' }
+    );
     // Jungle & Melon Recipes
     RECIPES.push(
       { out: 104, count: 4, in: [{ blockId: 101, count: 1 }] }, // Jungle Log -> 4 Jungle Planks
@@ -55982,7 +57001,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // ===== スラブ (3ブロックから6個) =====
       { out: OAK_SLAB_ID,    count: 6, grid: [[PLANKS_ID, PLANKS_ID, PLANKS_ID]] },
       { out: STONE_SLAB_ID,  count: 6, grid: [[3, 3, 3]] },           // Stone x3
-      { out: COBBLE_SLAB_ID, count: 6, grid: [[4, 4, 4]] },           // Cobblestone x3
+      { out: COBBLE_SLAB_ID, count: 6, grid: [[COBBLESTONE_ID, COBBLESTONE_ID, COBBLESTONE_ID]] }, // Cobblestone x3
 
       // ===== 階段 (6ブロックから4個) =====
       { out: OAK_STAIRS_ID,   count: 4, table: true, grid: [
@@ -55996,9 +57015,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           [3, 3, 3]
       ]},
       { out: COBBLE_STAIRS_ID, count: 4, table: true, grid: [
-          [4, 0, 0],
-          [4, 4, 0],
-          [4, 4, 4]
+          [COBBLESTONE_ID, 0, 0],
+          [COBBLESTONE_ID, COBBLESTONE_ID, 0],
+          [COBBLESTONE_ID, COBBLESTONE_ID, COBBLESTONE_ID]
       ]},
       { out: SBRICK_STAIRS_ID, count: 4, table: true, grid: [
           [STONE_BRICKS_ID, 0,              0],
@@ -56014,8 +57033,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       // ===== 石の壁 (石6 -> 6個) =====
       { out: STONE_WALL_ID, count: 6, table: true, grid: [
-          [4, 4, 4],
-          [4, 4, 4]
+          [COBBLESTONE_ID, COBBLESTONE_ID, COBBLESTONE_ID],
+          [COBBLESTONE_ID, COBBLESTONE_ID, COBBLESTONE_ID]
       ]},
 
       // ===== フェンスゲート (スティック2 + 板材4 -> 1個) =====
@@ -63499,6 +64518,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       Gold:    { m: '#f4c430', l: '#fff29a', d: '#b8860b' },
       Diamond: { m: '#35d6d0', l: '#b0fffb', d: '#1a8d98' },
       Copper:  { m: '#d9814e', l: '#f3ab7d', d: '#9a4e2a' },
+      Netherite: { m: '#45454c', l: '#6a6a74', d: '#26262c' },
+      Leather:   { m: '#a0642c', l: '#c4864a', d: '#6e421c' },
+      Chainmail: { m: '#8a8a92', l: '#b0b0b8', d: '#565660' },
+      Turtle:    { m: '#2a7a4a', l: '#4aa86a', d: '#14522e' },
       Coal:    { m: '#44444a', l: '#6a6a72', d: '#1c1c20' },
     };
     const _PX_STICK = { m: '#8b5a2b', d: '#5a3a1a', l: '#a97a45' };
@@ -63510,6 +64533,187 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       return '#' + h(r) + h(g) + h(b);
     }
     function _pxColorOf(num) { return '#' + (num >>> 0).toString(16).padStart(6, '0'); }
+
+
+    /* ===== 追加アイテムの共通ドット絵(名称カテゴリ判定) =====
+       大量追加されたアイテム用。既存の専用ドット絵があるアイテム名は1つも引っかからない。 */
+    function _pxCatKey(name) {
+      if (/^Netherite Ingot$/.test(name)) return 'ingot';
+      if (/^(Iron|Gold) Nugget$/.test(name)) return 'nugget';
+      if (/^Netherite Scrap$/.test(name)) return 'scrap';
+      if (/^(Amethyst|Echo) Shard$/.test(name)) return 'shard';
+      if (/^Prismarine (Shard|Crystals)$/.test(name)) return 'shard';
+      if (/^(Glowstone Dust|Sugar|Bone Meal)$/.test(name)) return 'dust';
+      if (/^(Apple|Golden Apple|Enchanted Golden Apple)$/.test(name)) return 'apple';
+      if (/^Bread$/.test(name)) return 'bread';
+      if (/^Cookie$/.test(name)) return 'cookie';
+      if (/^Pumpkin Pie$/.test(name)) return 'pie';
+      if (/^(Mushroom Stew|Beetroot Soup|Rabbit Stew|Suspicious Stew)$/.test(name)) return 'stew';
+      if (/^Sweet Berries$/.test(name)) return 'berries';
+      if (/^(Raw|Cooked) (Cod|Salmon)$/.test(name)) return 'fish';
+      if (/^(Tropical Fish|Pufferfish)$/.test(name)) return 'fish';
+      if (/^(Raw|Cooked) Rabbit$/.test(name)) return 'meat';
+      if (/^(Baked|Poisonous) Potato$/.test(name)) return 'potato';
+      if (/^(Honey Bottle|Experience Bottle|Dragon's Breath)$/.test(name)) return 'bottle';
+      if (/^(Bucket|Water Bucket|Lava Bucket|Milk Bucket)$/.test(name)) return 'bucket';
+      if (/^(Snowball|Slime Ball|Fire Charge|Wind Charge|Clay Ball)$/.test(name)) return 'ball';
+      if (/^Egg$/.test(name)) return 'egg';
+      if (/^Honeycomb$/.test(name)) return 'honeycomb';
+      if (/^Bone$/.test(name)) return 'bone';
+      if (/^Paper$/.test(name)) return 'paper';
+      if (/^(Book|Enchanted Book)$/.test(name)) return 'book';
+      if (/^(Glow )?Ink Sac$/.test(name)) return 'ink';
+      if (/^(Brick|Nether Brick)$/.test(name)) return 'brick';
+      if (/^Firework (Rocket|Star)$/.test(name)) return 'firework';
+      if (/^Shears$/.test(name)) return 'shears';
+      if (/^Shield$/.test(name)) return 'shield';
+      if (/^Crossbow$/.test(name)) return 'crossbow';
+      if (/^Trident$/.test(name)) return 'trident';
+      if (/^(Fishing Rod|Carrot on a Stick|Warped Fungus on a Stick)$/.test(name)) return 'rod';
+      if (/^Compass$/.test(name)) return 'compass';
+      if (/^Clock$/.test(name)) return 'clock';
+      if (/^Spyglass$/.test(name)) return 'spyglass';
+      if (/^Name Tag$/.test(name)) return 'nametag';
+      if (/^Lead$/.test(name)) return 'lead';
+      if (/^Saddle$/.test(name)) return 'saddle';
+      if (/^Brush$/.test(name)) return 'brush';
+      if (/^Goat Horn$/.test(name)) return 'horn';
+      if (/^(Ominous )?Trial Key$/.test(name)) return 'key';
+      if (/^Mace$/.test(name)) return 'mace';
+      if (/^Heavy Core$/.test(name)) return 'core';
+      if (/^Nether Star$/.test(name)) return 'star';
+      if (/^Heart of the Sea$/.test(name)) return 'heartsea';
+      if (/^Nautilus Shell$/.test(name)) return 'shell';
+      if (/^Music Disc/.test(name)) return 'disc';
+      if (/^Bowl$/.test(name)) return 'bowl';
+      if (/^Charcoal$/.test(name)) return 'charcoal';
+      if (/^(Pumpkin|Melon) Seeds$|^Pitcher Pod$/.test(name)) return 'seeds';
+      if (/^Golden Carrot$/.test(name)) return 'carrot';
+      if (/^Dried Kelp$/.test(name)) return 'kelp';
+      if (/^Rabbit Hide$/.test(name)) return 'hide';
+      if (/^Rabbit's Foot$/.test(name)) return 'foot';
+      if (/^Fermented Spider Eye$/.test(name)) return 'fereye';
+      if (/^Glistering Melon Slice$/.test(name)) return 'gmelon';
+      return null;
+    }
+    function _pxCatDraw(g, P, R, SR, L, C, SYM, name, hex, id) {
+      const sh = _pxShade;
+      const key = _pxCatKey(name);
+      const H = hex;
+      if (key === 'ingot') { const m = _PX_MAT.Netherite; SR(2, 7, 13, 11, m.m, m.l, m.d); R(3, 6, 12, 6, m.l); R(14, 7, 14, 10, m.d); R(4, 8, 11, 8, m.l); P(5, 9, m.d); P(10, 10, m.d); }
+      else if (key === 'nugget') { const m = name.indexOf('Gold') === 0 ? _PX_MAT.Gold : _PX_MAT.Iron; C(8, 9, 3.4, m.m); C(7.4, 8.4, 2.0, m.l); P(10, 10, m.d); P(9, 11, m.d); }
+      else if (key === 'scrap') { R(2, 7, 8, 12, '#6a5240'); R(3, 6, 8, 6, '#8a6c52'); R(8, 5, 13, 10, '#54402f'); R(9, 4, 12, 4, '#7a5c44'); R(9, 10, 13, 13, '#3e3024'); R(4, 8, 7, 10, '#9a7a5c'); P(11, 6, '#9a7a5c'); }
+      else if (key === 'shard') {
+        const col = name.indexOf('Amethyst') === 0 ? '#a06ad8' : name.indexOf('Echo') === 0 ? '#2a9a9a' : name.indexOf('Prismarine Shard') === 0 ? '#5ab0a0' : '#9adcd0';
+        const rows = [[7, 8], [6, 9], [5, 10], [4, 11], [4, 11], [5, 10], [6, 9], [7, 8], [7, 8]];
+        for (let i = 0; i < rows.length; i++) R(rows[i][0], 3 + i, rows[i][1], 3 + i, col);
+        R(6, 4, 7, 5, sh(col, 0.45)); R(9, 8, 10, 8, sh(col, -0.3)); P(6, 8, sh(col, -0.3));
+      }
+      else if (key === 'dust') { R(4, 11, 11, 13, H); R(6, 10, 9, 10, sh(H, 0.2)); R(5, 12, 10, 12, sh(H, -0.2)); P(3, 12, H); P(12, 11, H); P(7, 9, sh(H, 0.35)); P(10, 9, H); }
+      else if (key === 'apple') {
+        C(8, 9, 5, H); C(7.2, 8.4, 3.4, sh(H, 0.3)); R(7, 2, 8, 4, '#5a3a1a'); R(9, 2, 11, 3, '#4a9a2a'); R(4, 7, 4, 10, sh(H, -0.3));
+        if (name.indexOf('Enchanted') === 0) { P(5, 6, '#e0a0ff'); P(10, 10, '#e0a0ff'); P(8, 12, '#e0a0ff'); }
+        else if (name === 'Golden Apple') { P(5, 6, '#ffffc0'); P(11, 10, '#ffffc0'); }
+      }
+      else if (key === 'bread') { R(3, 6, 12, 12, '#c89850'); R(4, 5, 11, 5, '#e0b870'); R(3, 6, 3, 12, '#e0b870'); R(12, 6, 12, 12, '#9a6e34'); L(5, 7, 7, 6, '#8a5a28'); L(8, 7, 10, 6, '#8a5a28'); }
+      else if (key === 'cookie') { C(8, 8, 5.4, '#c89850'); C(7.4, 7.4, 4.2, '#dcb070'); for (const [x, y] of [[6, 6], [9, 7], [7, 9], [10, 10], [5, 10]]) R(x, y, x, y + 1, '#5a3a1e'); }
+      else if (key === 'pie') { R(3, 6, 12, 12, '#d8a050'); R(4, 5, 11, 5, '#e8c070'); R(3, 10, 12, 10, '#b87830'); R(5, 7, 10, 9, '#c86828'); R(6, 7, 9, 8, '#e08a3a'); }
+      else if (key === 'stew') {
+        const liquid = name.indexOf('Beetroot') === 0 ? '#8a2040' : name.indexOf('Rabbit') === 0 ? '#c07840' : '#8a6040';
+        R(3, 7, 12, 8, '#9a9aa2'); R(4, 9, 11, 12, liquid); R(3, 9, 3, 12, '#7a7a82'); R(12, 9, 12, 12, '#7a7a82'); R(4, 13, 11, 13, '#6a6a72'); R(5, 9, 7, 9, sh(liquid, 0.3));
+      }
+      else if (key === 'berries') { R(7, 8, 8, 15, '#4a8a2a'); for (const [cx, cy] of [[6, 8], [10, 7], [8, 11]]) { C(cx, cy, 2.2, '#c02040'); P(cx, cy, '#e05060'); } }
+      else if (key === 'fish') {
+        const body = name.indexOf('Salmon') >= 0 ? (name.indexOf('Cooked') === 0 ? '#c07a50' : '#b04a4a') : name.indexOf('Cod') >= 0 ? (name.indexOf('Cooked') === 0 ? '#c89868' : '#9a6850') : '#d07840';
+        R(3, 6, 11, 10, body); R(4, 5, 10, 5, sh(body, 0.25)); R(4, 11, 10, 11, sh(body, -0.2)); R(11, 7, 14, 9, sh(body, -0.2)); R(12, 6, 13, 10, body); P(5, 7, '#101010');
+      }
+      else if (key === 'meat') {
+        const m = name.indexOf('Cooked') === 0 ? '#b05a30' : '#c07060';
+        C(6.5, 6.5, 4.6, m); C(6, 6, 3.2, sh(m, 0.3)); R(8, 8, 9, 9, sh(m, -0.35)); L(9, 9, 13, 13, '#f2ead8'); R(13, 12, 14, 14, '#f2ead8');
+      }
+      else if (key === 'potato') {
+        const m = name.indexOf('Baked') === 0 ? '#d0a850' : '#8a9a50';
+        C(8, 8.5, 5.4, m); C(7.6, 8, 4.2, sh(m, 0.25)); for (const [x, y] of [[6, 7], [9, 9], [8, 6], [5, 10]]) P(x, y, sh(m, -0.35));
+        if (name.indexOf('Baked') === 0) { R(6, 6, 7, 7, '#f8f0d0'); R(9, 9, 10, 10, '#f8f0d0'); }
+      }
+      else if (key === 'bottle') {
+        const liquid = name.indexOf('Honey') === 0 ? '#d88010' : name.indexOf('Experience') === 0 ? '#8ac060' : '#c040d0';
+        R(6, 1, 9, 2, '#9a6a3a'); R(6, 3, 9, 4, '#cfe6f2'); R(4, 5, 11, 13, '#cfe6f2'); R(5, 14, 10, 14, '#8fb2c6'); R(11, 6, 11, 12, '#8fb2c6'); P(5, 6, '#ffffff');
+        R(5, 9, 10, 13, liquid); R(5, 9, 10, 9, sh(liquid, 0.3)); R(10, 10, 10, 13, sh(liquid, -0.2));
+      }
+      else if (key === 'bucket') {
+        const fill = name.indexOf('Water') === 0 ? '#3366cc' : name.indexOf('Lava') === 0 ? '#e05010' : name.indexOf('Milk') === 0 ? '#f0f0f0' : null;
+        if (fill) R(5, 5, 10, 6, fill);
+        R(4, 6, 11, 13, '#b8b8c0'); R(4, 6, 4, 13, '#d8d8e0'); R(11, 6, 11, 13, '#8a8a92'); R(5, 14, 10, 14, '#7a7a82'); R(4, 6, 11, 6, '#d8d8e0');
+        L(4, 3, 8, 6, '#8a8a92'); L(8, 6, 11, 3, '#8a8a92');
+      }
+      else if (key === 'ball') {
+        C(8, 8, 5.4, H); C(7.2, 7.2, 3.4, sh(H, 0.3)); R(9, 10, 11, 11, sh(H, -0.3));
+        if (name === 'Fire Charge') { R(7, 3, 8, 5, '#ff8a2a'); P(7, 2, '#ffd24a'); }
+        if (name === 'Wind Charge') { P(5, 5, '#ffffff'); P(10, 8, '#ffffff'); P(6, 11, '#ffffff'); }
+      }
+      else if (key === 'egg') { C(8, 9, 4.8, H); C(8, 6.8, 3.6, H); C(7.4, 8.4, 3, sh(H, 0.25)); }
+      else if (key === 'honeycomb') { R(2, 4, 13, 13, '#e8a020'); R(3, 3, 12, 3, '#f0b840'); for (const [cx, cy] of [[5, 7], [10, 7], [5, 11], [10, 11]]) { C(cx, cy, 1.8, '#c87810'); P(cx - 1, cy - 1, '#f8d878'); } }
+      else if (key === 'bone') {
+        L(4, 11, 11, 4, '#f0f0e8'); L(5, 11, 12, 4, '#d8d8cc'); R(2, 10, 5, 13, '#f0f0e8'); R(10, 2, 13, 5, '#f0f0e8');
+        P(2, 10, '#ffffff'); P(3, 10, '#ffffff'); P(2, 11, '#ffffff'); P(10, 2, '#ffffff'); P(11, 2, '#ffffff'); P(10, 3, '#ffffff');
+      }
+      else if (key === 'paper') { R(3, 4, 12, 12, '#f4f4f0'); R(3, 4, 3, 12, '#ffffff'); R(12, 4, 12, 12, '#c8c8c0'); for (const y of [6, 8, 10]) R(5, y, 10, y, '#b8b8b0'); }
+      else if (key === 'book') {
+        const cov = name.indexOf('Enchanted') === 0 ? '#7a3aa8' : '#8a4a2a';
+        R(3, 3, 12, 13, cov); R(3, 3, 4, 13, sh(cov, -0.25)); R(5, 4, 12, 12, '#f4f0e4'); R(5, 4, 5, 12, '#ffffff'); for (const y of [6, 8, 10]) R(7, y, 11, y, '#c8c4b8');
+        if (name.indexOf('Enchanted') === 0) { P(8, 5, '#e8c0ff'); P(10, 7, '#e8c0ff'); P(9, 10, '#e8c0ff'); }
+      }
+      else if (key === 'ink') { C(8, 9, 5, H); C(7.2, 8.2, 3.4, sh(H, 0.25)); R(6, 3, 9, 5, sh(H, -0.1)); P(6, 4, sh(H, 0.4)); }
+      else if (key === 'brick') { SR(3, 5, 12, 11, H, sh(H, 0.25), sh(H, -0.25)); R(4, 6, 11, 6, sh(H, 0.35)); }
+      else if (key === 'firework') {
+        if (name.indexOf('Rocket') >= 0) { R(7, 6, 8, 13, '#d8d8d0'); R(7, 3, 8, 5, H); R(6, 6, 6, 9, '#c04040'); R(9, 6, 9, 9, '#c04040'); R(7, 14, 8, 15, '#ff9a2a'); P(6, 14, '#ffd24a'); }
+        else { R(6, 4, 9, 12, H); R(3, 7, 12, 8, H); C(8, 8, 1.6, '#ffffff'); }
+      }
+      else if (key === 'shears') { L(3, 13, 12, 4, '#c8ccd0'); L(4, 13, 13, 4, '#8a8e94'); L(12, 13, 3, 4, '#c8ccd0'); L(11, 13, 4, 4, '#8a8e94'); C(3, 13, 1.6, '#5a5a62'); C(12, 13, 1.6, '#5a5a62'); }
+      else if (key === 'shield') {
+        R(4, 3, 11, 12, H); R(3, 4, 12, 10, H); R(5, 2, 10, 2, sh(H, 0.3)); R(6, 13, 9, 14, H); R(7, 15, 8, 15, H);
+        R(7, 5, 8, 9, '#c8ccd0'); R(5, 4, 5, 10, sh(H, 0.2)); R(10, 4, 10, 10, sh(H, -0.3));
+      }
+      else if (key === 'crossbow') { R(3, 4, 4, 12, '#6a4a2a'); R(11, 4, 12, 12, '#6a4a2a'); R(3, 7, 12, 8, '#8a6a3a'); R(2, 3, 13, 4, '#5a3a1a'); L(2, 2, 13, 2, '#e8e8e8'); R(7, 8, 8, 11, '#8a6a3a'); }
+      else if (key === 'trident') {
+        R(7, 5, 8, 15, '#5a8a8a'); R(7, 5, 7, 15, '#7ab0b0'); R(3, 2, 4, 7, '#5a8a8a'); R(11, 2, 12, 7, '#5a8a8a'); R(7, 2, 8, 4, '#5a8a8a');
+        R(4, 2, 11, 3, '#7ab0b0'); P(3, 1, '#8ad0d0'); P(12, 1, '#8ad0d0'); P(7, 1, '#8ad0d0');
+      }
+      else if (key === 'rod') {
+        L(3, 13, 12, 4, '#8a5a2b'); L(4, 13, 13, 4, '#5a3a1a'); L(12, 4, 12, 10, '#e8e8e8'); C(12, 11, 1.5, '#c8ccd0');
+        if (name.indexOf('Carrot') >= 0) C(4, 13, 2, '#ef8a1a');
+        else if (name.indexOf('Warped') >= 0) C(4, 13, 2, '#20aa80');
+        else L(2, 11, 5, 14, '#e8e8e8');
+      }
+      else if (key === 'compass') { C(8, 8, 5.6, '#8a8e94'); C(8, 8, 4.4, '#c8ccd0'); C(8, 8, 3.2, '#e8ecf0'); L(8, 8, 11, 5, '#d83020'); L(8, 8, 5, 11, '#3a3a44'); P(8, 8, '#ffffff'); }
+      else if (key === 'clock') { C(8, 8, 5.6, '#f0c030'); C(8, 8, 4.2, '#3a5a8a'); C(8, 8, 3.4, '#e8f0f8'); L(8, 8, 8, 5, '#3a3a44'); L(8, 8, 10, 9, '#3a3a44'); P(8, 8, '#3a3a44'); }
+      else if (key === 'spyglass') { L(3, 12, 12, 3, '#8a6a3a'); L(4, 12, 13, 3, '#5a3a1a'); R(11, 1, 14, 4, '#c89a4a'); R(12, 2, 13, 3, '#e8c070'); }
+      else if (key === 'nametag') { R(3, 5, 12, 11, '#d8c890'); R(3, 5, 12, 5, '#f0e0a8'); R(3, 11, 12, 11, '#b8a870'); C(4, 8, 1.2, '#8a7a4a'); R(6, 7, 10, 7, '#8a7a4a'); R(6, 9, 9, 9, '#8a7a4a'); }
+      else if (key === 'lead') { L(3, 12, 8, 7, '#d8d0c0'); L(8, 7, 12, 10, '#c0b8a8'); L(12, 10, 8, 12, '#d8d0c0'); L(8, 12, 4, 9, '#c0b8a8'); L(4, 9, 8, 5, '#d8d0c0'); R(11, 2, 13, 4, '#8a8a92'); L(8, 5, 11, 3, '#8a8a92'); }
+      else if (key === 'saddle') { R(3, 5, 12, 11, '#a87040'); R(4, 4, 11, 4, '#c89050'); R(5, 3, 10, 3, '#c89050'); R(3, 12, 12, 12, '#7a4a20'); R(6, 6, 9, 9, '#7a4a20'); R(2, 8, 2, 10, '#8a8a92'); R(13, 8, 13, 10, '#8a8a92'); }
+      else if (key === 'brush') { R(7, 2, 8, 9, '#a87840'); R(7, 2, 7, 9, '#c89050'); R(5, 10, 10, 13, '#c8a060'); R(6, 14, 9, 15, '#8a5a2a'); P(5, 10, '#e8c080'); }
+      else if (key === 'horn') { for (let i = 0; i < 9; i++) R(3 + i, 12 - i, 4 + i, 13 - i, i % 2 ? '#c8b890' : '#d8c8a0'); R(11, 3, 12, 4, '#b8a878'); P(12, 2, '#a89868'); }
+      else if (key === 'key') {
+        const m = name.indexOf('Ominous') === 0 ? '#a08ad0' : '#e8c060';
+        C(5, 5, 2.6, m); C(5, 5, 1.2, '#3a3a44'); L(7, 7, 12, 12, m); R(11, 11, 13, 13, m); R(9, 12, 10, 13, m);
+      }
+      else if (key === 'mace') { R(7, 8, 8, 15, '#6a4a2a'); C(8, 5, 3.6, '#c87b3a'); C(7.4, 4.6, 2.4, '#e8a050'); R(6, 7, 9, 7, '#8a5a2a'); P(10, 4, '#e8b060'); }
+      else if (key === 'core') { SR(3, 4, 12, 13, '#3a3a44', '#5a5a64', '#22222a'); R(6, 7, 9, 10, '#c060ff'); R(7, 8, 8, 9, '#f0c0ff'); }
+      else if (key === 'star') { R(7, 2, 8, 13, '#f0f0c0'); R(2, 7, 13, 8, '#f0f0c0'); L(4, 4, 11, 11, '#e8e8a8'); L(4, 11, 11, 4, '#e8e8a8'); C(8, 8, 1.6, '#ffffff'); }
+      else if (key === 'heartsea') { C(5.5, 6.5, 2.6, H); C(10.5, 6.5, 2.6, H); R(3, 6, 12, 9, H); C(8, 9.5, 4, H); C(7.4, 9, 2.4, sh(H, 0.35)); }
+      else if (key === 'shell') { for (let i = 0; i < 6; i++) { const w = 6 - i; R(8 - w, 3 + i * 2, 8 + w, 4 + i * 2, i % 2 ? '#c89858' : '#e0b878'); } R(2, 12, 13, 13, '#a87838'); }
+      else if (key === 'disc') { C(8, 8, 6, '#1a1a1e'); C(8, 8, 5, H); C(8, 8, 3.6, '#1a1a1e'); C(8, 8, 1.4, '#e8e8e8'); P(5, 5, '#8888a0'); P(11, 10, '#8888a0'); }
+      else if (key === 'bowl') { R(3, 8, 12, 9, '#9a6a3a'); R(4, 10, 11, 12, '#8a5a2a'); R(3, 8, 3, 9, '#b87a45'); R(12, 8, 12, 9, '#6a4a20'); R(5, 13, 10, 13, '#6a4a20'); }
+      else if (key === 'charcoal') { C(8, 8, 5.4, '#3a3230'); C(7.4, 7.4, 3.6, '#4e4440'); R(5, 5, 6, 6, '#5e544e'); R(10, 9, 10, 10, '#26201e'); R(6, 10, 7, 10, '#26201e'); }
+      else if (key === 'seeds') { const c1 = H, c2 = sh(H, -0.35); for (const [x, y] of [[5, 7], [8, 5], [10, 8], [6, 10], [9, 11], [4, 11], [11, 5]]) { R(x, y, x + 1, y + 1, c1); P(x + 1, y + 1, c2); } }
+      else if (key === 'carrot') { for (let i = 0; i < 8; i++) R(4 + i, 12 - i, 5 + i + (i > 5 ? 0 : 1), 13 - i, i < 3 ? '#e8a030' : '#f0a838'); R(3, 12, 4, 13, '#c87818'); L(11, 5, 13, 3, '#3a9a3a'); L(12, 6, 14, 4, '#2a7a2a'); L(10, 4, 11, 2, '#46b04a'); L(5, 11, 8, 8, '#c87818'); }
+      else if (key === 'kelp') { for (let y = 3; y < 14; y++) { const w = (y % 4 === 1) ? 1 : 2; R(8 - w, y, 8 + w, y, y % 2 ? '#3a6a2a' : '#4e8a38'); } P(6, 5, '#6aa850'); P(10, 9, '#6aa850'); R(7, 2, 8, 2, '#5a9a44'); }
+      else if (key === 'hide') { R(4, 3, 12, 12, H); R(3, 5, 4, 9, H); R(12, 5, 13, 9, H); R(5, 4, 11, 4, sh(H, 0.25)); R(4, 11, 12, 12, sh(H, -0.25)); R(6, 6, 8, 8, sh(H, 0.15)); R(9, 8, 11, 10, sh(H, -0.15)); }
+      else if (key === 'foot') { C(7, 8, 4.4, H); R(5, 10, 9, 13, H); P(5, 5, sh(H, 0.35)); P(6, 4, sh(H, 0.35)); R(4, 6, 4, 8, sh(H, 0.2)); R(10, 6, 10, 8, sh(H, 0.2)); R(3, 12, 4, 13, '#f2ead8'); R(10, 12, 11, 13, '#f2ead8'); }
+      else if (key === 'fereye') { C(8, 8, 5.4, '#6a5a3a'); C(8, 8, 3.8, '#8a9a4a'); R(7, 5, 8, 11, '#3a2a14'); R(6, 7, 9, 9, '#3a2a14'); P(5, 5, '#d8e08a'); }
+      else if (key === 'gmelon') { R(2, 5, 13, 11, '#c0d860'); R(3, 4, 12, 4, '#c0d860'); R(2, 12, 13, 12, '#2f8a34'); R(3, 11, 12, 11, '#bfe8a0'); R(2, 9, 13, 10, '#c0d860'); for (const [x, y] of [[4, 6], [7, 7], [10, 6], [6, 9], [11, 9]]) R(x, y, x, y + 1, '#2a1a1a'); P(4, 6, '#ffffff'); P(10, 6, '#ffffff'); }
+    }
 
     function _drawPixelItem(ctx, size, blockId, def) {
       if (!def || def.isBlock !== false) return false;
@@ -63526,11 +64730,13 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       let done = true;
 
       // ---- 道具(ツルハシ・斧・シャベル・剣): 柄は茶色、頭は素材の色 ----
-      const toolM = /^(Wooden|Stone|Iron|Gold|Diamond|Copper) (Pickaxe|Axe|Shovel|Sword)$/.exec(name);
-      const armM = /^(Coal|Copper|Iron|Gold|Diamond) (Helmet|Chestplate|Leggings|Boots)$/.exec(name);
+      const toolM = /^(Wooden|Stone|Iron|Gold|Diamond|Copper|Netherite) (Pickaxe|Axe|Shovel|Sword|Hoe)$/.exec(name);
+      const armM = /^(Coal|Copper|Iron|Gold|Diamond|Netherite|Leather|Chainmail|Turtle) (Helmet|Chestplate|Leggings|Boots)$/.exec(name);
       const eggM = /Spawn Egg$/.test(name);
       const potionIds = { 322: ['#3f76e4', null], 324: ['#5a4fa8', null], 325: ['#e0343b', 'heart'], 326: ['#b5301f', 'fist'], 327: ['#7fd4ff', 'bolt'], 328: ['#f5902a', 'flame'], 329: ['#2d2fa0', 'eye'], 330: ['#f08cc0', 'heart2'], 331: ['#5fa53a', 'skull'], 332: ['#d8d0e8', 'feather'] };
-      if (toolM) {
+      if (_pxCatKey(name)) {
+        _pxCatDraw(g, P, R, SR, L, C, SYM, name, baseHex, blockId);
+      } else if (toolM) {
         const mat = _PX_MAT[toolM[1]], t = toolM[2], S = _PX_STICK;
         if (t === 'Pickaxe') {
           L(2, 14, 10, 6, S.m); L(3, 14, 11, 6, S.d); L(2, 13, 9, 6, S.l);
@@ -63548,6 +64754,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           L(2, 14, 10, 6, S.m); L(3, 14, 11, 6, S.d); L(2, 13, 9, 6, S.l);
           R(11, 1, 12, 1, mat.l); R(10, 2, 13, 2, mat.l); R(10, 3, 13, 5, mat.m); R(11, 6, 12, 6, mat.d);
           R(13, 3, 13, 5, mat.d); R(10, 3, 10, 5, mat.l);
+        } else if (t === 'Hoe') {
+          L(2, 14, 10, 6, S.m); L(3, 14, 11, 6, S.d); L(2, 13, 9, 6, S.l);
+          R(9, 2, 12, 3, mat.l); R(8, 3, 13, 4, mat.m); R(8, 5, 12, 5, mat.d); P(13, 4, mat.d); P(8, 2, mat.l);
         } else { // Sword
           for (let i = 0; i < 9; i++) { P(5 + i, 10 - i, mat.l); P(6 + i, 10 - i, mat.m); P(5 + i, 11 - i, mat.d); }
           P(14, 1, mat.l); P(14, 2, mat.m);
@@ -63830,9 +65039,12 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           R(cx, cy, cx + w - 1, cy + h - 1, oc[0]); P(cx + w - 1, cy + h - 1, oc[1]); P(cx, cy + h - 1, oc[1]); P(cx, cy, sh(oc[0], 0.5));
         }
       };
+      // 円・線分(追加ブロックのテクスチャ用。_drawPixelItem 側と同じ仕様)
+      const C = (cx, cy, r, c) => { for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const dx = x + 0.5 - cx, dy = y + 0.5 - cy; if (dx * dx + dy * dy <= r * r) P(x, y, c); } };
+      const L = (x0, y0, x1, y1, c) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) P(Math.round(x0 + (x1 - x0) * i / Math.max(1, n)), Math.round(y0 + (y1 - y0) * i / Math.max(1, n)), c); };
 
       // --- 種類の判定と描画 ---------------------------------------------
-      const woodNames = ['oak', 'spruce', 'birch', 'acacia', 'dark oak', 'cherry', 'jungle'];
+      const woodNames = ['oak', 'spruce', 'birch', 'acacia', 'dark oak', 'cherry', 'jungle', 'mangrove', 'bamboo', 'crimson', 'warped'];
       const baseHex = hex;
       let handled = true;
       const stoneC = '#8a8a90';
@@ -64051,6 +65263,328 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       else if (blockId === 107) { // ココアの実(ポッド)
         R(0, 0, 15, 15, '#a8622a'); for (let x = 0; x < N; x += 3) R(x, 0, x, 15, '#7a4420'); R(0, 0, 15, 1, '#5a3a1a'); R(0, 15, 15, 15, '#7a4420'); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#c88050');
       }
+      // ===== ▼▼ 追加ブロック(名称ベースの共通テクスチャ) ▼▼ =====
+      else if (has('jack o')) { // ジャック・オ・ランタン: 光る顔
+        R(0, 0, 15, 15, '#c8781a'); for (let x = 0; x < N; x += 4) R(x, 0, x, 15, '#a05e10');
+        R(3, 4, 6, 7, '#ffd24a'); R(9, 4, 12, 7, '#ffd24a'); R(5, 9, 10, 12, '#ffd24a'); R(6, 10, 9, 11, '#3a2008'); R(4, 5, 5, 6, '#3a2008'); R(10, 5, 11, 6, '#3a2008');
+      }
+      else if (has('pumpkin')) { // かぼちゃ(彫りは顔)
+        R(0, 0, 15, 15, '#d8801a'); for (let x = 0; x < N; x += 4) R(x, 0, x, 15, '#b06610'); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#e89a3a');
+        R(0, 0, 15, 0, '#8a5010'); R(0, 15, 15, 15, '#8a5010'); R(0, 0, 0, 15, '#a05a12'); R(15, 0, 15, 15, '#a05a12');
+        if (has('carved')) { R(3, 4, 6, 7, '#3a2008'); R(9, 4, 12, 7, '#3a2008'); R(5, 9, 10, 12, '#3a2008'); R(6, 11, 9, 12, '#e8a03a'); }
+      }
+      else if (has('wool')) { const p = pal(baseHex); R(0, 0, 15, 15, p.m); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const w = ((x + y) % 4 === 0) ? p.d : ((x * 3 + y * 5) % 7 === 0 ? p.l : null); if (w) P(x, y, w); if (rnd() < 0.07) P(x, y, p.L); } }
+      else if (has('carpet')) { for (let y = 12; y < N; y++) for (let x = 0; x < N; x++) { const r = rnd(); P(x, y, r < 0.25 ? sh(baseHex, -0.22) : r < 0.85 ? baseHex : sh(baseHex, 0.18)); } R(0, 12, 15, 12, sh(baseHex, 0.3)); }
+      else if (has('concrete powder')) { speckle(baseHex, 0.24, 0.18, 0.1); }
+      else if (has('concrete')) { blotch(baseHex, 6, 0.44, 0.56); }
+      else if (has('stained glass')) {
+        const n2 = parseInt(baseHex.slice(1), 16);
+        R(0, 0, 15, 15, 'rgba(' + ((n2 >> 16) & 255) + ',' + ((n2 >> 8) & 255) + ',' + (n2 & 255) + ',0.30)');
+        R(0, 0, 15, 0, sh(baseHex, 0.2)); R(0, 15, 15, 15, sh(baseHex, -0.25)); R(0, 0, 0, 15, sh(baseHex, 0.2)); R(15, 0, 15, 15, sh(baseHex, -0.25));
+        for (let k = 0; k < 5; k++) P(3 + k, 3 + k, 'rgba(255,255,255,0.7)');
+      }
+      else if (has('terracotta')) { const p = speckle(baseHex, 0.14, 0.1, 0.0); for (let y = 0; y < N; y += 5) for (let x = 0; x < N; x++) if (rnd() < 0.6) P(x, y, p.d); }
+      else if (has('mud bricks')) { bricks(baseHex, sh(baseHex, -0.3)); }
+      else if (has('mud')) { dirtTex(baseHex); for (let k = 0; k < 6; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), sh(baseHex, 0.25)); }
+      else if (has('deepslate tile')) { bricks(sh(baseHex, 0.08), '#222228', 8, 8); }
+      else if (has('deepslate brick') || has('polished deepslate') || has('chiseled deepslate')) { bricks(sh(baseHex, 0.06), '#222228'); }
+      else if (has('cobbled deepslate')) { voronoi(baseHex, 11, -0.4, 0.18, true); }
+      else if (has('mossy')) { voronoi(baseHex, 9, -0.45, 0.2, true); for (let k = 0; k < 18; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#4a7a34' : '#5e9642'); }
+      else if (has('cobblestone')) { voronoi(baseHex, 9, -0.5, 0.2, true); }
+      else if (has('sandstone')) {
+        const p = speckle(baseHex, 0.1, 0.12, 0.0);
+        if (has('smooth')) { blotch(baseHex, 8, 0.46, 0.54); }
+        else if (has('cut')) { for (const y of [0, 8]) R(0, y, 15, y, sh(baseHex, -0.28)); for (const y of [7, 15]) R(0, y, 15, y, sh(baseHex, 0.2)); }
+        else if (has('chiseled')) { R(1, 1, 14, 14, sh(baseHex, -0.12)); R(3, 3, 12, 12, baseHex); R(5, 5, 10, 10, sh(baseHex, -0.18)); R(0, 0, 15, 0, sh(baseHex, 0.25)); R(0, 15, 15, 15, sh(baseHex, -0.25)); }
+        else { for (const y of [4, 11]) R(0, y, 15, y, sh(baseHex, -0.2)); for (const y of [5, 12]) R(0, y, 15, y, sh(baseHex, 0.12)); }
+      }
+      else if (has('quartz')) {
+        const p = pal(baseHex); R(0, 0, 15, 15, p.m); R(0, 0, 15, 0, p.L); R(0, 0, 0, 15, p.l); R(0, 15, 15, 15, p.d); R(15, 0, 15, 15, p.d);
+        if (has('pillar')) { for (let x = 1; x < N; x += 5) R(x, 0, x, 15, p.d); for (let x = 3; x < N; x += 5) R(x, 0, x, 15, p.l); }
+        else if (has('brick')) { bricks(baseHex, sh(baseHex, -0.3), 8, 4); }
+        else if (has('chiseled')) { R(2, 2, 13, 13, sh(baseHex, -0.1)); R(4, 4, 11, 11, baseHex); R(6, 6, 9, 9, sh(baseHex, -0.15)); }
+        for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), p.l);
+      }
+      else if (has('nether brick')) { bricks(baseHex, '#1e060a'); for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), sh(baseHex, 0.22)); }
+      else if (has('brick')) { bricks(baseHex, sh(baseHex, -0.35)); }
+      else if (has('granite') || has('diorite') || has('andesite') || has('tuff') || has('calcite')) {
+        const p = speckle(baseHex, 0.2, 0.16, 0.08);
+        if (has('polished')) { blotch(baseHex, 8, 0.45, 0.55); R(0, 0, 15, 0, sh(baseHex, 0.2)); R(0, 15, 15, 15, sh(baseHex, -0.22)); }
+      }
+      else if (has('basalt')) {
+        const p = pal(baseHex);
+        if (has('polished')) { R(0, 0, 15, 15, p.m); for (let x = 0; x < N; x += 4) R(x, 0, x, 15, p.d); for (let x = 1; x < N; x += 4) R(x, 0, x, 15, p.l); }
+        else { R(0, 0, 15, 15, p.m); for (let x = 0; x < N; x++) { const t = rnd(); R(x, 0, x, 15, t < 0.3 ? p.d : t < 0.6 ? p.m : p.l); } }
+      }
+      else if (has('blackstone')) {
+        voronoi(baseHex, 8, -0.42, 0.14, true);
+        if (has('gilded')) for (let k = 0; k < 7; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y, '#e8b830'); P(x, y + 1, '#a87810'); }
+        if (has('polished')) { blotch(baseHex, 8, 0.45, 0.55); R(0, 0, 15, 0, sh(baseHex, 0.18)); R(0, 15, 15, 15, sh(baseHex, -0.22)); }
+      }
+      else if (has('smooth stone')) { blotch(baseHex, 8, 0.46, 0.54); R(0, 0, 15, 0, sh(baseHex, 0.18)); R(0, 15, 15, 15, sh(baseHex, -0.2)); R(0, 0, 0, 15, sh(baseHex, 0.1)); }
+      else if (has('bookshelf')) {
+        planks('#9a6a3a', 5);
+        const spineCols = ['#8a3a3a', '#3a6a8a', '#3a8a4a', '#8a7a2a', '#6a3a8a', '#a05a2a'];
+        for (const y0 of [1, 9]) {
+          R(0, y0, 15, y0 + 6, '#3a2a1a');
+          let x = 1;
+          while (x < 15) { const w = 1 + Math.floor(rnd() * 2); const c = spineCols[Math.floor(rnd() * spineCols.length)]; R(x, y0 + 1, Math.min(14, x + w - 1), y0 + 5, c); P(x, y0 + 1, sh(c, 0.3)); x += w + 1; }
+        }
+      }
+      else if (has('hay')) {
+        R(0, 0, 15, 15, '#b89018');
+        for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const r = rnd(); P(x, y, r < 0.2 ? '#8a6a10' : r < 0.8 ? '#c8a020' : '#e0bc40'); }
+        for (const y of [0, 5, 10, 15]) R(0, y, 15, y, '#7a5c0c');
+      }
+      else if (has('cake')) {
+        if (face === 'top') { R(0, 0, 15, 15, '#f4f0e0'); for (const [x, y] of [[3, 3], [8, 5], [12, 4], [5, 10], [10, 11]]) R(x, y, x + 1, y + 1, '#c03038'); }
+        else if (face === 'bottom') { R(0, 0, 15, 15, '#b89878'); }
+        else { R(0, 0, 15, 4, '#f4f0e0'); R(0, 4, 15, 5, '#c8a878'); R(0, 5, 15, 15, '#d8b088'); for (const x of [2, 6, 11]) R(x, 6, x, 9, '#c03038'); R(0, 15, 15, 15, '#8a6a4a'); }
+      }
+      else if (has('target')) {
+        R(0, 0, 15, 15, '#d8cbb0');
+        if (face === 'top') { R(2, 2, 13, 13, '#e8e0cc'); R(4, 4, 11, 11, '#c03038'); R(6, 6, 9, 9, '#e8e0cc'); R(7, 7, 8, 8, '#c03038'); }
+        else { R(0, 4, 15, 5, '#b8a888'); R(0, 10, 15, 11, '#b8a888'); }
+      }
+      else if (has('note block')) { planks('#5a3a22', 4); R(0, 0, 15, 0, '#3a2412'); R(0, 15, 15, 15, '#2c1a0c'); if (face === 'top') { R(6, 6, 9, 9, '#2c1a0c'); R(7, 7, 8, 8, '#8a6a4a'); } }
+      else if (has('jukebox')) { planks('#5a3a22', 4); R(0, 0, 15, 0, '#3a2412'); R(0, 15, 15, 15, '#2c1a0c'); if (face === 'top') { R(5, 5, 10, 10, '#2c1a0c'); R(6, 6, 9, 9, '#44444c'); } }
+      else if (has('sticky piston')) {
+        if (face === 'top') { const p = pal('#5aa03a'); R(0, 0, 15, 15, p.m); blotch('#5aa03a', 4, 0.4, 0.6); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#7ac05a'); }
+        else { planks('#a8843c', 4); R(0, 0, 15, 1, '#8a8e94'); }
+      }
+      else if (has('piston')) {
+        if (face === 'top') { planks('#c8a05a', 4); R(2, 2, 13, 13, sh('#c8a05a', -0.12)); }
+        else { planks('#a8843c', 4); R(0, 0, 15, 1, '#8a8e94'); R(0, 14, 15, 15, '#6a6e74'); }
+      }
+      else if (has('dispenser') || has('dropper')) {
+        voronoi('#7c7c82', 9, -0.45, 0.16, true);
+        if (face !== 'top' && face !== 'bottom') { R(5, 5, 10, 10, '#2a2a30'); R(6, 6, 9, 9, '#16161a'); }
+      }
+      else if (has('observer')) {
+        voronoi('#6c6c72', 9, -0.45, 0.16, true);
+        if (face !== 'top' && face !== 'bottom') { R(0, 0, 15, 2, '#3a3a40'); R(3, 5, 12, 10, '#c03038'); R(5, 6, 10, 9, '#16161a'); }
+      }
+      else if (has('hopper')) { voronoi('#4a4a52', 8, -0.4, 0.12, true); R(2, 2, 13, 2, '#6a6a72'); R(4, 4, 11, 11, '#2a2a30'); R(5, 5, 10, 10, '#16161a'); }
+      else if (has('lever')) { R(4, 11, 11, 15, '#7a7a80'); voronoi('#7a7a80', 6, -0.4, 0.14, true); R(7, 2, 8, 12, '#8a5a2a'); R(7, 1, 8, 2, '#c04a3a'); }
+      else if (has('redstone torch')) { R(7, 6, 8, 15, '#6a4a2a'); R(7, 7, 7, 15, '#8a6a3a'); R(7, 2, 8, 5, '#d83020'); R(7, 3, 8, 4, '#ff6a5a'); P(7, 1, '#ff9a8a'); }
+      else if (has('soul torch')) { R(7, 6, 8, 15, '#6a4a2a'); R(7, 7, 7, 15, '#8a6a3a'); R(7, 2, 8, 5, '#2a9ad8'); R(7, 3, 8, 4, '#6adcff'); P(7, 1, '#e8ffff'); }
+      else if (has('ender chest')) {
+        const p = pal('#2a2a3a'); planks('#3a3a52', 4); R(0, 0, 15, 0, p.D); R(0, 15, 15, 15, p.D); R(0, 0, 0, 15, p.D); R(15, 0, 15, 15, p.D); R(0, 5, 15, 5, p.D); R(0, 6, 15, 6, '#5a5a7a');
+        if (face !== 'top' && face !== 'bottom') { R(6, 8, 9, 11, '#2ad8b8'); R(7, 9, 8, 10, '#0a3a30'); }
+      }
+      else if (has('shulker')) {
+        const p = pal(baseHex);
+        R(0, 0, 15, 15, p.m); R(0, 0, 15, 1, p.L); R(0, 14, 15, 15, p.D); R(0, 0, 0, 15, p.l); R(15, 0, 15, 15, p.d);
+        R(0, 7, 15, 8, p.d); R(1, 3, 14, 3, p.l); R(1, 11, 14, 11, p.D);
+        for (let k = 0; k < 8; k++) P(2 + Math.floor(rnd() * 12), 2 + Math.floor(rnd() * 4), p.l);
+      }
+      else if (has('sponge')) { voronoi(baseHex, 10, -0.35, 0.2, true); for (let k = 0; k < 12; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 15); P(x, y, '#8a8a40'); P(x + 1, y, '#6a6a2a'); } }
+      else if (has('slime block')) {
+        R(0, 0, 15, 15, 'rgba(110,220,130,0.55)'); R(4, 4, 11, 11, 'rgba(80,190,100,0.6)'); R(6, 6, 9, 9, 'rgba(140,240,160,0.7)'); R(0, 0, 15, 0, 'rgba(60,160,80,0.5)'); R(0, 15, 15, 15, 'rgba(60,160,80,0.5)'); R(0, 0, 0, 15, 'rgba(60,160,80,0.5)'); R(15, 0, 15, 15, 'rgba(60,160,80,0.5)');
+      }
+      else if (has('honey block')) {
+        R(0, 0, 15, 15, 'rgba(240,168,48,0.75)'); R(4, 4, 11, 11, 'rgba(220,140,30,0.8)'); R(6, 6, 9, 9, 'rgba(255,200,90,0.85)'); R(0, 0, 15, 0, 'rgba(180,110,20,0.8)'); R(0, 15, 15, 15, 'rgba(180,110,20,0.8)'); R(0, 0, 0, 15, 'rgba(180,110,20,0.8)'); R(15, 0, 15, 15, 'rgba(180,110,20,0.8)');
+      }
+      else if (has('blue ice')) { blotch(baseHex, 5, 0.35, 0.65); for (let k = 0; k < 8; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 2, y, '#7aa8ff'); } R(0, 0, 15, 0, '#5a86e0'); R(0, 15, 15, 15, '#2a4aa8'); }
+      else if (has('packed ice') || has('ice')) { blotch(baseHex, 5, 0.3, 0.7); for (let k = 0; k < 10; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1 + Math.floor(rnd() * 2), y, '#e8f4ff'); } R(0, 0, 15, 0, '#c8e0f8'); R(0, 15, 15, 15, '#7aa0d0'); }
+      else if (has('snow')) { speckle(baseHex, 0.0, 0.0, 0.0); for (let k = 0; k < 30; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.7 ? '#dfe8f6' : '#c8d6ec'); }
+      else if (has('iron bars')) { R(0, 0, 15, 15, null); for (const x of [1, 4, 7, 10, 13]) { R(x, 0, x + 1, 15, '#8a8e96'); R(x, 0, x, 15, '#b8bcc4'); P(x + 1, 3, '#6a6e76'); } R(0, 7, 15, 8, '#7a7e86'); R(0, 7, 15, 7, '#9a9ea6'); }
+      else if (has('chain')) {
+        R(6, 0, 9, 6, '#5a5a62'); R(7, 1, 8, 5, null); R(6, 0, 6, 5, '#8a8a92'); R(9, 0, 9, 5, '#3a3a42');
+        R(6, 9, 9, 15, '#5a5a62'); R(7, 10, 8, 14, null); R(6, 10, 6, 14, '#8a8a92'); R(9, 10, 9, 14, '#3a3a42');
+        R(7, 6, 8, 9, '#6a6a72'); P(7, 6, '#9a9aa2'); P(8, 8, '#4a4a52');
+      }
+      else if (has('lantern')) {
+        R(5, 3, 10, 4, '#4a4a52'); R(6, 1, 9, 2, '#5a5a62'); R(7, 0, 8, 0, '#6a6a72');
+        R(4, 5, 11, 13, '#3a3a40'); R(5, 6, 10, 12, '#e8a020'); R(6, 7, 9, 11, '#ffd24a'); R(7, 8, 8, 10, '#fff6c0');
+        R(4, 5, 4, 13, '#2a2a30'); R(11, 5, 11, 13, '#2a2a30'); R(4, 14, 11, 14, '#4a4a52');
+      }
+      else if (has('bee nest')) {
+        speckle('#c8a050', 0.16, 0.14, 0.1);
+        if (face !== 'top' && face !== 'bottom') { R(5, 9, 10, 12, '#3a2a10'); R(6, 10, 9, 11, '#6a4a1a'); }
+      }
+      else if (has('beehive')) {
+        planks('#b89040', 4);
+        if (face !== 'top' && face !== 'bottom') { R(5, 9, 10, 12, '#3a2a10'); R(6, 10, 9, 11, '#6a4a1a'); }
+        R(0, 0, 15, 0, '#8a6828'); R(0, 15, 15, 15, '#8a6828');
+      }
+      else if (has('composter') || has('barrel')) {
+        planks('#8a6a3a', 4);
+        R(0, 2, 15, 2, '#5a4224'); R(0, 12, 15, 12, '#5a4224');
+        if (has('composter') && (face === 'top')) { R(2, 2, 13, 13, '#4a3418'); R(3, 3, 12, 12, '#5e4422'); }
+        if (has('barrel') && (face === 'top')) { R(2, 2, 13, 13, '#6a4e28'); R(6, 6, 9, 9, '#4a3418'); }
+      }
+      else if (has('smoker') || has('blast furnace')) {
+        voronoi('#7c7c82', 9, -0.45, 0.16, true);
+        if (face === 'top') { R(3, 3, 12, 12, '#3a3a40'); R(4, 4, 11, 11, '#1e1e22'); }
+        else if (face !== 'bottom') {
+          R(2, 2, 13, 3, '#2a2a30'); R(3, 5, 12, 13, '#16161a'); R(4, 6, 11, 12, '#0a0a0c');
+          R(4, 11, 11, 12, '#ff8a2a'); R(5, 12, 10, 12, '#ffd24a'); R(2, 14, 13, 14, '#4a4a52');
+          if (has('blast')) { R(0, 0, 15, 0, '#4a4a52'); R(0, 15, 15, 15, '#4a4a52'); R(0, 0, 0, 15, '#4a4a52'); R(15, 0, 15, 15, '#4a4a52'); }
+        }
+      }
+      else if (has('stonecutter')) {
+        blotch('#8a8a90', 4, 0.36, 0.64);
+        if (face === 'top') { R(1, 6, 14, 9, '#b8bcc4'); R(1, 6, 14, 6, '#e0e4e8'); R(2, 2, 13, 3, '#6a6e74'); }
+        else { R(0, 3, 15, 4, '#5a5a62'); }
+      }
+      else if (has('loom')) {
+        planks('#a8843c', 4);
+        if (face === 'top') { R(2, 2, 13, 13, '#e8e4d8'); R(2, 6, 13, 6, '#c84040'); R(2, 10, 13, 10, '#3a6a8a'); }
+        else { R(0, 0, 15, 1, '#8a8e94'); }
+      }
+      else if (has('cartography') || has('fletching') || has('smithing')) {
+        planks(has('smithing') ? '#4a4a52' : '#a8843c', 4);
+        if (face === 'top') {
+          if (has('cartography')) { R(2, 2, 13, 12, '#e8e4d0'); R(4, 4, 11, 10, '#c8b888'); R(6, 6, 9, 8, '#8aa060'); }
+          else if (has('fletching')) { R(2, 2, 13, 12, '#e8e0c8'); R(3, 4, 12, 5, '#c04848'); R(3, 8, 12, 9, '#e8e0c8'); }
+          else { R(2, 2, 13, 3, '#3a3a40'); R(4, 5, 11, 12, '#2a2a30'); R(6, 2, 9, 3, '#8a8e94'); }
+        }
+      }
+      else if (has('grindstone')) {
+        blotch('#8a8a90', 4, 0.36, 0.64);
+        if (face === 'top') { C(8, 8, 5.6, '#b8bcc4'); C(8, 8, 4.4, '#8a8e96'); C(8, 8, 1.6, '#5a5a62'); }
+        else { R(2, 0, 13, 2, '#6a4a2a'); }
+      }
+      else if (has('bell')) {
+        R(0, 0, 15, 15, '#6a5a2a');
+        if (face === 'top') { R(4, 4, 11, 11, '#8a7a3a'); R(6, 6, 9, 9, '#a89858'); }
+        else { R(3, 3, 12, 12, '#e8c860'); R(3, 3, 12, 3, '#f8e090'); R(3, 3, 3, 12, '#f8e090'); R(12, 3, 12, 12, '#a87818'); R(3, 12, 12, 12, '#a87818'); R(6, 13, 9, 14, '#8a6810'); }
+      }
+      else if (has('scaffolding')) {
+        for (const x of [1, 7, 13]) R(x, 0, x + 1, 15, '#c8b06a'); R(1, 0, 1, 15, '#a8904a');
+        for (const y of [2, 9, 14]) R(0, y, 15, y, '#b89c5a');
+        R(3, 5, 5, 8, '#8a6a2a'); R(10, 5, 12, 8, '#8a6a2a');
+      }
+      else if (has('ladder')) {
+        R(3, 0, 4, 15, '#9a7a3a'); R(3, 0, 3, 15, '#b8985a'); R(11, 0, 12, 15, '#9a7a3a'); R(12, 0, 12, 15, '#7a5a22');
+        for (const y of [2, 7, 12]) { R(4, y, 11, y + 1, '#b8944a'); R(4, y + 1, 11, y + 1, '#8a6a2a'); }
+      }
+      else if (has('anvil')) {
+        if (face === 'top') { R(2, 3, 13, 12, '#4a4a52'); R(2, 3, 13, 4, '#6a6a72'); R(4, 6, 11, 9, '#3a3a42'); }
+        else { R(0, 0, 15, 4, '#3a3a42'); R(2, 4, 13, 11, '#44444c'); R(4, 11, 11, 15, '#3a3a42'); R(0, 0, 15, 0, '#5a5a62'); }
+      }
+      else if (has('cauldron')) {
+        R(0, 0, 15, 15, '#3a3a40'); R(0, 0, 15, 1, '#5a5a62'); R(0, 14, 15, 15, '#22222a');
+        if (face === 'top') { R(2, 2, 13, 13, '#16161a'); R(3, 3, 12, 12, '#0a0a0e'); }
+        else { R(0, 6, 15, 7, '#4a4a52'); R(0, 2, 0, 15, '#4a4a52'); R(15, 2, 15, 15, '#28282e'); }
+      }
+      else if (has('amethyst')) {
+        blotch(baseHex, 3, 0.35, 0.65);
+        for (let k = 0; k < 12; k++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 14); R(x, y, x + 1, y + 1, k % 3 === 0 ? '#e0c0ff' : k % 3 === 1 ? '#7a3ac0' : '#9a5ae0'); }
+        R(3, 3, 4, 4, '#f0e0ff'); R(10, 9, 11, 10, '#f0e0ff');
+      }
+      else if (has('debris')) {
+        blotch('#5e4238', 4, 0.35, 0.65);
+        for (let k = 0; k < 14; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#7a5a48' : '#3e2a20');
+        R(3, 2, 12, 3, '#7a5a48'); R(3, 12, 12, 13, '#3e2a20'); R(2, 5, 2, 10, '#6a4c3e'); R(13, 5, 13, 10, '#4a3428');
+      }
+      else if (has('crying obsidian')) {
+        speckle('#14101e', 0.22, 0.12, 0.0);
+        for (let k = 0; k < 12; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#7a3ae0' : '#b070ff');
+        R(2, 2, 3, 6, '#7a3ae0'); R(11, 8, 12, 13, '#9a58ff'); R(7, 3, 7, 5, '#b070ff');
+      }
+      else if (has('respawn anchor')) {
+        speckle('#241038', 0.22, 0.12, 0.0);
+        if (face === 'top') { R(0, 0, 15, 15, '#c8902a'); for (let k = 0; k < 16; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), rnd() < 0.5 ? '#ffe070' : '#a8701c'); R(4, 4, 11, 11, '#8a5a14'); }
+        else { R(0, 0, 15, 2, '#c8902a'); for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#7a3ae0'); }
+      }
+      else if (has('lodestone')) {
+        blotch('#3a3a44', 4, 0.4, 0.6);
+        R(0, 0, 15, 0, '#5a5a64'); R(0, 15, 15, 15, '#22222a'); R(0, 0, 0, 15, '#4a4a54'); R(15, 0, 15, 15, '#28282e');
+        R(3, 3, 12, 12, '#44444e'); R(4, 4, 11, 11, '#52525c'); P(5, 5, '#6a6a74'); P(10, 10, '#2a2a32');
+      }
+      else if (has('beacon')) {
+        if (face === 'top') { R(0, 0, 15, 15, '#2a2a34'); R(3, 3, 12, 12, '#3ad8e8'); R(5, 5, 10, 10, '#8af0f8'); R(7, 7, 8, 8, '#ffffff'); }
+        else { R(0, 0, 15, 15, '#2a2a34'); R(2, 4, 13, 11, '#3ad8e8'); R(2, 4, 13, 5, '#8af0f8'); R(4, 0, 11, 2, '#1a1a22'); }
+      }
+      else if (has('conduit')) {
+        R(0, 0, 15, 15, '#2a5a58'); C(8, 8, 5.6, '#5aa8a0'); C(8, 8, 4, '#8ad8d0'); R(6, 6, 9, 9, '#c8f4f0'); R(7, 7, 8, 8, '#ffffff');
+        R(0, 0, 15, 0, '#1a3a38'); R(0, 15, 15, 15, '#1a3a38');
+      }
+      else if (has('lightning rod')) {
+        R(0, 0, 15, 15, '#a05a38'); R(5, 0, 10, 15, '#c97b5a'); R(6, 0, 7, 15, '#e89a6a'); R(9, 0, 9, 15, '#9a4e2a');
+        R(2, 6, 4, 9, '#8a4e2a'); R(11, 6, 13, 9, '#8a4e2a');
+      }
+      else if (has('coral')) {
+        voronoi(baseHex, 7, -0.3, 0.18, true);
+        for (let k = 0; k < 14; k++) { const x = Math.floor(rnd() * 15), y = Math.floor(rnd() * 15); R(x, y, x + 1, y, sh(baseHex, 0.3)); P(x, y + 1, sh(baseHex, -0.2)); }
+        if (has('dead')) for (let k = 0; k < 10; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#7a7060');
+      }
+      else if (has('bone block')) {
+        R(0, 0, 15, 15, '#dcdcc8');
+        for (const y of [0, 5, 10, 15]) R(0, y, 15, y, '#b8b8a0');
+        for (const x of [0, 7, 15]) R(x, 0, x, 15, '#c8c8b0');
+        for (let k = 0; k < 8; k++) P(Math.floor(rnd() * 16), Math.floor(rnd() * 16), '#f0f0e0');
+      }
+      else if (has('mushroom stem')) { R(0, 0, 15, 15, '#d0d0c0'); for (let x = 0; x < N; x += 3) R(x, 0, x, 15, '#b8b8a8'); R(0, 0, 15, 0, '#e8e8d8'); R(0, 15, 15, 15, '#a8a898'); }
+      else if (has('mushroom block')) {
+        blotch(baseHex, 4, 0.35, 0.65);
+        if (has('red')) { for (const [x, y] of [[3, 2], [8, 4], [12, 3], [5, 8], [10, 10], [2, 12], [7, 13]]) { R(x, y, x + 1, y + 1, '#f0f0e8'); P(x, y, '#ffffff'); } }
+      }
+      else if (has('block') && (has('lapis') || has('redstone') || has('coal') || has('copper') || has('netherite') || has('raw'))) {
+        const p = pal(baseHex); R(0, 0, 15, 15, p.m); R(0, 0, 15, 1, p.L); R(0, 0, 1, 15, p.l); R(0, 14, 15, 15, p.D); R(14, 0, 15, 15, p.d);
+        R(3, 3, 12, 12, sh(baseHex, 0.06)); R(3, 3, 12, 3, p.l); R(3, 3, 3, 12, p.l); R(3, 12, 12, 12, p.d); R(12, 3, 12, 12, p.d);
+        for (let k = 0; k < 5; k++) P(4 + k * 2, 4 + k, p.L);
+      }
+      else if (has('bamboo mosaic')) { planks('#c8b864', 4); for (const x of [3, 8, 13]) R(x, 0, x, 15, '#a89848'); }
+      else if (has('bamboo block')) {
+        R(0, 0, 15, 15, '#b8b23e');
+        for (const y of [3, 8, 13]) R(0, y, 15, y, '#8a8428');
+        for (const x of [2, 6, 10, 14]) R(x, 0, x, 15, '#9a9430');
+        R(4, 5, 5, 7, '#c8c25a'); R(11, 9, 12, 11, '#c8c25a');
+      }
+      else if (has('sapling')) { R(7, 9, 8, 15, '#6a4a2a'); R(4, 3, 11, 9, '#3e8a30'); R(5, 2, 10, 3, '#52a63e'); R(6, 1, 9, 2, '#52a63e'); R(5, 8, 10, 8, '#2f6a24'); R(3, 5, 4, 6, '#3e8a30'); R(11, 4, 12, 6, '#3e8a30'); }
+      else if (has('tulip')) { R(7, 8, 8, 15, '#3e8a30'); R(5, 10, 6, 11, '#3e8a30'); R(9, 11, 10, 12, '#3e8a30'); R(4, 4, 11, 8, baseHex); R(5, 3, 10, 4, sh(baseHex, 0.25)); R(4, 8, 11, 8, sh(baseHex, -0.25)); R(6, 5, 7, 6, sh(baseHex, 0.4)); }
+      else if (has('dandelion') || has('poppy') || has('orchid') || has('allium') || has('bluet') || has('daisy') || has('cornflower') || has('torchflower')) {
+        R(7, 8, 8, 15, '#3e8a30'); R(5, 10, 6, 11, '#3e8a30'); R(9, 11, 10, 12, '#3e8a30');
+        C(8, 5, 3.6, baseHex); C(7.4, 4.6, 2.2, sh(baseHex, 0.3)); C(8, 5, 1.2, sh(baseHex, -0.35));
+      }
+      else if (has('sunflower')) { R(7, 6, 8, 15, '#4a8a2a'); R(5, 10, 6, 12, '#4a8a2a'); C(8, 4, 4, baseHex); C(8, 4, 2, '#8a5a20'); for (let k = 0; k < 8; k++) P(4 + Math.floor(rnd() * 8), 1 + Math.floor(rnd() * 6), sh(baseHex, 0.3)); }
+      else if (has('lilac') || has('peony') || has('rose bush')) {
+        R(7, 6, 8, 15, '#4a8a2a'); R(4, 8, 5, 10, '#3e8a30'); R(10, 9, 11, 11, '#3e8a30');
+        for (const [cx, cy] of [[5, 4], [10, 3], [8, 7]]) { C(cx, cy, 2.2, baseHex); P(cx, cy, sh(baseHex, 0.4)); }
+      }
+      else if (has('pitcher')) { R(7, 7, 8, 15, '#4a8a2a'); R(5, 3, 10, 8, baseHex); R(6, 2, 9, 3, sh(baseHex, 0.3)); R(6, 8, 9, 9, sh(baseHex, -0.3)); R(7, 4, 8, 6, sh(baseHex, -0.2)); R(10, 5, 11, 7, '#4a8a2a'); }
+      else if (has('lily of the valley')) { R(7, 7, 8, 15, '#4a8a2a'); R(5, 9, 6, 11, '#4a8a2a'); for (const [x, y] of [[5, 3], [8, 2], [11, 4], [6, 6]]) { R(x, y, x + 1, y + 1, '#ffffff'); P(x, y, '#f0f0e0'); } }
+      else if (has('with rose')) { R(7, 8, 8, 15, '#3a2a2a'); C(8, 5, 3.6, '#3a2a2a'); C(7.4, 4.6, 2.2, '#5a3a3a'); C(8, 5, 1.2, '#8a4a4a'); R(5, 10, 6, 11, '#3a2a2a'); }
+      else if (has('rose')) { R(7, 8, 8, 15, '#3e8a30'); R(5, 10, 6, 11, '#3e8a30'); C(8, 5, 3.6, baseHex); C(7.4, 4.6, 2.2, sh(baseHex, 0.35)); C(8, 5, 1.4, '#2a1010'); }
+      else if (has('mushroom')) {
+        R(6, 8, 9, 15, '#e8e0d0'); R(7, 8, 7, 15, '#f4f0e4');
+        R(3, 4, 12, 8, baseHex); R(4, 2, 11, 4, sh(baseHex, 0.2)); R(3, 8, 12, 8, sh(baseHex, -0.25));
+        if (has('red')) { R(4, 3, 6, 4, '#ffffff'); R(9, 4, 11, 5, '#ffffff'); P(7, 2, '#ffffff'); }
+      }
+      else if (has('short grass') || has('fern') || has('seagrass') || has('kelp')) {
+        for (const x of [3, 6, 9, 12]) { const h = 4 + Math.floor(rnd() * 7); for (let y = 15; y > 15 - h; y--) P(x + ((15 - y) % 3 === 2 ? 1 : 0), y, y % 2 ? '#3e8a30' : '#52a63e'); }
+        if (has('fern')) for (const x of [4, 8, 11]) R(x - 1, 6 + (x % 3), x + 1, 6 + (x % 3), '#3e8a30');
+        if (has('kelp')) { R(7, 2, 8, 15, '#3a7a2a'); for (const y of [4, 8, 12]) { P(6, y, '#4a9a3a'); P(9, y + 1, '#2f6a20'); } }
+      }
+      else if (has('dead bush')) { R(7, 8, 8, 15, '#8a5a2a'); L(7, 10, 3, 4, '#9a6a2a'); L(8, 9, 12, 3, '#7a4a1e'); L(7, 12, 4, 8, '#8a5a2a'); L(8, 11, 11, 6, '#9a6a2a'); }
+      else if (has('sugar cane') || has('cane')) {
+        R(3, 0, 4, 15, '#8ab86a'); R(7, 0, 8, 15, '#9ac47a'); R(11, 0, 12, 15, '#8ab86a');
+        R(3, 0, 3, 15, '#a8d088'); R(7, 0, 7, 15, '#b8e098'); R(11, 0, 11, 15, '#a8d088');
+        for (const y of [4, 9, 14]) { R(3, y, 4, y, '#6a9a4a'); R(7, y, 8, y, '#7aaa5a'); R(11, y, 12, y, '#6a9a4a'); }
+      }
+      else if (has('sea pickle')) {
+        for (const [cx, cy] of [[5, 10], [10, 9], [8, 12]]) { C(cx, cy, 2.4, '#5a7a3a'); C(cx - 0.6, cy - 0.6, 1.4, '#8ab04a'); P(cx, cy - 1, '#d8f0a0'); }
+        R(7, 6, 8, 8, '#6a8a3a'); P(7, 5, '#d8f0a0');
+      }
+      else if (has('cobweb')) {
+        L(1, 1, 14, 14, '#e8e8e8'); L(14, 1, 1, 14, '#e8e8e8'); R(0, 7, 15, 8, '#d8d8d8'); R(7, 0, 8, 15, '#d8d8d8');
+        C(8, 8, 4.2, null); for (let k = 0; k < 4; k++) { const x = 2 + k * 4; P(x, 8, '#f4f4f4'); P(8, x, '#f4f4f4'); }
+      }
+      else if (has('azalea')) {
+        R(6, 8, 9, 14, '#6a4a2a'); R(3, 3, 12, 9, '#4a7a2a'); R(4, 2, 11, 3, '#5a8a34');
+        if (has('flowering')) for (const [x, y] of [[4, 4], [10, 3], [7, 6], [5, 8]]) { R(x, y, x + 1, y + 1, '#f0a0c8'); P(x, y, '#ffd0e8'); }
+        for (let k = 0; k < 8; k++) P(3 + Math.floor(rnd() * 10), 3 + Math.floor(rnd() * 6), '#5a9a3a');
+      }
+      else if (has('lily pad')) {
+        for (let y = 4; y < 13; y++) { const w = Math.abs(y - 8) < 4 ? 6 : 3; R(8 - w, y, 8 + w, y, y < 8 ? '#3e9a34' : '#2f8a34'); }
+        R(5, 5, 10, 5, '#5ab850'); R(7, 7, 8, 8, '#2f7a2a');
+      }
+      else if (has('propagule')) { R(7, 4, 8, 15, '#8a4a2a'); R(7, 4, 7, 15, '#a86a3a'); C(8, 3, 2.4, '#4a7a2a'); P(8, 1, '#5a8a34'); R(5, 6, 6, 8, '#6a3a1e'); }
+      else if (has('grass') || has('fern')) { for (const x of [3, 6, 9, 12]) { const h = 4 + Math.floor(rnd() * 7); for (let y = 15; y > 15 - h; y--) P(x + ((15 - y) % 3 === 2 ? 1 : 0), y, y % 2 ? '#3e8a30' : '#52a63e'); } }
+      // ===== ▲▲ 追加ブロックここまで ▲▲
       else { handled = false; }
       if (!handled) return false;
 
@@ -65279,8 +66813,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     brewingStandGeo.clearGroups();
     brewingStandGeo.addGroup(0,6,0); brewingStandGeo.addGroup(6,6,1); brewingStandGeo.addGroup(12,6,2);
     brewingStandGeo.addGroup(18,6,3); brewingStandGeo.addGroup(24,6,4); brewingStandGeo.addGroup(30,6,5);
-    const SMALL_BOX_GEO = { 249: brewingStandGeo, 264: endRodGeo, 309: soulLanternGeo, 310: candleGeo };
-    const SMALL_BOX_Y_OFFSET = { 249: 0.375, 264: 0.5, 309: 0.25, 310: 0.2 };
+    const SMALL_BOX_GEO = { 249: brewingStandGeo, 264: endRodGeo, 309: soulLanternGeo, 310: candleGeo, 620: soulLanternGeo };
+    const SMALL_BOX_Y_OFFSET = { 249: 0.375, 264: 0.5, 309: 0.25, 310: 0.2, 620: 0.25 };
 
     // 松明：棒＋炎（棒は不透明、炎はクロス平面）
     const torchStickGeo = new THREE.BoxGeometry(0.16, 0.72, 0.16);
@@ -68198,7 +69732,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           const nx=x+dx, ny=y+dy, nz=z+dz;
           if (!inBounds(nx,ny,nz) || !_lavaReady(nx, nz)) continue;
           if (getBlock(nx,ny,nz) === WATER_ID) {
-            setBlock(nx, ny, nz, lavaSourceSet.has(key3(x,y,z)) ? OBSIDIAN_ID : 3);
+            setBlock(nx, ny, nz, lavaSourceSet.has(key3(x,y,z)) ? OBSIDIAN_ID : COBBLESTONE_ID);
             clearDynAt(nx, ny, nz);
             removeWaterSourceRecord(nx, ny, nz);
             markBlockDirty(nx, ny, nz);
@@ -68232,7 +69766,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             lavaQ.push(nx, y, nz);
             saveDirty = true; lavaDirty = true;
           } else if (nb === WATER_ID) {
-            setBlock(nx, y, nz, 3); // cobblestone
+            setBlock(nx, y, nz, COBBLESTONE_ID); // cobblestone
             clearDynAt(nx, y, nz);
             removeWaterSourceRecord(nx, y, nz);
             markBlockDirty(nx, y, nz);
@@ -70088,7 +71622,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         const nArrow = randDropCount();
         for (let i = 0; i < nArrow; i++) spawnDrop(x, y, z, ARROW_ID);
         const nBone = randDropCount();
-        for (let i = 0; i < nBone; i++) spawnDrop(x, y, z, 18); // Stick as bone substitute
+        for (let i = 0; i < nBone; i++) spawnDrop(x, y, z, BONE_ID); // 本家どおり骨
         if (Math.random() < 0.08) spawnDrop(x, y, z, BOW_ID); // 8% bow drop
         return;
       }
@@ -70107,14 +71641,14 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         return;
       }
       if (mob.type === 'witch') {
-        const items = [STICK_ID, 60, 31]; // stick, gunpowder, sugar
+        const items = [STICK_ID, 60, SUGAR_ID]; // stick, gunpowder, sugar
         for (let i = 0; i < 2; i++) spawnDrop(x, y, z, items[Math.floor(Math.random()*items.length)]);
         return;
       }
       if (mob.type === 'slime') {
         // Slime balls (use emerald color as placeholder)
         const n = 1 + Math.floor(Math.random()*2);
-        for (let i = 0; i < n; i++) spawnDrop(x, y, z, 31); // Slimeball → sugar placeholder
+        for (let i = 0; i < n; i++) spawnDrop(x, y, z, SLIME_BALL_ID); // 本家どおりスライムボール
         return;
       }
       if (mob.type === 'phantom') {
@@ -74713,7 +76247,37 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
             ['液体', [WATER_ID, LAVA_ID]],
             ['スポーンエッグ', [
               90,91,92,93,109,202,203,204,205,206,207, // 友好
-              94,95,193,195,197,198,199,201,217,218,232,235,236,241,242,243,244,245,246, // 敵対
+              94,95,193,195,197,198,199,270,217,218,232,235,236,241,242,243,244,245,246, // 敵対
+            ]],
+            ['追加・石', [
+              333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 518, 519, 520, 639, 643, 644, 645,
+            ]],
+            ['追加・金属鉱物', [
+              376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391,
+            ]],
+            ['追加・染色', [
+              392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485,
+            ]],
+            ['追加・木材', [
+              486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517,
+            ]],
+            ['追加・植物', [
+              487, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572,
+            ]],
+            ['追加・機能', [
+              573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599, 600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645,
+            ]],
+            ['追加・食料', [
+              646, 647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 661, 662, 663, 664, 665, 666, 667, 668, 669,
+            ]],
+            ['追加・素材', [
+              670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689, 690, 691, 692, 693, 694, 695, 696, 697, 698, 699, 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 732,
+            ]],
+            ['追加・ディスク', [
+              733, 734, 735, 736, 737, 738, 739, 740, 741, 742, 743, 744, 745, 746, 747, 748,
+            ]],
+            ['追加・道具防具', [
+              749, 750, 751, 752, 753, 754, 755, 756, 757, 758, 759, 760, 761, 762, 763, 764, 765, 766, 767, 768, 769, 770, 771, 772,
             ]],
             ['すべて', []],
           ];
@@ -76130,7 +77694,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
         // 弓チャージ開始
         const heldBow = hotbarSlots[selectedSlot];
-        if (heldBow === BOW_ID) {
+        if (heldBow === BOW_ID || heldBow === CROSSBOW_ID) {
           const hasArrow = GAME_MODE === 'creative' || getInvCount(ARROW_ID) > 0;
           if (hasArrow) {
             bowCharging = true;
@@ -76945,6 +78509,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (blockId === 16) return 15.0; // Planks
       if (blockId === 18) return 5.0; // Stick
       if (blockId === 58) return 5.0; // Torch
+      if (blockId === CHARCOAL_ID) return 60.0; // 木炭
+      if (blockId === COAL_BLOCK_ID) return 600.0; // 石炭ブロック
+      if (blockId === 238) return 120.0; // ブレイズロッド
+      if (blockId === DRIED_KELP_ID) return 2.5; // 乾燥昆布
       return 0;
     }
 
