@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
   <title>Minicraft</title>
   <style>
     html,
@@ -1155,16 +1155,22 @@
     }
 
 
-    /* === Mobile Touch Controls === */
+    /* === Mobile Touch Controls（本家スマホ版風） ===
+       画面のどこをドラッグしても視点が動く/タップ=設置・攻撃/長押し=採掘。 */
+    canvas { touch-action: none; }
+    html, body { overscroll-behavior: none; }
+
     #touchUI {
       position: fixed;
       inset: 0;
       z-index: 50;
       pointer-events: none;
       user-select: none;
+      -webkit-user-select: none;
       display: none;
     }
 
+    /* 移動ジョイスティック（設定でDパッドに切替可） */
     #touchUI .pad {
       position: absolute;
       width: 170px;
@@ -1190,54 +1196,88 @@
       box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
     }
 
-    #touchUI .btnCol {
+    /* Dパッド（本家クラシックPE風の十字キー） */
+    #touchUI .dpad {
       position: absolute;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: auto;
-    }
-
-    #touchUI button.tbtn {
-      width: 66px;
-      height: 66px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(0, 0, 0, 0.22);
-      color: #fff;
-      font-weight: 900;
-      font-size: 14px;
-      text-shadow: 1px 1px 0 #000;
+      width: 186px;
+      height: 186px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
       pointer-events: auto;
       touch-action: none;
     }
 
-    #touchUI button.tbtn:active {
-      transform: scale(0.97);
+    #touchUI .dpad .dbtn {
+      position: relative;
+      margin: 3px;
+      padding: 0;
+      border: 2px solid rgba(255, 255, 255, 0.62);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.30);
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+      touch-action: none;
     }
 
-    #touchUI .hint {
+    #touchUI .dpad .dbtn:active { background: rgba(255, 255, 255, 0.28); }
+
+    #touchUI .dpad .dbtn::after {
+      content: "";
       position: absolute;
-      left: 10px;
-      bottom: 10px;
-      font-size: 11px;
-      opacity: .75;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 6px 8px;
-      border-radius: 10px;
+      left: 50%;
+      top: 50%;
+      width: 0;
+      height: 0;
+      border: 12px solid transparent;
+      transform: translate(-50%, -50%);
+    }
+
+    #touchUI .dpad .d-up::after    { border-bottom-color: rgba(255, 255, 255, 0.88); margin-top: -5px; }
+    #touchUI .dpad .d-down::after  { border-top-color: rgba(255, 255, 255, 0.88); margin-top: 5px; }
+    #touchUI .dpad .d-left::after  { border-right-color: rgba(255, 255, 255, 0.88); margin-left: -5px; }
+    #touchUI .dpad .d-right::after { border-left-color: rgba(255, 255, 255, 0.88); margin-left: 5px; }
+
+    #touchUI .dpad .d-up    { grid-area: 1 / 2; }
+    #touchUI .dpad .d-left  { grid-area: 2 / 1; }
+    #touchUI .dpad .d-right { grid-area: 2 / 3; }
+    #touchUI .dpad .d-down  { grid-area: 3 / 2; }
+
+    /* 操作ボタン（本家風: 半透明黒+白枠+アイコン） */
+    #touchUI button.tbtn {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 2px solid rgba(255, 255, 255, 0.60);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.32);
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+      color: #fff;
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #touchUI button.tbtn svg {
+      width: 54%;
+      height: 54%;
+      opacity: 0.95;
       pointer-events: none;
+    }
+
+    #touchUI button.tbtn:active {
+      background: rgba(255, 255, 255, 0.22);
     }
 
     /* === タッチUIの配置（ベース: 広い画面でもタッチUIをONにできるため基準位置を定義） === */
     #touchUI .pad-move { left: 18px; bottom: 24px; }
-    #touchUI .pad-look { right: 18px; bottom: 24px; opacity: 0.20; }
-    #touchUI .knob-look { opacity: 0; }
-    #touchUI .col-jump { right: 22px; bottom: 210px; }
-    #touchUI .col-act { right: 96px; bottom: 150px; }
-    #touchUI .col-inv { left: 22px; bottom: 210px; }
-    #touchUI .col-top { right: 22px; top: 64px; }
-    #touchUI .tbtn-sm { width: 54px; height: 54px; }
+    #touchUI .dpad     { left: 18px; bottom: 24px; }
+    #touchUI .tb-jump  { width: 76px; height: 76px; right: 20px; bottom: 26px; }
+    #touchUI .tb-sneak { width: 60px; height: 60px; right: 108px; bottom: 26px; }
+    /* INVはJSでホットバー右端に添える（updateTouchInvPos）。JS前のフォールバック位置 */
+    #touchUI .tb-inv   { width: 52px; height: 52px; right: 18px; bottom: 230px; }
+    #touchUI .tb-sm    { width: 46px; height: 46px; }
+    #touchUI .tb-menu  { top: 12px; right: 12px; }
+    #touchUI .tb-chat  { top: 12px; left: 12px; }
 
     /* === タッチデバイス / 狭い画面: 本家PE風レイアウト ===
        パッドはホットバーよ上、ボタンはパッドより上に置いて重なりをなくす。
@@ -1246,22 +1286,13 @@
     @media (hover: none) and (pointer: coarse),
            (hover: none) and (pointer: none),
            (max-width: 700px) {
-      #touchUI .pad { bottom: 132px !important; }
+      #touchUI .pad,
+      #touchUI .dpad { bottom: 128px !important; }
       #touchUI .pad-move { left: 16px !important; }
-      #touchUI .pad-look { right: 16px !important; opacity: 0.24; }
-      #touchUI .col-jump { right: 16px; bottom: 320px; }
-      #touchUI .col-act { right: 94px; bottom: 320px; }
-      #touchUI .col-inv { left: 16px; bottom: 320px; }
-      #touchUI .col-top { right: 14px; top: 56px; }
-      #touchUI .tbtn { width: 62px; height: 62px; }
-      #touchUI .tbtn-sm { width: 50px; height: 50px; }
-      #touchUI .hint {
-        top: 8px; left: 50%; bottom: auto;
-        transform: translateX(-50%);
-        max-width: calc(100vw - 130px);
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        font-size: 10px;
-      }
+      #touchUI .dpad { left: 12px !important; }
+      #touchUI .tb-jump { right: 16px; bottom: 128px; }
+      #touchUI .tb-sneak { right: 104px; bottom: 128px; }
+      #touchUI .tb-inv { right: 16px; bottom: 226px; }
       /* 手(持ちアイテム)がボタンと被るので縮小 */
       .player-hand { transform: scale(0.75); transform-origin: bottom right; right: 20px; }
       /* デスクトップ向けの説明はスマホでは意味がないので隠す */
@@ -1271,13 +1302,11 @@
     /* 横画面のスマホ（高さが狭い）: ボタンを下に寄せて画面内に収める */
     @media (hover: none) and (pointer: coarse) and (max-height: 500px),
            (max-width: 700px) and (max-height: 500px) {
-      #touchUI .pad { width: 140px; height: 140px; bottom: 64px !important; }
-      #touchUI .col-jump { right: 14px; bottom: 216px; }
-      #touchUI .col-act { right: 84px; bottom: 216px; }
-      #touchUI .col-inv { left: 14px; bottom: 216px; }
-      #touchUI .tbtn { width: 52px; height: 52px; }
-      #touchUI .tbtn-sm { width: 44px; height: 44px; }
-      #touchUI .hint { max-width: calc(100vw - 240px); }
+      #touchUI .pad,
+      #touchUI .dpad { width: 150px; height: 150px; bottom: 66px !important; }
+      #touchUI .tb-jump { right: 14px; bottom: 70px; width: 64px; height: 64px; }
+      #touchUI .tb-sneak { right: 88px; bottom: 70px; width: 54px; height: 54px; }
+      #touchUI .tb-inv { right: 14px; bottom: 148px; }
       .player-hand { transform: scale(0.62); transform-origin: bottom right; right: 12px; }
       #statusBars { bottom: 74px; }
       #xpBar { bottom: 60px; }
@@ -1294,16 +1323,6 @@
         max-width: calc(100vw - 16px);
         max-height: calc(100vh - 130px);
         overflow-y: auto;
-      }
-      /* インベントリ開時はINV(閉じる)ボタンを画面左上の余白へ移す（内容と被らないように） */
-      #touchUI.ui-inv .col-inv {
-        bottom: auto;
-        left: 12px;
-        top: 10px;
-      }
-      #touchUI.ui-inv #btnInvTouch {
-        width: 50px;
-        height: 50px;
       }
       #invLeft, #invRight { width: 100%; }
       #invTopRow { flex-direction: column; flex-wrap: nowrap; width: 100%; }
@@ -1349,15 +1368,24 @@
       .count { font-size: 11px; }
     }
 
-    /* インベントリ開時: パッド・操作ボタン・チャットボタンは隠す（INV/MENUは閉じるために残す） */
+    /* インベントリ開時: パッド・操作ボタン・チャットボタンは隠す（INV/MENUは閉じるために残す）
+       ※ applyTouchModeがpadのdisplayをinlineで設定するため !important が必要 */
     #touchUI.ui-inv .pad,
-    #touchUI.ui-inv .hint,
+    #touchUI.ui-inv .dpad,
     #touchUI.ui-inv #btnJumpTouch,
     #touchUI.ui-inv #btnSneakTouch,
-    #touchUI.ui-inv #btnPlaceTouch,
-    #touchUI.ui-inv #btnBreakTouch,
-    #touchUI.ui-inv #btnChatTouch {
-      display: none;
+    #touchUI.ui-inv #btnChatTouch,
+    #touchUI.ui-inv #btnMenuTouch {
+      display: none !important;
+    }
+    /* INV(閉じる)ボタンは画面左上の余白へ（内容と被らないように） */
+    #touchUI.ui-inv #btnInvTouch {
+      left: 12px !important;
+      right: auto !important;
+      bottom: auto !important;
+      top: 10px !important;
+      width: 50px;
+      height: 50px;
     }
     /* ポーズ・設定・チャット開時: タッチUI全体を隠す */
     #touchUI.ui-block { visibility: hidden; }
@@ -1729,6 +1757,14 @@
             <select id="setLanguage">
               <option value="ja">日本語</option>
               <option value="en">English</option>
+            </select>
+          </div>
+
+          <div class="setRow">
+            <label for="setTouchMode" data-i18n="settings.touchMode">スマホの操作モード</label>
+            <select id="setTouchMode">
+              <option value="dpad" data-i18n="settings.touchMode.dpad">Dパッド（十字キー）</option>
+              <option value="joystick" data-i18n="settings.touchMode.joystick">ジョイスティック</option>
             </select>
           </div>
 
@@ -57295,6 +57331,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     let settings = {
       renderRadius: RENDER_RADIUS,
       mouseSensitivity: 0.0022,
+      touchControlMode: "dpad", // スマホの操作モード: dpad(十字キー) / joystick
       renderScale: 1.0,
       fov: 75,
       sfxVolume: 0.7,
@@ -57344,6 +57381,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         "settings.performanceHint": "目安：軽量モードON＋スケール0.75〜0.60でかなり軽くなるよ",
         "settings.controlsSection": "操作",
         "settings.language": "言語",
+        "settings.touchMode": "スマホの操作モード",
+        "settings.touchMode.dpad": "Dパッド（十字キー）",
+        "settings.touchMode.joystick": "ジョイスティック",
         "settings.mouseSensitivity": "マウス感度",
         "settings.showTouchControls": "モバイル操作パネルを表示",
         "settings.showChatLog": "チャットログを表示（Tで入力欄は常時利用可）",
@@ -57410,6 +57450,9 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         "settings.performanceHint": "Tip: Performance mode ON + scale 0.75 to 0.60 makes the game much lighter.",
         "settings.controlsSection": "Controls",
         "settings.language": "Language",
+        "settings.touchMode": "Mobile control mode",
+        "settings.touchMode.dpad": "D-pad (cross keys)",
+        "settings.touchMode.joystick": "Joystick",
         "settings.mouseSensitivity": "Mouse sensitivity",
         "settings.showTouchControls": "Show mobile controls",
         "settings.showChatLog": "Show chat log (T still opens the input box)",
@@ -57932,6 +57975,8 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
       setPerf.checked = !!settings.performanceMode;
       if (setLanguage) setLanguage.value = getLanguage();
+      const _stm = document.getElementById("setTouchMode");
+      if (_stm) _stm.value = settings.touchControlMode || 'dpad';
       const _tcl = document.getElementById("toggleChatLog");
       if (_tcl) _tcl.checked = (settings.chatLogVisible !== false);
 
@@ -57995,6 +58040,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       settings = {
         renderRadius: 48,
         mouseSensitivity: 0.0022,
+        touchControlMode: "dpad",
         renderScale: 1.0,
         fov: 75,
         sfxVolume: 0.7,
@@ -58027,6 +58073,18 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       setSensVal.textContent = settings.mouseSensitivity.toFixed(4);
     });
     setSens.addEventListener("change", () => saveSettings());
+
+    // スマホの操作モード（Dパッド/ジョイスティック）: 即時反映して保存
+    {
+      const setTouchMode = document.getElementById("setTouchMode");
+      if (setTouchMode) {
+        setTouchMode.addEventListener("change", () => {
+          settings.touchControlMode = setTouchMode.value;
+          saveSettings();
+          try { if (typeof window.__applyTouchMode === 'function') window.__applyTouchMode(); } catch (_) { }
+        });
+      }
+    }
 
     setScale.addEventListener("input", () => {
       settings.renderScale = Number(setScale.value);
@@ -77475,6 +77533,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       $("hud").style.display = "none";
       $("center").style.display = "grid";
       $("hotbarWrap").style.display = "flex";
+      try { updateTouchInvPos(); } catch (e) { }
       if (GAME_MODE !== 'creative') {
         updateStatusUI();
       }
@@ -78189,20 +78248,23 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
     const touchUI = document.getElementById("touchUI");
     const padMove = document.getElementById("padMove");
     const knobMove = document.getElementById("knobMove");
-    const padLook = document.getElementById("padLook");
+    const padDPad = document.getElementById("padDPad");
+    const btnDUp = document.getElementById("btnDUp");
+    const btnDDown = document.getElementById("btnDDown");
+    const btnDLeft = document.getElementById("btnDLeft");
+    const btnDRight = document.getElementById("btnDRight");
 
     const btnJumpTouch = document.getElementById("btnJumpTouch");
     const btnSneakTouch = document.getElementById("btnSneakTouch");
-    const btnPlaceTouch = document.getElementById("btnPlaceTouch");
-    const btnBreakTouch = document.getElementById("btnBreakTouch");
     const btnInvTouch = document.getElementById("btnInvTouch");
 
     // virtual axes
     let vMoveX = 0, vMoveY = 0; // X:right  Y:forward(negative is forward)
     let vLookDX = 0, vLookDY = 0;
-    let _moveTid = null, _lookTid = null;
+    let _moveTid = null;
     let _moveCenter = { x: 0, y: 0 };
-    let _lookLast = { x: 0, y: 0 };
+    let _dpadSprint = false;
+    let _lastDUpTap = 0;
 
     function setKey(code, down) {
       if (down) keys.add(code); else keys.delete(code);
@@ -78221,16 +78283,52 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       setKey("KeyD", rt);
     }
 
-    // スマホ: 移動パッドを手前に最大まで倒したらダッシュ扱い（本家PEと同じ操作感）
+    // スマホ: ジョイスティック手前最大 or Dパッドの前ボタン二連打でダッシュ（本家PEと同じ操作感）
     function isTouchSprint() {
-      return TOUCH_MODE && (vMoveY < -0.92);
+      return TOUCH_MODE && (_dpadSprint || vMoveY < -0.92);
     }
 
     // Show/Hide UI when game running
     function setTouchUIVisible(vis) {
       if (!touchUI) return;
       touchUI.style.display = (vis ? "block" : "none");
+      if (vis) { try { applyTouchMode(); updateTouchInvPos(); } catch (e) { } }
     }
+
+    // ===== 操作モード: Dパッド（本家クラシックPE） / ジョイスティック（設定で切替） =====
+    function applyTouchMode() {
+      if (!touchUI) return;
+      const mode = (settings && settings.touchControlMode) ? settings.touchControlMode : 'dpad';
+      if (padDPad) padDPad.style.display = (mode === 'dpad') ? 'grid' : 'none';
+      if (padMove) padMove.style.display = (mode === 'joystick') ? 'block' : 'none';
+      if (mode !== 'joystick') {
+        // Dパッドへ切り替えたらジョイスティックの移動状態をリセット
+        vMoveX = 0; vMoveY = 0;
+        _moveTid = null;
+        if (knobMove) knobMove.style.transform = "translate(-50%,-50%)";
+        updateVirtualKeys();
+      }
+    }
+    window.__applyTouchMode = applyTouchMode;
+
+    // ===== INVボタンはホットバーの右端に添える（本家スマホ版と同じ位置） =====
+    function updateTouchInvPos() {
+      if (!btnInvTouch || !TOUCH_MODE) return;
+      btnInvTouch.style.right = "auto";
+      btnInvTouch.style.top = "auto";
+      btnInvTouch.style.left = "";
+      btnInvTouch.style.bottom = "";
+      const hb = document.getElementById("hotbarWrap");
+      if (hb) {
+        const r = hb.getBoundingClientRect();
+        if (r.width > 0) {
+          const x = Math.min(r.right + 10, window.innerWidth - 62);
+          btnInvTouch.style.left = Math.round(x) + "px";
+          btnInvTouch.style.bottom = Math.round(Math.max(10, window.innerHeight - r.bottom)) + "px";
+        }
+      }
+    }
+    window.addEventListener("resize", () => { try { updateTouchInvPos(); } catch (_) { } });
 
     // Helpers for pads
     function _padStartMove(t) {
@@ -78259,21 +78357,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       updateVirtualKeys();
     }
 
-    function _padStartLook(t) {
-      _lookTid = t.identifier;
-      _lookLast = { x: t.clientX, y: t.clientY };
-    }
-    function _padMoveLook(t) {
-      const dx = t.clientX - _lookLast.x;
-      const dy = t.clientY - _lookLast.y;
-      _lookLast = { x: t.clientX, y: t.clientY };
-      vLookDX += dx;
-      vLookDY += dy;
-    }
-    function _padEndLook() {
-      _lookTid = null;
-    }
-
     // Bind pad events
     if (padMove) {
       padMove.addEventListener("touchstart", (e) => {
@@ -78298,29 +78381,6 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         }
       });
       padMove.addEventListener("touchcancel", () => _padEndMove());
-    }
-
-    if (padLook) {
-      padLook.addEventListener("touchstart", (e) => {
-        if (!TOUCH_MODE) return;
-        // allow look even if touch started on pad while moving; take first touch not used by move
-        for (const t of e.changedTouches) {
-          if (t.identifier !== _moveTid) { _padStartLook(t); break; }
-        }
-        e.preventDefault();
-      }, { passive: false });
-      padLook.addEventListener("touchmove", (e) => {
-        if (!TOUCH_MODE) return;
-        for (const t of e.changedTouches) {
-          if (t.identifier === _lookTid) { _padMoveLook(t); e.preventDefault(); break; }
-        }
-      }, { passive: false });
-      padLook.addEventListener("touchend", (e) => {
-        for (const t of e.changedTouches) {
-          if (t.identifier === _lookTid) { _padEndLook(); break; }
-        }
-      });
-      padLook.addEventListener("touchcancel", () => _padEndLook());
     }
 
     // Buttons
@@ -78352,26 +78412,28 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       btnSneakTouch.addEventListener("touchcancel", () => keys.delete(primaryCode("sneak")));
     }
 
-    // Mining / placing
-    let _touchBreakHeld = false;
-    if (btnBreakTouch) {
-      btnBreakTouch.addEventListener("touchstart", (e) => {
+    // ===== Dパッド（十字キー）: 本家クラシックPEと同じ操作。前ボタン二連打でダッシュ =====
+    function bindDBtn(btn, code, isForward) {
+      if (!btn) return;
+      btn.addEventListener("touchstart", (e) => {
         if (!TOUCH_MODE) return;
-        _touchBreakHeld = true;
-        // will be handled by doPrimaryAction() / mouseLeftDown in tick
-        try { if (typeof startTouchBreak === "function") startTouchBreak(); } catch (_) { }
+        setKey(code, true);
         e.preventDefault();
+        if (isForward) {
+          const now = performance.now();
+          if (now - _lastDUpTap < 300) _dpadSprint = true;
+          _lastDUpTap = now;
+        }
       }, { passive: false });
-      btnBreakTouch.addEventListener("touchend", () => { _touchBreakHeld = false; try { if (typeof endTouchBreak === "function") endTouchBreak(); } catch (_) { } });
-      btnBreakTouch.addEventListener("touchcancel", () => { _touchBreakHeld = false; try { if (typeof endTouchBreak === "function") endTouchBreak(); } catch (_) { } });
+      const up = () => { setKey(code, false); if (isForward) _dpadSprint = false; };
+      btn.addEventListener("touchend", up);
+      btn.addEventListener("touchcancel", up);
     }
-    if (btnPlaceTouch) {
-      btnPlaceTouch.addEventListener("touchstart", (e) => {
-        if (!TOUCH_MODE) return;
-        try { if (typeof doSecondaryAction === "function") doSecondaryAction(); } catch (_) { }
-        e.preventDefault();
-      }, { passive: false });
-    }
+    bindDBtn(btnDUp, "KeyW", true);
+    bindDBtn(btnDDown, "KeyS", false);
+    bindDBtn(btnDLeft, "KeyA", false);
+    bindDBtn(btnDRight, "KeyD", false);
+
     if (btnInvTouch) {
       btnInvTouch.addEventListener("touchstart", (e) => {
         if (!TOUCH_MODE) return;
@@ -78379,7 +78441,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         e.preventDefault();
       }, { passive: false });
     }
-    // ☰: ポーズメニュー（スマホからでもセーブ・設定・タイトルへ戻れるように）
+    // ⏸: ポーズメニュー（スマホからでもセーブ・設定・タイトルへ戻れるように）
     const btnMenuTouch = document.getElementById("btnMenuTouch");
     if (btnMenuTouch) {
       btnMenuTouch.addEventListener("touchstart", (e) => {
@@ -78388,7 +78450,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
         e.preventDefault();
       }, { passive: false });
     }
-    // 💬: チャットを開く（スマホにはTキーがないため。/コマンド補完もそのまま使える）
+    // 💬でなくSVGのチャットアイコン: チャットを開く（スマホにはTキーがないため。/コマンド補完もそのまま使える）
     const btnChatTouch = document.getElementById("btnChatTouch");
     if (btnChatTouch) {
       btnChatTouch.addEventListener("touchstart", (e) => {
@@ -78398,19 +78460,179 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       }, { passive: false });
     }
 
+    /* ============================
+       画面タッチ操作（本家スマホ版と同じ操作感）
+       ・画面のどこをドラッグしても視点が回る
+       ・タップ = 設置/インタラクト（モブの上なら攻撃/取引）
+       ・長押し(0.3秒) = その場所を狙って採掘（指を動かすと狙いも追従）
+       ============================ */
+    var _aimNDC = null; // {x,y} タッチ中の狙い(NDC)。null = 画面中央。varで宣言（TDZ回避のため voxelRaycast からも参照）
+    const _touchLook = new Map(); // identifier -> {x,y}
+    let _tapId = null;
+    let _tapState = null; // {x,y,t,moved,holdFired,holdTimer}
+
+    function _isWorldTouchAllowed() {
+      if (!TOUCH_MODE || !gameStarted) return false;
+      if (typeof isInventoryOpen !== 'undefined' && isInventoryOpen) return false;
+      if (typeof isPauseOpen === 'function' && isPauseOpen()) return false;
+      if (settingsUI && settingsUI.style.display === 'flex') return false;
+      if (window._chatIsOpen && window._chatIsOpen()) return false;
+      return true;
+    }
+    function _touchOnUI(t) {
+      const el = t.target;
+      if (!el || !el.closest) return false;
+      return !!el.closest('#touchUI, #hotbarWrap, #inventory, #chatWrap, #settings, #pauseMenu, #deathScreen, #tradePanel, #brewPanel, #overlay, #itemNameTooltip');
+    }
+    function _clientToNDC(x, y) {
+      return { x: (x / window.innerWidth) * 2 - 1, y: -(y / window.innerHeight) * 2 + 1 };
+    }
+    function _endTouchHold() {
+      try { if (typeof endTouchBreak === 'function') endTouchBreak(); } catch (_) { }
+      _aimNDC = null;
+    }
+    function _cancelTouchTap(endHold) {
+      if (_tapState) {
+        if (_tapState.holdTimer) { clearTimeout(_tapState.holdTimer); _tapState.holdTimer = 0; }
+        if (_tapState.holdFired && endHold) _endTouchHold();
+      }
+      _tapId = null;
+      _tapState = null;
+    }
+
+    document.addEventListener("touchstart", (e) => {
+      if (!_isWorldTouchAllowed()) return;
+      let handled = false;
+      for (const t of e.changedTouches) {
+        if (_touchOnUI(t)) continue;
+        handled = true;
+        _touchLook.set(t.identifier, { x: t.clientX, y: t.clientY });
+        if (_tapId === null) {
+          _tapId = t.identifier;
+          _tapState = { x: t.clientX, y: t.clientY, t: performance.now(), moved: false, holdFired: false, holdTimer: 0 };
+          _tapState.holdTimer = setTimeout(() => {
+            if (!_tapState || _tapState.moved || _tapId === null) return;
+            // 長押し → 指位置を狙って採掘開始（本家PEの「押し込む」操作）
+            _tapState.holdFired = true;
+            _aimNDC = _clientToNDC(_tapState.x, _tapState.y);
+            try { if (typeof startTouchBreak === 'function') startTouchBreak(); } catch (_) { }
+          }, 300);
+        }
+      }
+      if (handled) e.preventDefault(); // スクロール/ダブルタップズーム/合成マウスイベントを防ぐ
+    }, { passive: false });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!TOUCH_MODE) return;
+      if (!_isWorldTouchAllowed()) { _cancelTouchTap(true); _touchLook.clear(); return; }
+      let handled = false;
+      for (const t of e.changedTouches) {
+        const rec = _touchLook.get(t.identifier);
+        if (!rec) continue;
+        handled = true;
+        const dx = t.clientX - rec.x;
+        const dy = t.clientY - rec.y;
+        rec.x = t.clientX; rec.y = t.clientY;
+        if (_tapState && t.identifier === _tapId) {
+          if (_tapState.holdFired) {
+            // 採掘中は指の下のブロックを狙い続ける（視点は動かさない。本家PEと同じ）
+            _aimNDC = _clientToNDC(t.clientX, t.clientY);
+            continue;
+          }
+          if (Math.abs(t.clientX - _tapState.x) + Math.abs(t.clientY - _tapState.y) > 12) {
+            _tapState.moved = true;
+            if (_tapState.holdTimer) { clearTimeout(_tapState.holdTimer); _tapState.holdTimer = 0; }
+          }
+        }
+        // ドラッグ → 視点回転（画面のどこでも。本家PEと同じ）
+        vLookDX += dx;
+        vLookDY += dy;
+      }
+      if (handled) e.preventDefault();
+    }, { passive: false });
+
+    function _onWorldTouchEnd(e) {
+      if (!TOUCH_MODE) return;
+      let handled = false;
+      for (const t of e.changedTouches) {
+        if (_touchLook.has(t.identifier)) { _touchLook.delete(t.identifier); handled = true; }
+        if (_tapState && t.identifier === _tapId) {
+          const dur = performance.now() - _tapState.t;
+          if (!_tapState.holdFired && !_tapState.moved && dur < 300) {
+            // タップ → 設置/インタラクト（モブの上なら攻撃/取引。本家PEと同じ）
+            _aimNDC = _clientToNDC(t.clientX, t.clientY);
+            try { _tapInteract(); } catch (err) { console.error("tap interact:", err); _aimNDC = null; }
+          }
+          _cancelTouchTap(true);
+        }
+      }
+      if (handled) e.preventDefault();
+    }
+    document.addEventListener("touchend", _onWorldTouchEnd, { passive: false });
+    document.addEventListener("touchcancel", _onWorldTouchEnd, { passive: false });
+
+    // タップ先の判定とアクション（本家PE: モブ=攻撃/取引、ブロック=設置・インタラクト）
+    function _tapInteract() {
+      const nd = _aimNDC || { x: 0, y: 0 };
+      const rc = new THREE.Raycaster();
+      rc.setFromCamera(new THREE.Vector2(nd.x, nd.y), camera);
+      rc.far = 5.0;
+      const targets = mobGroup.children.slice();
+      for (const em of enemyMobs) { if (em && em.mesh) targets.push(em.mesh); }
+      const hits = rc.intersectObjects(targets, true);
+      let mob = null;
+      if (hits.length > 0) {
+        let obj = hits[0].object;
+        while (obj) {
+          mob = mobs.find(m => m.mesh === obj) || enemyMobs.find(m => m.mesh === obj);
+          if (mob) break;
+          obj = obj.parent;
+        }
+      }
+      if (mob && mob.type === 'villager' && mob.profession) {
+        doSecondaryAction(); // 村人 → 取引UI
+      } else if (mob) {
+        doPrimaryAction();   // モブ → 攻撃
+      } else {
+        doSecondaryAction(); // ブロック → 設置/ドア/ポーション等
+      }
+      // 弓を持ってタップした場合はチャージを即解除して発射（長押しは採掘に割り当て済み）
+      try {
+        if (bowCharging) {
+          const hasArrow = GAME_MODE === 'creative' || getInvCount(ARROW_ID) > 0;
+          if (hasArrow) {
+            shootArrow(0.45);
+            if (GAME_MODE !== 'creative') useInv(ARROW_ID);
+          }
+          bowCharging = false;
+          bowChargeTime = 0;
+          const bcb = document.getElementById("bowChargeBar");
+          if (bcb) bcb.style.display = "none";
+        }
+      } catch (_) { }
+      _aimNDC = null;
+    }
+
     // Apply look deltas each frame (called from animate)
     function applyTouchLook() {
-      if (!TOUCH_MODE) { vLookDX = 0; vLookDY = 0; return; }
+      if (!TOUCH_MODE || !_isWorldTouchAllowed()) { vLookDX = 0; vLookDY = 0; return; }
       if (!player) return;
       if (vLookDX === 0 && vLookDY === 0) return;
       const sens = (settings && settings.mouseSensitivity) ? settings.mouseSensitivity : 0.0022;
-      // touch is less precise; scale up a bit
-      const k = 1.6;
+      const k = 3.0; // タッチはマウスの約3倍（本家スマホ版と同等の回転速度）
       player.yaw -= vLookDX * sens * k;
       player.pitch -= vLookDY * sens * k;
       player.pitch = Math.max(-Math.PI / 2 + 0.01, Math.min(Math.PI / 2 - 0.01, player.pitch));
       vLookDX = 0; vLookDY = 0;
     }
+    // テスト用デバッグフック（ヘッドレス検証用。実機挙動には影響しない）
+    window.__touchDebug = () => ({ look: _touchLook.size, tap: !!_tapState, tapId: _tapId, vdx: vLookDX, vdy: vLookDY, tm: TOUCH_MODE, gs: gameStarted, aim: _aimNDC });
+    window.__aimProbe = {
+      set: (x, y) => { _aimNDC = { x: x, y: y }; },
+      clear: () => { _aimNDC = null; },
+      ray: (md) => { const h = voxelRaycast(md || 6.0, true); return h ? { bx: h.bx, by: h.by, bz: h.bz, px: h.px, py: h.py, pz: h.pz } : null; },
+      block: (x, y, z) => getBlock(x, y, z),
+    };
 
 
     /* ============================
@@ -78726,7 +78948,18 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       // Origin is player eyes in world space
       const origin = player.pos.clone().add(new THREE.Vector3(0, EYE, 0));
       const dir = new THREE.Vector3();
-      camera.getWorldDirection(dir);
+      if (_aimNDC) {
+        // タッチ操作中（タップ/長押し）は指位置の方向を狙う
+        try {
+          dir.set(_aimNDC.x, _aimNDC.y, 0.5).unproject(camera);
+          const camPos = new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld);
+          dir.sub(camPos).normalize();
+        } catch (e2) {
+          camera.getWorldDirection(dir);
+        }
+      } else {
+        camera.getWorldDirection(dir);
+      }
 
       let x = Math.floor(origin.x);
       let y = Math.floor(origin.y);
@@ -78966,7 +79199,7 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
         // モブ攻撃判定
         const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        raycaster.setFromCamera(new THREE.Vector2(_aimNDC ? _aimNDC.x : 0, _aimNDC ? _aimNDC.y : 0), camera);
         raycaster.far = 5.0;
         // モブ（友好/敵）への攻撃判定（近距離）
         const mobTargets = mobGroup.children.slice();
@@ -79037,10 +79270,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
       if (e.button === 2) {
         handSwing = 0.0;
 
-        // 村人との取引（右クリックで開く）
+        // 村人との取引（右クリック/タップで開く）
         {
           const rc = new THREE.Raycaster();
-          rc.setFromCamera(new THREE.Vector2(0, 0), camera);
+          rc.setFromCamera(new THREE.Vector2(_aimNDC ? _aimNDC.x : 0, _aimNDC ? _aimNDC.y : 0), camera);
           rc.far = 4.5;
           const targets = mobGroup.children.slice();
           const hits = rc.intersectObjects(targets, true);
@@ -80196,6 +80429,10 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
           (window._chatIsOpen && window._chatIsOpen()));
         touchUI.classList.toggle('ui-inv', invOpenNow);
         touchUI.classList.toggle('ui-block', blockNow);
+        if (blockNow || invOpenNow) {
+          // UIが開いたら画面タッチの採掘/タップ/視点状態をすべて解除
+          try { _cancelTouchTap(true); _touchLook.clear(); } catch (_) { }
+        }
       }
 
       // ===== タッチの視点操作（右パッドのドラッグをカメラへ反映）
@@ -82045,35 +82282,36 @@ return { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlen
 
   </script>
 
-  <!-- Mobile Touch UI（位置はCSSで制御: #touchUI .col-* 参照） -->
+  <!-- Mobile Touch UI（本家スマホ版風: 画面ドラッグ=視点 / タップ=設置・攻撃 / 長押し=採掘） -->
   <div id="touchUI">
     <div id="padMove" class="pad pad-move">
       <div id="knobMove" class="knob"></div>
     </div>
-    <div id="padLook" class="pad pad-look">
-      <div id="knobLook" class="knob knob-look"></div>
+
+    <div id="padDPad" class="dpad">
+      <button id="btnDUp" class="dbtn d-up" aria-label="前"></button>
+      <button id="btnDLeft" class="dbtn d-left" aria-label="左"></button>
+      <button id="btnDRight" class="dbtn d-right" aria-label="右"></button>
+      <button id="btnDDown" class="dbtn d-down" aria-label="後"></button>
     </div>
 
-    <div class="btnCol col-jump">
-      <button id="btnJumpTouch" class="tbtn">JUMP</button>
-      <button id="btnSneakTouch" class="tbtn">SNEAK</button>
-    </div>
+    <button id="btnJumpTouch" class="tbtn tb-jump" aria-label="ジャンプ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5"/><path d="M5 12l7-7 7 7"/></svg>
+    </button>
+    <button id="btnSneakTouch" class="tbtn tb-sneak" aria-label="スニーク">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15"/><path d="M19 12l-7 7-7-7"/></svg>
+    </button>
 
-    <div class="btnCol col-act">
-      <button id="btnPlaceTouch" class="tbtn">PLACE</button>
-      <button id="btnBreakTouch" class="tbtn">BREAK</button>
-    </div>
+    <button id="btnInvTouch" class="tbtn tb-inv" aria-label="持ち物">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.92)"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+    </button>
 
-    <div class="btnCol col-inv">
-      <button id="btnInvTouch" class="tbtn">INV</button>
-    </div>
-
-    <div class="btnCol col-top">
-      <button id="btnMenuTouch" class="tbtn tbtn-sm">☰</button>
-      <button id="btnChatTouch" class="tbtn tbtn-sm">💬</button>
-    </div>
-
-    <div class="hint">左=移動 / 右=視点 / BREAK長押し=採掘 / ☰=メニュー / 💬=チャット / INV=持ち物</div>
+    <button id="btnMenuTouch" class="tbtn tbtn-sm tb-menu" aria-label="メニュー">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.92)"><rect x="6" y="4" width="4.5" height="16" rx="1"/><rect x="13.5" y="4" width="4.5" height="16" rx="1"/></svg>
+    </button>
+    <button id="btnChatTouch" class="tbtn tbtn-sm tb-chat" aria-label="チャット">
+      <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.92)"><path d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-9l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg>
+    </button>
   </div>
 
 
